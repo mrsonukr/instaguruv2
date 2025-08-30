@@ -76,7 +76,7 @@
       {
         "id": 1005,
         "title": "1000 Likes",
-        "price": 3,
+        "price": 25,
         "description": "Indian Real Non-drop Likes",
         "filter": "Likes"
       },
@@ -132,14 +132,14 @@
       {
         "id": 1013,
         "title": "1000 Story Views",
-        "price": 11,
+        "price": 25,
         "description": "Boost views on your Instagram stories.",
         "filter": "Views"
       },
       {
         "id": 1014,
         "title": "2000 Story Views",
-        "price": 20,
+        "price": 35,
         "description": "Boost views on your Instagram stories.",
         "filter": "Views"
       },
@@ -283,28 +283,28 @@
       },
       {
         "id": 1025,
-        "title": "100 Likes",
-        "price": 15,
-        "description": "Indian Real Non-drop Likes",
-        "filter": "Likes"
-      },
-      {
-        "id": 1026,
-        "title": "200 Likes",
+        "title": "1000 Likes",
         "price": 25,
         "description": "Indian Real Non-drop Likes",
         "filter": "Likes"
       },
       {
+        "id": 1026,
+        "title": "2000 Likes",
+        "price": 35,
+        "description": "Indian Real Non-drop Likes",
+        "filter": "Likes"
+      },
+      {
         "id": 1027,
-        "title": "500 Likes",
+        "title": "5000 Likes",
         "price": 49,
         "description": "Indian Real Non-drop Likes",
         "filter": "Likes"
       },
       {
         "id": 1028,
-        "title": "1000 Likes",
+        "title": "10000 Likes",
         "price": 89,
         "description": "Indian Real Non-drop Likes",
         "filter": "Likes"
@@ -397,7 +397,7 @@
       {
         "id": 1037,
         "title": "1000 Likes",
-        "price": 19,
+        "price": 25,
         "description": "Indian Real Non-drop Likes",
         "filter": "Likes"
       },
@@ -453,7 +453,7 @@
       {
         "id": 1045,
         "title": "1000 Views",
-        "price": 15,
+        "price": 25,
         "description": "Boost views on your Facebook videos or posts.",
         "filter": "Views"
       },
@@ -602,7 +602,7 @@
       {
         "id": 4020,
         "title": "Spotify 1 Month Premium",
-        "price": 21,
+        "price": 25,
         "description": "Access Spotify Premium for 1 month.",
         "filter": "Subscription"
       },
@@ -658,7 +658,7 @@
       {
         "id": 1056,
         "title": "Telegram Post Views",
-        "price": 29,
+        "price": 25,
         "description": "Boost views on your Telegram posts to increase engagement and visibility.",
         "filter": "Views"
       }

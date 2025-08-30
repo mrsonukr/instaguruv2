@@ -31,9 +31,16 @@
     },
     "packs": [
       {
+        "id": 5688,
+        "title": "Permanent BlueTick",
+        "price": 199,
+        "description": "Instagram Creator Verification",
+        "filter": "Bluetick"
+      },
+      {
         "id": 1001,
         "title": "1000 Followers",
-        "price": 59,
+        "price": 49,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"
       },

@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 import { PhotoIcon } from "@heroicons/react/24/outline";
-import { LazyLoadImage } from "react-lazy-load-image-component";
 import COLOR_VARIANTS from "../../utils/colorVariants";
-import Skeleton from "./Skeleton";
 import { useLanguage } from "../../context/LanguageContext";
 import { getTranslation } from "../../data/translations";
 
@@ -12,7 +10,6 @@ const ItemCard = ({ logo, name, description, slug, color = "red" }) => {
   const { language } = useLanguage();
   const variant = COLOR_VARIANTS[color] || COLOR_VARIANTS.red;
   const [imgError, setImgError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
     <Link
@@ -20,19 +17,15 @@ const ItemCard = ({ logo, name, description, slug, color = "red" }) => {
       className={`flex items-center ${variant.cardBg} m-4 h-20 rounded-lg p-4 transition hover:brightness-95 no-underline`}
     >
       <div className="relative flex-shrink-0 w-12 h-12">
-        {!imageLoaded && !imgError && (
-          <Skeleton className="absolute inset-0 rounded-full" />
-        )}
         {imgError || !logo ? (
           <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center">
             <PhotoIcon className="w-8 h-8 text-gray-500" />
           </div>
         ) : (
-          <LazyLoadImage
+          <img
             src={logo}
             alt={`${name} Logo`}
             onError={() => setImgError(true)}
-            afterLoad={() => setImageLoaded(true)}
             className="w-12 h-12 rounded-full object-cover"
           />
         )}

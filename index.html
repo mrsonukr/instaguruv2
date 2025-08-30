@@ -36,22 +36,6 @@
   <!-- WhatsApp specific (uses Open Graph) -->
   <meta property="og:locale" content="en_US" />
 
-  <!-- DNS Prefetch and Preconnect for External Resources -->
-  <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-  <link rel="dns-prefetch" href="//www.googletagmanager.com" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://www.googletagmanager.com" />
-
-  <!-- Preload Critical Assets with High Priority -->
-  <link rel="preload" href="/ic/logo.svg" as="image" type="image/svg+xml" />
-  <link rel="preload" href="/banner/banner0.webp" as="image" type="image/webp" fetchpriority="high" />
-  <link rel="preload" href="/banner/banner1.webp" as="image" type="image/webp" />
-  <link rel="preload" href="/banner/banner2.webp" as="image" type="image/webp" />
-  <link rel="preload" href="/banner/banner3.webp" as="image" type="image/webp" />
-
-  <!-- Preload Critical CSS -->
-  <link rel="preload" href="/src/index.css" as="style" />
   <!-- Google Tag Manager -->
   <script>(function (w, d, s, l, i) {
       w[l] = w[l] || []; w[l].push({
@@ -62,9 +46,9 @@
           'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
     })(window, document, 'script', 'dataLayer', 'GTM-KLJW5QB8');</script>
   <!-- End Google Tag Manager -->
-  <!-- Critical CSS Inline for Above-the-fold Content -->
+
+  <!-- Critical CSS for initial render -->
   <style>
-    /* Critical CSS for initial render */
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
@@ -101,27 +85,13 @@
     }
   </style>
 
-  <!-- Google tag (gtag.js) - Load asynchronously -->
+  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7CC3P7X8Z"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-C7CC3P7X8Z');
-  </script>
-
-  <!-- Performance Monitoring -->
-  <script>
-    // Performance monitoring
-    window.addEventListener('load', function () {
-      if ('performance' in window) {
-        const perfData = performance.getEntriesByType('navigation')[0];
-        if (perfData) {
-          console.log('Page Load Time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
-          console.log('DOM Content Loaded:', perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart, 'ms');
-        }
-      }
-    });
   </script>
 </head>
 
@@ -131,7 +101,7 @@
       style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
   <div id="root">
-    <!-- Loading fallback for better perceived performance -->
+    <!-- Loading fallback -->
     <div class="loading">
       <div class="loading-spinner"></div>
     </div>

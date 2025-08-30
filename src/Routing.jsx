@@ -5,7 +5,7 @@ import Home from "./pages/Home";
 import Payme from "./pages/Payme";
 import Getdata from "./pages/Getdata";
 
-// Lazy load non-critical routes with better chunking
+// Lazy load components
 const About = lazy(() => import("./pages/About"));
 const Purchase = lazy(() => import("./pages/Purchase"));
 const Contact = lazy(() => import("./pages/Contact"));
@@ -18,27 +18,12 @@ const ProcessLink = lazy(() => import("./pages/ProcessLink"));
 const Refund = lazy(() => import("./pages/Refund"));
 const HowToPurchase = lazy(() => import("./pages/HowToPurchase"));
 
-// Loading component for Suspense - Removed loading animation
-const LoadingFallback = () => null;
-
-// Preload critical routes on user interaction
-const preloadCriticalRoutes = () => {
-  // Preload Products page as it's commonly accessed
-  const productsPromise = import("./pages/Products");
-  const purchasePromise = import("./pages/Purchase");
-  
-  // Store promises for faster access
-  window.__preloadedRoutes = {
-    products: productsPromise,
-    purchase: purchasePromise
-  };
-};
-
-// Add preloading on user interaction
-if (typeof window !== 'undefined') {
-  window.addEventListener('mousemove', preloadCriticalRoutes, { once: true });
-  window.addEventListener('touchstart', preloadCriticalRoutes, { once: true });
-}
+// Simple loading fallback
+const LoadingFallback = () => (
+  <div className="flex justify-center items-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+  </div>
+);
 
 const Routing = () => {
   return (

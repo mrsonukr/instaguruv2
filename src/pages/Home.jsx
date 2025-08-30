@@ -2,31 +2,24 @@ import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import AutoSlider from "../components/AutoSlider";
 import ItemCard from "../components/ui/ItemCard";
-import channels from "../data/categories.json"; // Import the JSON data
-import Footer from "../components/ui/Footer"; // Import the Footer component
+import channels from "../data/categories.json";
+import Footer from "../components/ui/Footer";
 import { updatePageSEO, addStructuredData } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
 import { translateCategories } from "../utils/translationUtils";
 import { getTranslation } from "../data/translations";
-// import LivePurchases from "../components/ui/LivePurchases";
 
 const Home = () => {
   const { language } = useLanguage();
   const [processedChannels, setProcessedChannels] = useState(channels);
 
   useEffect(() => {
-    // Update SEO for home page
     updatePageSEO("home");
-
-    // Add structured data
     addStructuredData("organization");
     addStructuredData("website");
-    
-    // Set processed channels directly since no wallet processing needed
     setProcessedChannels(channels);
   }, []);
 
-  // Translate categories when language changes
   useEffect(() => {
     const translatedChannels = translateCategories(channels, language);
     setProcessedChannels(translatedChannels);
@@ -70,8 +63,6 @@ const Home = () => {
           </svg>
         </div>
       </a>
-      
-      {/* <LivePurchases /> */}
       
       <div className="text-center mt-6 ">
         <p className="text-lg font-semibold mt-4 mb-2 gradient-text">

@@ -1,0 +1,44 @@
+User-agent: *
+Allow: /
+Allow: /instagram
+Allow: /youtube
+Allow: /facebook
+Allow: /netflix
+Allow: /amazon-prime
+Allow: /spotify
+Allow: /telegram
+Allow: /about
+Allow: /contact
+Allow: /refer
+
+# Disallow payment and wallet related pages
+Disallow: /wallet
+Disallow: /addfund
+Disallow: /payment/
+Disallow: /purchase/
+Disallow: /refer/*
+
+# Disallow admin and private directories
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /node_modules/
+
+# Allow search engines to access static assets
+Allow: /ic/
+Allow: /banner/
+Allow: *.css
+Allow: *.js
+Allow: *.png
+Allow: *.jpg
+Allow: *.jpeg
+Allow: *.gif
+Allow: *.svg
+Allow: *.webp
+Allow: *.ico
+
+# Sitemap location
+Sitemap: https://smmguru.shop/sitemap.xml
+
+# Crawl delay (optional - helps prevent server overload)
+Crawl-delay: 1

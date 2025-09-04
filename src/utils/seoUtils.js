@@ -124,6 +124,11 @@ const seoData = {
     title: `My Orders - ${siteConfig.siteName}`,
     description: `Track your social media marketing orders. View order status, delivery progress and manage your purchases from ${siteConfig.siteName}.`,
     keywords: `my orders, order tracking, social media orders, order history, order status`
+  },
+  transactions: {
+    title: `Transaction History - ${siteConfig.siteName}`,
+    description: `View your complete transaction history and payment records. Track all your payments, refunds and wallet transactions from ${siteConfig.siteName}.`,
+    keywords: `transaction history, payment history, wallet transactions, payment records, transaction tracking`
   }
 };
 

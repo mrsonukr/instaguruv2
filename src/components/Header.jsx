@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiMenu, FiHome, FiPhone, FiInfo, FiShare2, FiPackage } from "react-icons/fi";
+import { FiMenu, FiHome, FiPhone, FiInfo, FiShare2, FiPackage, FiCreditCard } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import siteConfig from "../config/siteConfig";
 import { clearConsole } from "../utils/consoleUtils";
@@ -102,6 +102,15 @@ const Header = () => {
             >
               <FiPackage className="w-6 h-6 text-green-500" />
               {getTranslation('myOrders', language)}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/transactions"
+              className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
+            >
+              <FiCreditCard className="w-6 h-6 text-green-500" />
+              {getTranslation('transactions', language)}
             </Link>
           </li>
           <li>

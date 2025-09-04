@@ -101,6 +101,21 @@ export const translations = {
     completing: "Completing...",
     minToComplete: "min to complete",
     
+    // Transactions
+    transactions: "Transactions",
+    viewAllTransactions: "View all your payment transactions",
+    recentTransactions: "Recent Transactions",
+    refresh: "Refresh",
+    totalTransactions: "Total Transactions",
+    totalAmount: "Total Amount",
+    averageAmount: "Average Amount",
+    paymentId: "Payment ID",
+    noTransactionsFound: "No transactions found",
+    noTransactionsMessage: "There are no transactions to display at the moment.",
+    errorLoadingTransactions: "Error Loading Transactions",
+    tryAgain: "Try Again",
+    loadingTransactions: "Loading transactions...",
+    
     // Categories
     instagram: {
       name: "Instagram",
@@ -279,6 +294,21 @@ export const translations = {
     minToProcessing: "मिनट प्रोसेसिंग में",
     completing: "पूरा हो रहा है...",
     minToComplete: "मिनट पूरा होने में",
+    
+    // Transactions
+    transactions: "लेन-देन",
+    viewAllTransactions: "अपने सभी भुगतान लेन-देन देखें",
+    recentTransactions: "हाल के लेन-देन",
+    refresh: "रिफ्रेश करें",
+    totalTransactions: "कुल लेन-देन",
+    totalAmount: "कुल राशि",
+    averageAmount: "औसत राशि",
+    paymentId: "भुगतान ID",
+    noTransactionsFound: "कोई लेन-देन नहीं मिला",
+    noTransactionsMessage: "इस समय दिखाने के लिए कोई लेन-देन नहीं है।",
+    errorLoadingTransactions: "लेन-देन लोड करने में त्रुटि",
+    tryAgain: "फिर से कोशिश करें",
+    loadingTransactions: "लेन-देन लोड हो रहे हैं...",
     
     // Categories
     instagram: {

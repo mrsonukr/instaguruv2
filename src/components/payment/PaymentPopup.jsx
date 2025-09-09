@@ -9,7 +9,7 @@ import successAnimation from "../../../public/animation/success.json";
 // Test mode constant - set to true for testing, false for production
 // When testMode = true: Payment will auto-succeed after 5 seconds without real payment
 // When testMode = false: Uses real payment API checking
-const testMode = false;
+const testMode = true;
 
 const PaymentPopup = ({
   showPopup,
@@ -445,9 +445,6 @@ const PaymentPopup = ({
                   <h4 className="text-lg font-semibold mb-2">Processing Payment</h4>
 
                   <p>Please wait while we process your payment.</p>
-                  {testMode && (
-                    <p className="text-xs text-blue-600 mt-2">🧪 Test Mode - Will auto-succeed in 5 seconds</p>
-                  )}
                 </>
               )}
             </div>

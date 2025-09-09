@@ -110,7 +110,7 @@ const PaymentPopup = ({
           setTimeout(() => {
             navigate("/orders");
           }, 2000);
-        }, 5000); // 5 seconds delay for test mode
+        }, 30000); // 5 seconds delay for test mode
 
         // Start countdown timer for test mode
         countdownId = setInterval(() => {

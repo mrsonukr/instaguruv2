@@ -106,15 +106,6 @@ const Header = () => {
           </li>
           <li>
             <Link
-              to="/transactions"
-              className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
-            >
-              <FiCreditCard className="w-6 h-6 text-green-500" />
-              {getTranslation('transactions', language)}
-            </Link>
-          </li>
-          <li>
-            <Link
               to="/refer"
               className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >

@@ -9,7 +9,7 @@ import successAnimation from "../../../public/animation/success.json";
 // Test mode constant - set to true for testing, false for production
 // When testMode = true: Payment will auto-succeed after 5 seconds without real payment
 // When testMode = false: Uses real payment API checking
-const testMode = true;
+const testMode = false;
 
 const PaymentPopup = ({
   showPopup,

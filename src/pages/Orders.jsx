@@ -53,9 +53,9 @@ const Orders = () => {
       const timeDiff = now - createdAt;
       const minutesDiff = timeDiff / (1000 * 60);
       
-      if (minutesDiff >= 10) {
+      if (minutesDiff >= 660) { // 10 hours + 1 hour = 11 hours (660 minutes)
         return { ...order, status: 'completed' };
-      } else if (minutesDiff >= 2) {
+      } else if (minutesDiff >= 600) { // 10 hours = 600 minutes
         return { ...order, status: 'processing' };
       } else {
         return { ...order, status: 'pending' };
@@ -86,9 +86,9 @@ const Orders = () => {
       
       let newStatus = order.status;
       
-      if (minutesDiff >= 10) {
+      if (minutesDiff >= 660) { // 10 hours + 1 hour = 11 hours (660 minutes)
         newStatus = 'completed';
-      } else if (minutesDiff >= 2) {
+      } else if (minutesDiff >= 600) { // 10 hours = 600 minutes
         newStatus = 'processing';
       } else {
         newStatus = 'pending';

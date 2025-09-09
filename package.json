@@ -16,6 +16,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@heroicons/react": "^2.2.0",
     "canvas-confetti": "^1.9.3",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.511.0",
     "qrcode": "^1.5.4",
     "react": "^19.1.0",

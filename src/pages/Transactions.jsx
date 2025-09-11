@@ -158,6 +158,10 @@ const Transactions = () => {
     return grouped;
   };
 
+  const getDateTotalAmount = (dateTransactions) => {
+    return dateTransactions.reduce((sum, transaction) => sum + transaction.data.amount, 0);
+  };
+
   const getPaymentMethodIcon = (method) => {
     return (
       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -370,7 +374,7 @@ const Transactions = () => {
                     {/* Date Header */}
                     <div className="px-6 py-3 bg-white border-b border-gray-200">
                       <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                        {dateCategory}
+                        {dateCategory} - <span className="bg-gray-100 rounded-lg px-2 py-1 text-gray-900">{formatAmount(getDateTotalAmount(dateTransactions))} ({dateTransactions.length})</span>
                       </h3>
                     </div>
                     

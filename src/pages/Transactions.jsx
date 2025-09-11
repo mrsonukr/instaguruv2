@@ -44,7 +44,7 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://razor-webhook.mssonukr.workers.dev/webhooks');
+      const response = await fetch('https://faizul.mssonukr.workers.dev/api/getmain?limit=1000');
       
       if (!response.ok) {
         throw new Error('Failed to fetch transactions');

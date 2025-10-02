@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { BsCheckCircleFill } from "react-icons/bs";
-import { ArrowRightIcon } from "@heroicons/react/24/solid";
+import { BsCheckCircleFill, BsPlayCircleFill } from "react-icons/bs";
 import Header from "../components/Header";
 import PurchaseForm from "../components/ui/PurchaseForm";
 import servicesData from "../data/categories.json";
@@ -15,6 +14,7 @@ const Purchase = () => {
   const { id } = useParams();
   const { language } = useLanguage();
   const [translatedServicesData, setTranslatedServicesData] = useState(servicesData);
+  const [showVideo, setShowVideo] = useState(false);
   
   const pack = translatedServicesData
     .flatMap((service) => service.packs)
@@ -50,7 +50,9 @@ const Purchase = () => {
       <div>
         <Header />
         <div className="mt-20 m-4 text-center">
-          <p className="text-lg font-semibold text-gray-800">{getTranslation('packNotFound', language)}</p>
+          <p className="text-lg font-semibold text-gray-800">
+            {getTranslation('packNotFound', language)}
+          </p>
         </div>
       </div>
     );
@@ -77,7 +79,9 @@ const Purchase = () => {
             <h3 className="text-sm font-semibold text-gray-800 truncate">
               {translatePackTitle(pack.title, language)}
             </h3>
-            <p className="text-xs text-gray-600 mt-1 truncate">{translatePackDescription(pack.description, language)}</p>
+            <p className="text-xs text-gray-600 mt-1 truncate">
+              {translatePackDescription(pack.description, language)}
+            </p>
             <p className="text-xs text-gray-500 mt-1">
               {service.name} • {getTranslation(`${service.slug}.filters.${pack.filter.toLowerCase()}`, language)}
             </p>
@@ -98,6 +102,8 @@ const Purchase = () => {
           onSubmit={(link) => console.log("Submitted:", link)}
         />
       </div>
+
+      {/* Benefits */}
       <div className="grid grid-cols-2 gap-x-8 gap-y-4 m-4 mt-8">
         {benefits.map((item) => (
           <div key={item.id} className="flex items-center space-x-2">
@@ -108,6 +114,8 @@ const Purchase = () => {
           </div>
         ))}
       </div>
+
+      {/* How to Use Video */}
       <div>
         <div className="text-center mt-6">
           <p className="text-lg font-semibold mt-4 mb-2 gradient-text">
@@ -115,14 +123,34 @@ const Purchase = () => {
           </p>
         </div>
         <div className="mx-0 md:mx-4 rounded-none md:rounded-2xl overflow-hidden" style={{padding: '56.25% 0 0 0', position: 'relative'}}>
-          <iframe 
-            src="https://player.vimeo.com/video/1123778988?badge=0&autopause=0&player_id=0&app_id=58479" 
-            frameBorder="0" 
-            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
-            referrerPolicy="strict-origin-when-cross-origin" 
-            style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}} 
-            title="How To Purchase From SMMGuru"
-          ></iframe>
+          {!showVideo ? (
+            // Thumbnail with play button overlay
+            <div 
+              className="cursor-pointer"
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+              onClick={() => setShowVideo(true)}
+            >
+              <img
+                src="https://cdn.smmmayal.in/mythumbnail.jpg"
+                alt="Video thumbnail"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 hover:bg-opacity-40 transition-all duration-200">
+                <BsPlayCircleFill className="text-white text-6xl md:text-8xl drop-shadow-lg hover:scale-110 transition-transform duration-200" />
+              </div>
+            </div>
+          ) : (
+            // Actual video - only created when showVideo is true
+            <video
+              controls
+              autoPlay
+              preload="metadata"
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+            >
+              <source src="https://cdn.smmmayal.in/smmguru.webm" type="video/webm" />
+              Your browser does not support the video tag.
+            </video>
+          )}
         </div>
       </div>
     </div>

@@ -11,31 +11,13 @@ const AutoSlider = () => {
 
   const handleBannerClick = (bannerId) => {
     switch (bannerId) {
+      case 1:
+        navigate(`/purchase/1004`);
+        break;
       case 2:
         navigate("/purchase/11004");
         break;
-      case 3:
-        const timestamp = Date.now();
-        const randomStr = Math.random().toString(36).substring(7);
-        const paymentToken = btoa(`100-${timestamp}-${randomStr}`);
-        
-        const transaction = {
-          id: `banner_payment_${Date.now()}`,
-          type: "payment_initiated",
-          amount: 100,
-          date: new Date().toISOString(),
-          description: "Payment from Banner - ₹100",
-          status: "initiated",
-          paymentToken: paymentToken
-        };
-
-        const existingTransactions = JSON.parse(localStorage.getItem("paymentTransactions") || "[]");
-        existingTransactions.push(transaction);
-        localStorage.setItem("paymentTransactions", JSON.stringify(existingTransactions));
-        
-        navigate(`/payment/${paymentToken}`);
-        break;
-      case 4:
+      case 2:
         window.open("https://wa.me/917470729419?text=Hello%20SmmGuru", "_blank");
         break;
       default:
@@ -55,7 +37,7 @@ const AutoSlider = () => {
       >
         {siteConfig.banners.map((banner) => (
           <SwiperSlide key={banner.id}>
-            <div 
+            <div
               className="relative w-full aspect-[2000/734] cursor-pointer bg-gray-100 rounded-xl"
               onClick={() => handleBannerClick(banner.id)}
             >

@@ -114,14 +114,14 @@ const Purchase = () => {
             {getTranslation('howToUse', language)}
           </p>
         </div>
-        <div className="m-4 rounded-2xl overflow-hidden aspect-video">
-          <iframe
-            className="w-full h-full"
-            src="https://www.youtube.com/embed/NyqkkX0-v60"
-            title="How to Use"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
+        <div className="mx-0 md:mx-4 rounded-none md:rounded-2xl overflow-hidden" style={{padding: '56.25% 0 0 0', position: 'relative'}}>
+          <iframe 
+            src="https://player.vimeo.com/video/1123778988?badge=0&autopause=0&player_id=0&app_id=58479" 
+            frameBorder="0" 
+            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
+            referrerPolicy="strict-origin-when-cross-origin" 
+            style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}} 
+            title="How To Purchase From SMMGuru"
           ></iframe>
         </div>
       </div>

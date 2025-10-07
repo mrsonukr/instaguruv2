@@ -7,7 +7,8 @@ import { getTranslation } from "../data/translations";
 
 const Transactions = () => {
   const { language } = useLanguage();
-  const [transactions, setTransactions] = useState([]);
+  const [groupedData, setGroupedData] = useState({});
+  const [totalStats, setTotalStats] = useState({ totalTx: 0, totalAmt: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -44,7 +45,7 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://faizul.mssonukr.workers.dev/api/getmain?limit=1000');
+      const response = await fetch('https://rpwebhook.mssonukr.workers.dev/');
       
       if (!response.ok) {
         throw new Error('Failed to fetch transactions');
@@ -52,23 +53,67 @@ const Transactions = () => {
       
       const data = await response.json();
       
-      if (data.success && data.webhooks) {
-        // Filter out non-transaction entries (like claim entries) and mssonukr@axl VPA
-        const validTransactions = data.webhooks.filter(webhook => 
-          webhook.data && 
-          typeof webhook.data === 'object' && 
-          webhook.data.id && 
-          webhook.data.amount &&
-          webhook.data.vpa && 
-          !webhook.data.vpa.toLowerCase().includes('mssonukr')
-        );
-        
-        // Sort transactions by created_at timestamp (latest first)
-        const sortedTransactions = validTransactions.sort((a, b) => 
-          b.data.created_at - a.data.created_at
-        );
-        
-        setTransactions(sortedTransactions);
+      if (data.success) {
+        const summary = data.summary;
+        setTotalStats({ totalTx: summary.total_transactions, totalAmt: summary.total_amount });
+
+        const grouped = {};
+
+        // Process last_3_days
+        data.last_3_days.forEach(day => {
+          const date = new Date(day.date);
+          const category = getDateCategoryFromDate(date);
+          if (!grouped[category]) {
+            grouped[category] = { type: 'detailed', transactions: [], totalAmount: day.amount, count: day.transactions };
+          }
+          day.payments.forEach(payment => {
+            grouped[category].transactions.push({ id: payment.id, data: payment });
+          });
+          // Sort transactions within the day by created_at desc
+          grouped[category].transactions.sort((a, b) => b.data.created_at - a.data.created_at);
+        });
+
+        // Process older_data
+        data.older_data.forEach(older => {
+          const date = new Date(older.date);
+          const category = getDateCategoryFromDate(date);
+          grouped[category] = { type: 'summary', totalAmount: older.amount, count: older.transactions };
+        });
+
+        // Sort categories by recency
+        const getTimestamp = (cat) => {
+          if (cat === 'today') {
+            const today = new Date();
+            return today.getTime();
+          }
+          if (cat === 'yesterday') {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            return yesterday.getTime();
+          }
+          const match = cat.match(/(\d{1,2})\s+(\w{3})\s+(\d{4})/);
+          if (match) {
+            const [, day, mon, year] = match;
+            const monthMap = {
+              'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+              'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+            };
+            const month = monthMap[mon];
+            if (month !== undefined) {
+              const date = new Date(parseInt(year), month, parseInt(day));
+              return date.getTime();
+            }
+          }
+          return 0;
+        };
+
+        const sortedCategories = Object.keys(grouped).sort((a, b) => getTimestamp(b) - getTimestamp(a));
+        const sortedGrouped = {};
+        sortedCategories.forEach(cat => {
+          sortedGrouped[cat] = grouped[cat];
+        });
+
+        setGroupedData(sortedGrouped);
       } else {
         throw new Error('Invalid response format');
       }
@@ -77,6 +122,29 @@ const Transactions = () => {
       console.error('Error fetching transactions:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getDateCategoryFromDate = (date) => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Reset time to compare only dates
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const yesterdayOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+    
+    if (dateOnly.getTime() === todayOnly.getTime()) {
+      return 'today';
+    } else if (dateOnly.getTime() === yesterdayOnly.getTime()) {
+      return 'yesterday';
+    } else {
+      return date.toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
     }
   };
 
@@ -122,47 +190,7 @@ const Transactions = () => {
     }
   };
 
-  const getDateCategory = (timestamp) => {
-    const transactionDate = new Date(timestamp * 1000);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    // Reset time to compare only dates
-    const transactionDateOnly = new Date(transactionDate.getFullYear(), transactionDate.getMonth(), transactionDate.getDate());
-    const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const yesterdayOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
-    
-    if (transactionDateOnly.getTime() === todayOnly.getTime()) {
-      return 'today';
-    } else if (transactionDateOnly.getTime() === yesterdayOnly.getTime()) {
-      return 'yesterday';
-    } else {
-      return transactionDate.toLocaleDateString('en-IN', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    }
-  };
-
-  const groupTransactionsByDate = (transactions) => {
-    const grouped = {};
-    transactions.forEach(transaction => {
-      const category = getDateCategory(transaction.data.created_at);
-      if (!grouped[category]) {
-        grouped[category] = [];
-      }
-      grouped[category].push(transaction);
-    });
-    return grouped;
-  };
-
-  const getDateTotalAmount = (dateTransactions) => {
-    return dateTransactions.reduce((sum, transaction) => sum + transaction.data.amount, 0);
-  };
-
-  const getPaymentMethodIcon = (method) => {
+  const getPaymentMethodIcon = () => {
     return (
       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
         <img 
@@ -313,7 +341,7 @@ const Transactions = () => {
                 </div>
                 <div className="ml-0 md:ml-4 text-center md:text-left">
                   <p className="text-xs md:text-sm font-medium text-gray-600">{getTranslation('totalTransactions', language)}</p>
-                  <p className="text-lg md:text-2xl font-bold text-gray-900">{transactions.length}</p>
+                  <p className="text-lg md:text-2xl font-bold text-gray-900">{totalStats.totalTx}</p>
                 </div>
               </div>
             </div>
@@ -328,7 +356,7 @@ const Transactions = () => {
                 <div className="ml-0 md:ml-4 text-center md:text-left">
                   <p className="text-xs md:text-sm font-medium text-gray-600">{getTranslation('totalAmount', language)}</p>
                   <p className="text-lg md:text-2xl font-bold text-gray-900">
-                    {formatAmount(transactions.reduce((sum, tx) => sum + tx.data.amount, 0))}
+                    {formatAmount(totalStats.totalAmt)}
                   </p>
                 </div>
               </div>
@@ -344,7 +372,7 @@ const Transactions = () => {
                 <div className="ml-0 md:ml-4 text-center md:text-left">
                   <p className="text-xs md:text-sm font-medium text-gray-600">{getTranslation('averageAmount', language)}</p>
                   <p className="text-lg md:text-2xl font-bold text-gray-900">
-                    {transactions.length > 0 ? formatAmount(transactions.reduce((sum, tx) => sum + tx.data.amount, 0) / transactions.length) : '₹0'}
+                    {totalStats.totalTx > 0 ? formatAmount(totalStats.totalAmt / totalStats.totalTx) : '₹0'}
                   </p>
                 </div>
               </div>
@@ -352,14 +380,14 @@ const Transactions = () => {
           </div>
 
           {/* Transactions List */}
-          <div className="bg-white rounded-lg border border border-white">
+          <div className="bg-white rounded-lg border border-x-0">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
                 {getTranslation('recentTransactions', language) || 'Recent Transactions'}
               </h2>
             </div>
             
-            {transactions.length === 0 ? (
+            {Object.keys(groupedData).length === 0 ? (
               <div className="text-center py-12">
                 <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -369,51 +397,66 @@ const Transactions = () => {
               </div>
             ) : (
               <div>
-                {Object.entries(groupTransactionsByDate(transactions)).map(([dateCategory, dateTransactions]) => (
+                {Object.entries(groupedData).map(([dateCategory, group]) => (
                   <div key={dateCategory}>
                     {/* Date Header */}
-                    <div className="px-6 py-3 bg-white border-b border-gray-200">
-                      <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                        {dateCategory} - <span className="bg-gray-100 rounded-lg px-2 py-1 text-gray-900">{formatAmount(getDateTotalAmount(dateTransactions))} ({dateTransactions.length})</span>
-                      </h3>
-                    </div>
+                    {group.type === 'detailed' ? (
+                      <div className="px-6 py-3 border-b border-gray-200">
+                        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                          {dateCategory} - <span className="bg-gray-100 rounded-lg px-2 py-1 text-sm font-medium text-gray-900">{formatAmount(group.totalAmount)} ({group.count})</span>
+                        </h3>
+                      </div>
+                    ) : (
+                      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                        <div className="flex justify-between items-center">
+                          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                            {dateCategory}
+                          </h3>
+                          <span className="bg-gray-100 rounded-lg px-2 py-1 text-sm font-medium text-gray-900">
+                            {formatAmount(group.totalAmount)} ({group.count})
+                          </span>
+                        </div>
+                      </div>
+                    )}
                     
-                    {/* Transactions for this date */}
-                    <div className="divide-y divide-gray-200">
-                      {dateTransactions.map((transaction, index) => (
-                        <div key={transaction.id || index} className="py-4 ">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              {getPaymentMethodIcon(transaction.data.method)}
-                              <div>
-                                <p className="text-sm font-medium text-gray-900">
-                                  {transaction.data.vpa || 'N/A'}
+                    {/* Transactions for this date or summary */}
+                    {group.type === 'detailed' && (
+                      <div className="divide-y divide-gray-200">
+                        {group.transactions.map((transaction, index) => (
+                          <div key={transaction.id || index} className="py-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                {getPaymentMethodIcon()}
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {transaction.data.vpa || 'N/A'}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {transaction.data.rrn || 'N/A'}
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              <div className="text-right">
+                                <p className={`text-lg font-semibold ${getStatusColor(transaction.data.amount)}`}>
+                                  {formatAmount(transaction.data.amount)}
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                  {transaction.data.rrn || 'N/A'}
+                                  {formatDate(transaction.data.created_at)}
                                 </p>
                               </div>
                             </div>
-                            
-                            <div className="text-right">
-                              <p className={`text-lg font-semibold ${getStatusColor(transaction.data.amount)}`}>
-                                {formatAmount(transaction.data.amount)}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {formatDate(transaction.data.created_at)}
-                              </p>
-                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Refresh Button */}
+         
         </div>
       </div>
       <Footer />

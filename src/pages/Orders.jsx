@@ -5,10 +5,25 @@ import { updatePageSEO } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../data/translations";
 
+const enableOrdersDebugLogs = false;
+const logOrdersDebug = (...args) => {
+  if (enableOrdersDebugLogs && typeof console !== "undefined") {
+    console.log("[OrdersDebug]", ...args);
+  }
+};
+
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const { language } = useLanguage();
+
+  const sortOrdersByCreatedAt = (ordersArray) => {
+    return [...ordersArray].sort((a, b) => {
+      const dateA = new Date(a.createdAt || a.date || 0);
+      const dateB = new Date(b.createdAt || b.date || 0);
+      return dateB - dateA;
+    });
+  };
 
   useEffect(() => {
     // Update SEO for orders page
@@ -35,11 +50,11 @@ const Orders = () => {
 
   const loadOrders = () => {
     const savedOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
-    console.log('Loaded orders:', savedOrders);
+    logOrdersDebug('Loaded orders:', savedOrders);
     
     // Apply status updates when loading orders and ensure all orders have createdAt
     const updatedOrders = savedOrders.map(order => {
-      console.log('Processing order:', order.id, 'Service:', order.service);
+      logOrdersDebug('Processing order:', order?.id, 'Service:', order?.service);
       
       // Add createdAt timestamp if missing (for existing orders)
       if (!order.createdAt) {
@@ -64,7 +79,7 @@ const Orders = () => {
     
     // Save updated orders back to localStorage
     localStorage.setItem("userOrders", JSON.stringify(updatedOrders));
-    setOrders(updatedOrders);
+    setOrders(sortOrdersByCreatedAt(updatedOrders));
   };
 
   const updateOrderStatuses = () => {
@@ -104,7 +119,7 @@ const Orders = () => {
     
     if (hasUpdates) {
       localStorage.setItem("userOrders", JSON.stringify(updatedOrders));
-      setOrders(updatedOrders);
+      setOrders(sortOrdersByCreatedAt(updatedOrders));
     }
   };
 
@@ -130,7 +145,7 @@ const Orders = () => {
 
       const getServiceIcon = (service) => {
     if (!service) {
-      console.log('Service is undefined or null:', service);
+      logOrdersDebug('Service is undefined or null:', service);
       return (
         <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
           <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -141,7 +156,7 @@ const Orders = () => {
     }
     
     const serviceLower = service.toLowerCase();
-    console.log('Service name:', service, 'Lowercase:', serviceLower);
+    logOrdersDebug('Service name:', service, 'Lowercase:', serviceLower);
     
     // Check for exact matches first
     if (serviceLower === 'instagram') {
@@ -233,7 +248,7 @@ const Orders = () => {
       }
       
       // Default icon for other services
-      console.log('No matching service icon found for:', service);
+      logOrdersDebug('No matching service icon found for:', service);
       return (
         <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
           <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -312,7 +327,7 @@ const Orders = () => {
                         {getTableHeaderText('orderDetails')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
-                        {getTableHeaderText('service')}
+                        {getTableHeaderText('status')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
                         {getTableHeaderText('quantity')}
@@ -324,7 +339,7 @@ const Orders = () => {
                         {getTableHeaderText('amount')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
-                        {getTableHeaderText('status')}
+                        {getTableHeaderText('service')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
                         {getTableHeaderText('date')}
@@ -347,9 +362,9 @@ const Orders = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {order.service}
-                          </div>
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                            {getStatusText(order.status)}
+                          </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
@@ -367,9 +382,9 @@ const Orders = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                            {getStatusText(order.status)}
-                          </span>
+                          <div className="text-sm font-medium text-gray-900">
+                            {order.service}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <div>

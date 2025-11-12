@@ -10,6 +10,13 @@ import successAnimation from "../../../public/animation/success.json";
 // When testMode = true: Payment will auto-succeed after 5 seconds without real payment
 // When testMode = false: Uses real payment API checking
 const testMode = false;
+const enablePaymentDebugLogs = true;
+
+const logPaymentDebug = (...args) => {
+  if (enablePaymentDebugLogs && typeof console !== "undefined") {
+    console.log("[PaymentDebug]", ...args);
+  }
+};
 
 const PaymentPopup = ({
   showPopup,
@@ -133,86 +140,111 @@ const PaymentPopup = ({
       // Production mode: real payment checking
       const checkPayment = async () => {
         try {
-          const res = await fetch(`https://razor-webhook.mssonukr.workers.dev/amount/${Math.floor(amount * 100)}`);
+          const parsedAmount = parseFloat(amount);
+          if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+            logPaymentDebug("Invalid amount, skipping check", { amount });
+            return;
+          }
+
+          const amountInPaise = Math.round(parsedAmount * 100);
+          logPaymentDebug("Checking payment status", {
+            amount: parsedAmount,
+            amountInPaise,
+            paymentToken,
+            selectedPaymentMethod,
+          });
+          const res = await fetch(`https://rpwebhook.mssonukr.workers.dev/amount/${amountInPaise}`);
           if (res.ok) {
             const data = await res.json();
+            logPaymentDebug("API response received", data);
 
-            if (data.success && data.payments && data.payments.length > 0) {
-              const payment = data.payments[0]; // Take first payment only
+            if (data.success && data.orderplaced) {
+              const apiAmount = Math.round(parseFloat(data.amount));
 
-              // Check if payment amount matches expected amount (convert to paisa for comparison)
-              const expectedAmountInPaisa = Math.floor(amount * 100);
+              if (Number.isNaN(apiAmount) || apiAmount !== amountInPaise) {
+                logPaymentDebug("Amount mismatch between API and expected", {
+                  apiAmount,
+                  expected: amountInPaise,
+                  rawAmount: data.amount,
+                });
+                return;
+              }
 
-              if (payment.amount === expectedAmountInPaisa) {
-                // Check if this payment has already been processed
-                const existingTransactions = JSON.parse(localStorage.getItem("paymentTransactions") || "[]");
-                const isPaymentAlreadyProcessed = existingTransactions.some(txn =>
-                  txn.paymentId === payment.id && txn.type === "credit"
-                );
+              const paymentId = data.payment_id || `upi_payment_${Date.now()}`;
 
-                if (isPaymentAlreadyProcessed) {
-                  return;
-                }
+              const existingTransactions = JSON.parse(localStorage.getItem("paymentTransactions") || "[]");
+              clearInterval(intervalId);
+              clearInterval(countdownId);
 
-                // Payment successful
-                clearInterval(intervalId);
-                clearInterval(countdownId);
+              setPaymentStatus("success");
+              logPaymentDebug("Payment confirmed, updating records", { paymentId });
 
-                setPaymentStatus("success");
+              const apiOrderId = data.orderid;
+              const finalOrderId =
+                (apiOrderId !== undefined && apiOrderId !== null ? apiOrderId : orderId) ||
+                Math.floor(Math.random() * 900000) + 100000;
+              const finalOrderIdStr = finalOrderId.toString();
 
-                // Create payment transaction record
-                const paymentTransaction = {
-                  id: `upi_payment_${Date.now()}`,
-                  type: "payment",
-                  amount: Math.floor(amount), // Amount in rupees
-                  date: new Date().toISOString(),
-                  description: `Payment for service - ₹${amount}`,
-                  paymentId: payment.id,
-                  method: payment.method,
-                  vpa: payment.vpa,
-                  rrn: payment.rrn,
-                  currency: payment.currency || "INR",
-                  status: "completed"
-                };
+              const paymentTransaction = {
+                id: `upi_payment_${Date.now()}`,
+                type: "payment",
+                amount: parsedAmount,
+                date: new Date().toISOString(),
+                description: `Payment for service - ₹${parsedAmount}`,
+                paymentId,
+                method: selectedPaymentMethod,
+                status: "completed",
+                orderId: finalOrderIdStr
+              };
 
-                // Add to paymentTransactions
-                existingTransactions.push(paymentTransaction);
-                localStorage.setItem("paymentTransactions", JSON.stringify(existingTransactions));
+              existingTransactions.push(paymentTransaction);
+              localStorage.setItem("paymentTransactions", JSON.stringify(existingTransactions));
 
-                // Get actual service details from localStorage
-                const selectedService = JSON.parse(localStorage.getItem("selectedService") || "{}");
+              const selectedService = JSON.parse(localStorage.getItem("selectedService") || "{}");
+              const newOrder = {
+                id: finalOrderIdStr,
+                service: selectedService.service || "Service Order",
+                quantity: selectedService.packTitle || "1",
+                link: selectedService.profileLink || "order@example.com",
+                amount: parsedAmount,
+                status: "pending",
+                date: new Date().toISOString().split("T")[0],
+                createdAt: new Date().toISOString(),
+                deliveryTime: "24-48 hours",
+                paymentId,
+                orderId: finalOrderIdStr
+              };
 
-                // Create actual order in userOrders with real service details
-                const finalOrderId = orderId || Math.floor(Math.random() * 900000) + 100000;
-                const newOrder = {
-                  id: finalOrderId.toString(),
-                  service: selectedService.service || "Service Order",
-                  quantity: selectedService.packTitle || "1",
-                  link: selectedService.profileLink || "order@example.com",
-                  amount: Math.floor(amount),
-                  status: "pending",
-                  date: new Date().toISOString().split('T')[0],
-                  createdAt: new Date().toISOString(),
-                  deliveryTime: "24-48 hours"
-                };
+              const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
+              const isOrderAlreadyStored = existingOrders.some(
+                (order) => order.id?.toString() === finalOrderIdStr || order.orderId?.toString() === finalOrderIdStr
+              );
 
-                // Add to userOrders
-                const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
+              if (!isOrderAlreadyStored) {
                 existingOrders.push(newOrder);
                 localStorage.setItem("userOrders", JSON.stringify(existingOrders));
-
-                // Clear selectedService after creating order
-                localStorage.removeItem("selectedService");
-
-                // Redirect to orders page after 2 seconds
-                setTimeout(() => {
-                  navigate("/orders");
-                }, 2000);
+                logPaymentDebug("Stored new order in userOrders", newOrder);
+              } else {
+                logPaymentDebug("Order already exists in userOrders, skipping insert", { finalOrderIdStr });
               }
+
+              localStorage.removeItem("selectedService");
+
+              setTimeout(() => {
+                navigate("/orders");
+              }, 2000);
+            } else {
+              logPaymentDebug("Payment not completed yet", data);
             }
+          } else {
+            logPaymentDebug("Payment status API returned non-OK response", {
+              status: res.status,
+              statusText: res.statusText,
+            });
           }
         } catch (error) {
           // Handle payment check error silently
+          logPaymentDebug("Error while checking payment status", error);
         }
       };
 
@@ -242,7 +274,7 @@ const PaymentPopup = ({
       if (initialTimeout) clearTimeout(initialTimeout);
       if (testModeTimeout) clearTimeout(testModeTimeout);
     };
-  }, [showPopup, selectedPaymentMethod, orderId]);
+  }, [showPopup, selectedPaymentMethod, orderId, amount, navigate, setTimeLeft]);
 
   const handleClose = () => {
 

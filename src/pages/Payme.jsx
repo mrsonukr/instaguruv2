@@ -7,8 +7,8 @@ import PaymentMethods from "../components/payment/PaymentMethods";
 import PaymentPopup from "../components/payment/PaymentPopup";
 import {
   getDiscountedAmount,
-  hasDiscount,
   getDiscount,
+  isDiscountApplicable,
 } from "../config/paymentOffers";
 
 // ✅ Razorpay payment address
@@ -25,6 +25,11 @@ const Payme = () => {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [timeLeft, setTimeLeft] = useState(180);
   const [displayAmount, setDisplayAmount] = useState(amount);
+
+  const discountApplicable = isDiscountApplicable(
+    selectedPaymentMethod,
+    amount
+  );
 
   useEffect(() => {
     if (token) {
@@ -201,14 +206,14 @@ const Payme = () => {
           <div className="flex gap-3 items-center">
             <img src="/ic/bill.svg" alt="Add Money" />
             <p>Add Money</p>
-            {hasDiscount(selectedPaymentMethod) && (
+            {discountApplicable && (
               <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full font-semibold">
                 ₹{getDiscount(selectedPaymentMethod)} OFF
               </span>
             )}
           </div>
           <div className="flex items-center gap-2">
-            {hasDiscount(selectedPaymentMethod) &&
+            {discountApplicable &&
               parseFloat(amount) > getDiscount(selectedPaymentMethod) && (
                 <span className="text-sm text-gray-500 line-through">
                   ₹{amount}

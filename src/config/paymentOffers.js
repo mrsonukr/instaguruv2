@@ -34,6 +34,8 @@ export const PAYMENT_OFFERS = {
   }
 };
 
+const MIN_AMOUNT_FOR_DISCOUNT = 15;
+
 // Helper function to get discount for a payment method
 export const getDiscount = (paymentMethod) => {
   return PAYMENT_OFFERS[paymentMethod]?.discount || 0;
@@ -51,6 +53,30 @@ export const getPaymentMethodsWithOffers = () => {
 
 // Helper function to get discounted amount
 export const getDiscountedAmount = (originalAmount, paymentMethod) => {
+  const amountValue = parseFloat(originalAmount);
+  if (Number.isNaN(amountValue)) {
+    return 0;
+  }
+
+  if (amountValue < MIN_AMOUNT_FOR_DISCOUNT) {
+    return amountValue;
+  }
+
   const discount = getDiscount(paymentMethod);
-  return Math.max(0, parseFloat(originalAmount) - discount);
+  return Math.max(0, amountValue - discount);
+};
+
+// Helper to determine if discount should be applied for provided amount
+export const isDiscountApplicable = (paymentMethod, amount) => {
+  const amountValue = parseFloat(amount);
+
+  if (Number.isNaN(amountValue)) {
+    return false;
+  }
+
+  if (amountValue < MIN_AMOUNT_FOR_DISCOUNT) {
+    return false;
+  }
+
+  return hasDiscount(paymentMethod);
 };

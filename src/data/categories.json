@@ -38,6 +38,13 @@
         "filter": "Bluetick"
       },
       {
+        "id": 527,
+        "title": "100 Followers",
+        "price": 11,
+        "description": "Indian Real Non-drop Followers",
+        "filter": "Followers"
+      },
+      {
         "id": 1001,
         "title": "1000 Followers",
         "price": 49,
@@ -64,8 +71,7 @@
         "price": 150,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"
-      }
-      ,
+      },
       {
         "id": 11004,
         "title": "25000 Followers",
@@ -73,7 +79,7 @@
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"
       },
-       {
+      {
         "id": 11005,
         "title": "50000 Followers",
         "price": 599,
@@ -107,7 +113,8 @@
         "price": 99,
         "description": "Indian Real Non-drop Likes",
         "filter": "Likes"
-      },{
+      },
+      {
         "id": 99208,
         "title": "20000 Likes",
         "price": 149,

@@ -1,7 +1,7 @@
 import React from "react";
 import WalletOption from "./WalletOption";
 import SectionLabel from "./SectionLabel";
-import { getPaymentMethodsWithOffers, hasDiscount, getDiscount } from "../../config/paymentOffers";
+import { getPaymentMethodsWithOffers, getDiscount, isDiscountApplicable } from "../../config/paymentOffers";
 
 const PaymentMethods = ({ selectedPaymentMethod, onMethodSelect, amount = 0 }) => {
   return (
@@ -14,7 +14,7 @@ const PaymentMethods = ({ selectedPaymentMethod, onMethodSelect, amount = 0 }) =
             key={method.value}
             icon={method.icon === "qr" ? <QRCodeIcon /> : method.icon}
             label={
-              hasDiscount(method.value) && amount > getDiscount(method.value) ? (
+              isDiscountApplicable(method.value, amount) ? (
                 <div className="flex items-center gap-2">
                   <span>{method.label}</span>
                   <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full font-semibold">

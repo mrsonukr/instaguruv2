@@ -18,6 +18,42 @@ const logPaymentDebug = (...args) => {
   }
 };
 
+// Function to send order details to webhook
+const sendOrderToWebhook = async (orderData) => {
+  try {
+    const webhookData = {
+      id: parseInt(orderData.id) || 0,
+      quantity: orderData.quantity || "1",
+      link: orderData.link || "",
+      amount: Math.floor(orderData.amount) || 0,
+      service: orderData.service || "Service Order",
+    };
+
+    logPaymentDebug("Sending order to webhook", webhookData);
+
+    const response = await fetch("https://rpwebhook.mssonukr.workers.dev/neworder", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(webhookData),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      logPaymentDebug("Webhook response received", result);
+    } else {
+      logPaymentDebug("Webhook request failed", {
+        status: response.status,
+        statusText: response.statusText,
+      });
+    }
+  } catch (error) {
+    logPaymentDebug("Error sending order to webhook", error);
+    // Don't throw error - webhook failure shouldn't block order creation
+  }
+};
+
 const PaymentPopup = ({
   showPopup,
   isClosing,
@@ -61,7 +97,7 @@ const PaymentPopup = ({
 
       // Test mode: simulate payment success after 5 seconds
       if (testMode) {
-        testModeTimeout = setTimeout(() => {
+        testModeTimeout = setTimeout(async () => {
           // Clear any existing intervals
           if (intervalId) clearInterval(intervalId);
           if (countdownId) clearInterval(countdownId);
@@ -109,6 +145,9 @@ const PaymentPopup = ({
           const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
           existingOrders.push(newOrder);
           localStorage.setItem("userOrders", JSON.stringify(existingOrders));
+
+          // Send order to webhook
+          await sendOrderToWebhook(newOrder);
 
           // Clear selectedService after creating order
           localStorage.removeItem("selectedService");
@@ -224,6 +263,9 @@ const PaymentPopup = ({
                 existingOrders.push(newOrder);
                 localStorage.setItem("userOrders", JSON.stringify(existingOrders));
                 logPaymentDebug("Stored new order in userOrders", newOrder);
+                
+                // Send order to webhook
+                await sendOrderToWebhook(newOrder);
               } else {
                 logPaymentDebug("Order already exists in userOrders, skipping insert", { finalOrderIdStr });
               }

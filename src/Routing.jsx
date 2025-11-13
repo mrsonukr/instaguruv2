@@ -18,6 +18,7 @@ const ProcessLink = lazy(() => import("./pages/ProcessLink"));
 const Refund = lazy(() => import("./pages/Refund"));
 const HowToPurchase = lazy(() => import("./pages/HowToPurchase"));
 const Transactions = lazy(() => import("./pages/Transactions"));
+const GetOrders = lazy(() => import("./pages/GetOrders")); // ✅ NEW
 
 // Simple loading fallback
 const LoadingFallback = () => (
@@ -48,6 +49,7 @@ const Routing = () => {
           <Route path="/add-funds/:token" element={<ProcessLink />} />
           <Route path="/how-to-purchase" element={<HowToPurchase />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/getorders" element={<GetOrders />} />
         </Routes>
       </Suspense>
     </Router>

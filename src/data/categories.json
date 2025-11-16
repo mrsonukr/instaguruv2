@@ -21,8 +21,8 @@
         "placeholder": "https://instagram.com/p/yourpost"
       },
       "Views": {
-        "label": "Enter Your Instagram Story/Post Link",
-        "placeholder": "https://instagram.com/stories/yourprofile"
+        "label": "Enter Your Instagram Reel/Story Link",
+        "placeholder": "https://www.instagram.com/reel/yourreel"
       },
       "Bluetick": {
         "label": "Enter Your Instagram Profile Link",
@@ -148,6 +148,63 @@
         "price": 280,
         "description": "Indian Girls & Boys Mixed.",
         "filter": "Comments"
+      },
+
+      {
+        "id": 8021,
+        "title": "10000 Reel Views",
+        "price": 5,
+        "description": "Boost views on your Instagram reels.",
+        "filter": "Views"
+      },
+      {
+        "id": 8022,
+        "title": "25000 Reel Views",
+        "price": 7,
+        "description": "Boost views on your Instagram reels.",
+        "filter": "Views"
+      },
+      {
+        "id": 8023,
+        "title": "50000 Reel Views",
+        "price": 10,
+        "description": "Boost views on your Instagram reels.",
+        "filter": "Views"
+      },
+      {
+        "id": 8024,
+        "title": "100000 Reel Views",
+        "price": 15,
+        "description": "Boost views on your Instagram reels.",
+        "filter": "Views"
+      },
+      {
+        "id": 8025,
+        "title": "200000 Reel Views",
+        "price": 25,
+        "description": "Boost views on your Instagram reels.",
+        "filter": "Views"
+      },
+      {
+        "id": 8026,
+        "title": "300000 Reel Views",
+        "price": 30,
+        "description": "Boost views on your Instagram reels.",
+        "filter": "Views"
+      },
+      {
+        "id": 8027,
+        "title": "500000 Reel Views",
+        "price": 45,
+        "description": "Boost views on your Instagram reels.",
+        "filter": "Views"
+      },
+      {
+        "id": 8028,
+        "title": "1000000 Reel Views",
+        "price": 80,
+        "description": "Boost views on your Instagram reels.",
+        "filter": "Views"
       },
       {
         "id": 1013,

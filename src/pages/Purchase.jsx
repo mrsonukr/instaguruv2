@@ -82,9 +82,7 @@ const Purchase = () => {
             <p className="text-xs text-gray-600 mt-1 truncate">
               {translatePackDescription(pack.description, language)}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              {service.name} • {getTranslation(`${service.slug}.filters.${pack.filter.toLowerCase()}`, language)}
-            </p>
+           
           </div>
           <div
             className={`flex-shrink-0 text-white text-sm px-4 py-2 rounded-full flex items-center gap-1 ${variant.buttonBg}`}

@@ -116,18 +116,45 @@ export const translations = {
     tryAgain: "Try Again",
     loadingTransactions: "Loading transactions...",
     
-    // Categories
+    // Common filter names for buttons
+    filters: {
+      Followers: "Followers",
+      Likes: "Likes",
+      Comments: "Comments",
+      Views: "Views",
+      Bluetick: "Bluetick",
+      Subscribers: "Subscribers",
+      Watchtime: "Watchtime",
+      Subscription: "Subscription"
+    },
+    
+    // Categories - only labels and placeholders, no filterNames needed now
     instagram: {
       name: "Instagram",
       description: "Followers, likes, and more.",
       label: "Enter Your Instagram Profile Link",
       placeholder: "https://instagram.com/yourprofile",
       filters: {
-        followers: "Followers",
-        likes: "Likes",
-        comments: "Comments",
-        views: "Views",
-        bluetick: "Bluetick"
+        Followers: {
+          label: "Enter Your Instagram Profile Link",
+          placeholder: "https://instagram.com/yourprofile"
+        },
+        Likes: {
+          label: "Enter Your Instagram Post Link",
+          placeholder: "https://instagram.com/p/yourpost"
+        },
+        Comments: {
+          label: "Enter Your Instagram Post Link",
+          placeholder: "https://instagram.com/p/yourpost"
+        },
+        Views: {
+          label: "Enter Your Instagram Reels/Story Link",
+          placeholder: "https://www.instagram.com/reel/yourreel"
+        },
+        Bluetick: {
+          label: "Enter Your Instagram Profile Link",
+          placeholder: "https://instagram.com/yourprofile"
+        }
       }
     },
     youtube: {
@@ -136,11 +163,26 @@ export const translations = {
       label: "Enter Your YouTube Channel Link",
       placeholder: "https://youtube.com/@yourchannel",
       filters: {
-        views: "Views",
-        likes: "Likes",
-        comments: "Comments",
-        subscribers: "Subscribers",
-        watchtime: "Watchtime"
+        Views: {
+          label: "Enter Your YouTube Video Link",
+          placeholder: "https://youtube.com/watch?v=yourvideo"
+        },
+        Likes: {
+          label: "Enter Your YouTube Video Link",
+          placeholder: "https://youtube.com/watch?v=yourvideo"
+        },
+        Comments: {
+          label: "Enter Your YouTube Video Link",
+          placeholder: "https://youtube.com/watch?v=yourvideo"
+        },
+        Subscribers: {
+          label: "Enter Your YouTube Channel Link",
+          placeholder: "https://youtube.com/@yourchannel"
+        },
+        Watchtime: {
+          label: "Enter Your YouTube Channel Link",
+          placeholder: "https://youtube.com/@yourchannel"
+        }
       }
     },
     facebook: {
@@ -149,10 +191,22 @@ export const translations = {
       label: "Enter Your Facebook Profile/Page Link",
       placeholder: "https://facebook.com/yourprofile",
       filters: {
-        followers: "Followers",
-        likes: "Likes",
-        comments: "Comments",
-        views: "Views"
+        Followers: {
+          label: "Enter Your Facebook Profile/Page Link",
+          placeholder: "https://facebook.com/yourprofile"
+        },
+        Likes: {
+          label: "Enter Your Facebook Post Link",
+          placeholder: "https://facebook.com/yourprofile/posts/123"
+        },
+        Comments: {
+          label: "Enter Your Facebook Post Link",
+          placeholder: "https://facebook.com/yourprofile/posts/123"
+        },
+        Views: {
+          label: "Enter Your Facebook Video/Post Link",
+          placeholder: "https://facebook.com/yourprofile/videos/123"
+        }
       }
     },
     netflix: {
@@ -161,7 +215,10 @@ export const translations = {
       label: "Enter Your Email for Netflix Subscription",
       placeholder: "email@example.com",
       filters: {
-        subscription: "Subscription"
+        Subscription: {
+          label: "Enter Your Email for Netflix Subscription",
+          placeholder: "email@example.com"
+        }
       }
     },
     "amazon-prime": {
@@ -170,7 +227,10 @@ export const translations = {
       label: "Enter Your Email for Amazon Prime Subscription",
       placeholder: "email@example.com",
       filters: {
-        subscription: "Subscription"
+        Subscription: {
+          label: "Enter Your Email for Amazon Prime Subscription",
+          placeholder: "email@example.com"
+        }
       }
     },
     spotify: {
@@ -179,7 +239,10 @@ export const translations = {
       label: "Enter Your Email for Spotify Subscription",
       placeholder: "email@example.com",
       filters: {
-        subscription: "Subscription"
+        Subscription: {
+          label: "Enter Your Email for Spotify Subscription",
+          placeholder: "email@example.com"
+        }
       }
     },
     telegram: {
@@ -188,8 +251,14 @@ export const translations = {
       label: "Enter Your Telegram Group/Channel Link",
       placeholder: "https://t.me/yourgroup",
       filters: {
-        followers: "Followers",
-        views: "Views"
+        Followers: {
+          label: "Enter Your Telegram Group or Channel Link",
+          placeholder: "https://t.me/yourgroup"
+        },
+        Views: {
+          label: "Enter Your Telegram Post Link",
+          placeholder: "https://t.me/yourgroup/123"
+        }
       }
     }
   },
@@ -310,18 +379,45 @@ export const translations = {
     tryAgain: "फिर से कोशिश करें",
     loadingTransactions: "लेन-देन लोड हो रहे हैं...",
     
-    // Categories
+    // Common filter names for buttons
+    filters: {
+      Followers: "फॉलोअर्स",
+      Likes: "लाइक्स",
+      Comments: "कमेंट्स",
+      Views: "व्यूज़",
+      Bluetick: "ब्लू टिक",
+      Subscribers: "सब्सक्राइबर्स",
+      Watchtime: "वॉचटाइम",
+      Subscription: "सब्सक्रिप्शन"
+    },
+    
+    // Categories - only labels and placeholders
     instagram: {
       name: "इंस्टाग्राम",
       description: "फॉलोअर्स, लाइक्स और बहुत कुछ।",
       label: "अपना इंस्टाग्राम प्रोफाइल लिंक दर्ज करें",
       placeholder: "https://instagram.com/yourprofile",
       filters: {
-        followers: "फॉलोअर्स",
-        likes: "लाइक्स",
-        comments: "कमेंट्स",
-        views: "व्यूज़",
-        bluetick: "ब्लू टिक"
+        Followers: {
+          label: "अपना इंस्टाग्राम प्रोफाइल लिंक दर्ज करें",
+          placeholder: "https://instagram.com/yourprofile"
+        },
+        Likes: {
+          label: "अपना इंस्टाग्राम पोस्ट लिंक दर्ज करें",
+          placeholder: "https://instagram.com/p/yourpost"
+        },
+        Comments: {
+          label: "अपना इंस्टाग्राम पोस्ट लिंक दर्ज करें",
+          placeholder: "https://instagram.com/p/yourpost"
+        },
+        Views: {
+          label: "अपना इंस्टाग्राम स्टोरी/पोस्ट लिंक दर्ज करें",
+          placeholder: "https://www.instagram.com/reel/yourreel"
+        },
+        Bluetick: {
+          label: "अपना इंस्टाग्राम प्रोफाइल लिंक दर्ज करें",
+          placeholder: "https://instagram.com/yourprofile"
+        }
       }
     },
     youtube: {
@@ -330,11 +426,26 @@ export const translations = {
       label: "अपना यूट्यूब चैनल लिंक दर्ज करें",
       placeholder: "https://youtube.com/@yourchannel",
       filters: {
-        views: "व्यूज़",
-        likes: "लाइक्स",
-        comments: "कमेंट्स",
-        subscribers: "सब्सक्राइबर्स",
-        watchtime: "वॉचटाइम"
+        Views: {
+          label: "अपना यूट्यूब वीडियो लिंक दर्ज करें",
+          placeholder: "https://youtube.com/watch?v=yourvideo"
+        },
+        Likes: {
+          label: "अपना यूट्यूब वीडियो लिंक दर्ज करें",
+          placeholder: "https://youtube.com/watch?v=yourvideo"
+        },
+        Comments: {
+          label: "अपना यूट्यूब वीडियो लिंक दर्ज करें",
+          placeholder: "https://youtube.com/watch?v=yourvideo"
+        },
+        Subscribers: {
+          label: "अपना यूट्यूब चैनल लिंक दर्ज करें",
+          placeholder: "https://youtube.com/@yourchannel"
+        },
+        Watchtime: {
+          label: "अपना यूट्यूब चैनल लिंक दर्ज करें",
+          placeholder: "https://youtube.com/@yourchannel"
+        }
       }
     },
     facebook: {
@@ -343,10 +454,22 @@ export const translations = {
       label: "अपना फेसबुक प्रोफाइल/पेज लिंक दर्ज करें",
       placeholder: "https://facebook.com/yourprofile",
       filters: {
-        followers: "फॉलोअर्स",
-        likes: "लाइक्स",
-        comments: "कमेंट्स",
-        views: "व्यूज़"
+        Followers: {
+          label: "अपना फेसबुक प्रोफाइल/पेज लिंक दर्ज करें",
+          placeholder: "https://facebook.com/yourprofile"
+        },
+        Likes: {
+          label: "अपना फेसबुक पोस्ट लिंक दर्ज करें",
+          placeholder: "https://facebook.com/yourprofile/posts/123"
+        },
+        Comments: {
+          label: "अपना फेसबुक पोस्ट लिंक दर्ज करें",
+          placeholder: "https://facebook.com/yourprofile/posts/123"
+        },
+        Views: {
+          label: "अपना फेसबुक वीडियो/पोस्ट लिंक दर्ज करें",
+          placeholder: "https://facebook.com/yourprofile/videos/123"
+        }
       }
     },
     netflix: {
@@ -355,7 +478,10 @@ export const translations = {
       label: "नेटफ्लिक्स सब्सक्रिप्शन के लिए अपना ईमेल दर्ज करें",
       placeholder: "email@example.com",
       filters: {
-        subscription: "सब्सक्रिप्शन"
+        Subscription: {
+          label: "नेटफ्लिक्स सब्सक्रिप्शन के लिए अपना ईमेल दर्ज करें",
+          placeholder: "email@example.com"
+        }
       }
     },
     "amazon-prime": {
@@ -364,7 +490,10 @@ export const translations = {
       label: "अमेज़न प्राइम सब्सक्रिप्शन के लिए अपना ईमेल दर्ज करें",
       placeholder: "email@example.com",
       filters: {
-        subscription: "सब्सक्रिप्शन"
+        Subscription: {
+          label: "अमेज़न प्राइम सब्सक्रिप्शन के लिए अपना ईमेल दर्ज करें",
+          placeholder: "email@example.com"
+        }
       }
     },
     spotify: {
@@ -373,7 +502,10 @@ export const translations = {
       label: "स्पॉटिफाई सब्सक्रिप्शन के लिए अपना ईमेल दर्ज करें",
       placeholder: "email@example.com",
       filters: {
-        subscription: "सब्सक्रिप्शन"
+        Subscription: {
+          label: "स्पॉटिफाई सब्सक्रिप्शन के लिए अपना ईमेल दर्ज करें",
+          placeholder: "email@example.com"
+        }
       }
     },
     telegram: {
@@ -382,8 +514,14 @@ export const translations = {
       label: "अपना टेलीग्राम ग्रुप/चैनल लिंक दर्ज करें",
       placeholder: "https://t.me/yourgroup",
       filters: {
-        followers: "फॉलोअर्स",
-        views: "व्यूज़"
+        Followers: {
+          label: "अपना टेलीग्राम ग्रुप या चैनल लिंक दर्ज करें",
+          placeholder: "https://t.me/yourgroup"
+        },
+        Views: {
+          label: "अपना टेलीग्राम पोस्ट लिंक दर्ज करें",
+          placeholder: "https://t.me/yourgroup/123"
+        }
       }
     }
   }

@@ -8,7 +8,6 @@ const PurchaseForm = ({
   color = "green",
   serviceData = {},
   filter = "Followers",
-  onSubmit,
   packPrice = 0,
   packTitle = "",
 }) => {
@@ -39,12 +38,12 @@ const PurchaseForm = ({
     placeholder: config.placeholder,
   };
 
-  // Get the proper label for this filter
-  const filterLabel = getTranslation(`${config.slug}.label`, language);
+  // Get the proper translated label for this specific filter
+  const filterLabel = getTranslation(`${config.slug}.filters.${filter}.label`, language) || filterConfig.label;
   const translatedFilterConfig = {
     ...filterConfig,
-    label: filterLabel || config.label,
-    placeholder: filterConfig.placeholder // Placeholder is already translated in serviceData
+    label: filterLabel,
+    placeholder: filterConfig.placeholder // Placeholder is URL, no translation needed
   };
 
   const handleSubmit = (e) => {

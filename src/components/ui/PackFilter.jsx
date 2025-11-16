@@ -3,7 +3,7 @@ import COLOR_VARIANTS from "../../utils/colorVariants";
 import { useLanguage } from "../../context/LanguageContext";
 import { getTranslation } from "../../data/translations";
 
-const PackFilter = ({ packFilters, onFilterChange, variant = "blue", serviceSlug = "" }) => {
+const PackFilter = ({ packFilters, onFilterChange, variant = "blue",  }) => {
   const { language } = useLanguage();
   const [selected, setSelected] = useState("All");
 
@@ -43,7 +43,7 @@ const PackFilter = ({ packFilters, onFilterChange, variant = "blue", serviceSlug
                 }
               `}
             >
-              {filter === "All" ? getTranslation('all', language) : getTranslation(`${serviceSlug}.filters.${filter.toLowerCase()}`, language) || filter}
+              {filter === "All" ? getTranslation('all', language) : getTranslation(`filters.${filter}`, language) || filter}
             </button>
           );
         })}

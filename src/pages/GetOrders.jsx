@@ -66,9 +66,8 @@ export default function GetOrders() {
     <>
       <Header />
       <div className="min-h-screen bg-gray-50 p-6">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">All Orders</h1>
 
-        <div className="overflow-x-auto bg-white shadow-md rounded-xl">
+        <div className="overflow-x-auto mt-20 bg-white shadow-md rounded-xl">
           <table className="min-w-full border-collapse">
             <thead>
               <tr className="bg-gray-100 text-left text-gray-700">

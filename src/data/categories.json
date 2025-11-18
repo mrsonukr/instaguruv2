@@ -39,8 +39,14 @@
       },
       {
         "id": 527,
-        "title": "50 Followers",
+        "title": "50 Followers (trending)",
         "price": 6,
+        "description": "Indian Real Non-drop Followers",
+        "filter": "Followers"
+      },{
+        "id": 1232,
+        "title": "100 Followers",
+        "price": 11,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"
       },
@@ -61,13 +67,13 @@
       {
         "id": 1003,
         "title": "5000 Followers",
-        "price": 119,
+        "price": 99,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"
       },
       {
         "id": 1004,
-        "title": "10000 Followers",
+        "title": "10000 Followers (trending)",
         "price": 150,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"

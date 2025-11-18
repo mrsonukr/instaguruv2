@@ -575,42 +575,42 @@
       {
         "id": 3000,
         "title": "Netflix 1 Month HD",
-        "price": 112,
+        "price": 39,
         "description": "Access Netflix in HD for 1 month.",
         "filter": "Subscription"
       },
       {
         "id": 3001,
         "title": "Netflix 1 Month Standard",
-        "price": 84,
+        "price": 49,
         "description": "Access Netflix in standard quality for 1 month.",
         "filter": "Subscription"
       },
       {
         "id": 3002,
         "title": "Netflix 3 Months HD",
-        "price": 309,
+        "price": 69,
         "description": "Access Netflix in HD for 3 months.",
         "filter": "Subscription"
       },
       {
         "id": 3003,
         "title": "Netflix 3 Months Standard",
-        "price": 224,
+        "price": 75,
         "description": "Access Netflix in standard quality for 3 months.",
         "filter": "Subscription"
       },
       {
         "id": 3004,
         "title": "Netflix 6 Months HD",
-        "price": 562,
+        "price": 119,
         "description": "Access Netflix in HD for 6 months.",
         "filter": "Subscription"
       },
       {
         "id": 3005,
         "title": "Netflix 6 Months Standard",
-        "price": 421,
+        "price": 139,
         "description": "Access Netflix in standard quality for 6 months.",
         "filter": "Subscription"
       }
@@ -634,28 +634,28 @@
       {
         "id": 4000,
         "title": "Amazon Prime 1 Month",
-        "price": 79,
+        "price": 29,
         "description": "Access Amazon Prime benefits for 1 month.",
         "filter": "Subscription"
       },
       {
         "id": 4001,
         "title": "Amazon Prime 3 Months",
-        "price": 109,
+        "price": 39,
         "description": "Access Amazon Prime benefits for 3 months.",
         "filter": "Subscription"
       },
       {
         "id": 4002,
         "title": "Amazon Prime 6 Months",
-        "price": 149,
+        "price": 59,
         "description": "Access Amazon Prime benefits for 6 months.",
         "filter": "Subscription"
       },
       {
         "id": 4003,
         "title": "Amazon Prime 12 Months",
-        "price": 399,
+        "price": 99,
         "description": "Access Amazon Prime benefits for 12 months.",
         "filter": "Subscription"
       }
@@ -676,31 +676,25 @@
       }
     },
     "packs": [
-      {
-        "id": 4020,
-        "title": "Spotify 1 Month Premium",
-        "price": 25,
-        "description": "Access Spotify Premium for 1 month.",
-        "filter": "Subscription"
-      },
+     
       {
         "id": 4021,
         "title": "Spotify 3 Months Premium",
-        "price": 49,
+        "price": 25,
         "description": "Access Spotify Premium for 3 months.",
         "filter": "Subscription"
       },
       {
         "id": 4022,
         "title": "Spotify 6 Months Premium",
-        "price": 79,
+        "price": 49,
         "description": "Access Spotify Premium for 6 months.",
         "filter": "Subscription"
       },
       {
         "id": 4023,
         "title": "Spotify 12 Months Premium",
-        "price": 109,
+        "price": 65,
         "description": "Access Spotify Premium for 12 months.",
         "filter": "Subscription"
       }

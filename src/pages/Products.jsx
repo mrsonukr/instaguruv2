@@ -9,7 +9,7 @@ import data from "../data/categories.json";
 import Footer from "../components/ui/Footer";
 import { updatePageSEO, addStructuredData } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
-import { translateCategories, translatePackTitle, translatePackDescription } from "../utils/translationUtils";
+import { translateCategories } from "../utils/translationUtils";
 import { getTranslation } from "../data/translations";
 
 const Products = () => {

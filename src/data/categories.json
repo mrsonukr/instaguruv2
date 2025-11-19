@@ -71,6 +71,12 @@
         "price": 150,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"
+      },{
+        "id":1256,
+        "title": "15000 Followers",
+        "price": 199,
+        "description": "Indian Real Non-drop Followers",
+        "filter": "Followers"
       },
       {
         "id": 11004,
@@ -82,7 +88,21 @@
       {
         "id": 11005,
         "title": "50000 Followers",
-        "price": 599,
+        "price": 499,
+        "description": "Indian Real Non-drop Followers",
+        "filter": "Followers"
+      },
+       {
+        "id": 11006,
+        "title": "100K Followers",
+        "price": 799,
+        "description": "Indian Real Non-drop Followers",
+        "filter": "Followers"
+      },
+       {
+        "id": 11007,
+        "title": "1M Followers",
+        "price": 1499,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"
       },
@@ -270,7 +290,7 @@
       {
         "id": 2000,
         "title": "4000 Hours Watchtime",
-        "price": 499,
+        "price": 399,
         "description": "Youtube monetization special.",
         "filter": "Watchtime"
       },
@@ -284,28 +304,34 @@
       {
         "id": 1018,
         "title": "2000 Subscribers",
-        "price": 89,
+        "price": 79,
         "description": "Indian Real Non-drop Subscribers",
         "filter": "Subscribers"
       },
       {
         "id": 1019,
         "title": "5000 Subscribers",
-        "price": 149,
+        "price": 119,
         "description": "Indian Real Non-drop Subscribers",
         "filter": "Subscribers"
       },
       {
         "id": 1020,
         "title": "10000 Subscribers",
-        "price": 249,
+        "price": 199,
         "description": "Indian Real Non-drop Subscribers",
         "filter": "Subscribers"
       },
       {
         "id": 10160,
         "title": "50000 Subscribers",
-        "price": 699,
+        "price": 399,
+        "description": "Indian Real Non-drop Subscribers",
+        "filter": "Subscribers"
+      }, {
+        "id": 10161,
+        "title": "100K Subscribers",
+        "price": 599,
         "description": "Indian Real Non-drop Subscribers",
         "filter": "Subscribers"
       },

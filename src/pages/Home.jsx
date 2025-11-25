@@ -30,7 +30,7 @@ const Home = () => {
       <Header />
       <div className="mt-20"></div>
       <AutoSlider />
-      <a href="https://wa.me/917225979671?text=Hello%20smmguru" target="_blank">
+      <a href="https://wa.me/918210220189?text=Hello%20smmguru" target="_blank">
         <div className="flex justify-center gap-4 items-center mt-6 m-4 bg-green-200 text-wh p-3 rounded-lg">
           <svg
             xmlns="http://www.w3.org/2000/svg"

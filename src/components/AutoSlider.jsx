@@ -14,7 +14,7 @@ const AutoSlider = () => {
         navigate("/purchase/11004");
         break;
       case 2:
-        window.open("https://wa.me/917225979671?text=Hello%20SmmGuru", "_blank");
+        window.open("https://wa.me/918210220189?text=Hello%20SmmGuru", "_blank");
         break;
       default:
         break;

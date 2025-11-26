@@ -33,13 +33,25 @@ export default function GetOrders() {
     fetchOrders(page);
   }, [page]);
 
-  const getServiceIcon = (serviceName) => {
+   const getServiceIcon = (serviceName) => {
     if (!serviceName) return "/ic/default.webp";
+
     const name = serviceName.toLowerCase();
-    if (name.includes("insta")) return "/ic/insta.webp";
-    if (name.includes("youtube")) return "/ic/youtube.webp";
-    if (name.includes("facebook")) return "/ic/facebook.webp";
-    if (name.includes("telegram")) return "/ic/telegram.webp";
+
+    if (
+      name.includes("insta") ||
+      name.includes("instagram") ||
+      serviceName.includes("इंस्टाग्राम")
+    )
+      return "/ic/insta.webp";
+
+    if (name.includes("youtube") || serviceName.includes("यूट्यूब"))
+      return "/ic/youtube.webp";
+    if (name.includes("facebook") || serviceName.includes("फेसबुक"))
+      return "/ic/facebook.webp";
+    if (name.includes("telegram") || serviceName.includes("टेलीग्राम"))
+      return "/ic/telegram.webp";
+
     return "/ic/default.webp";
   };
 

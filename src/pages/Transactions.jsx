@@ -48,7 +48,7 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://aurasmm.mssonutech.workers.dev/");
+      const response = await fetch("https://rpwebhook.mssonutech.workers.dev/");
 
       if (!response.ok) {
         throw new Error("Failed to fetch transactions");

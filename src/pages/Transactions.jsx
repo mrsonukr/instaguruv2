@@ -6,11 +6,11 @@ import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../data/translations";
 import { Link } from "react-router-dom";
 
-
 const Transactions = () => {
   const { language } = useLanguage();
   const [groupedData, setGroupedData] = useState({});
   const [totalStats, setTotalStats] = useState({ totalTx: 0, totalAmt: 0 });
+  const [balanceData, setBalanceData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,12 +29,13 @@ const Transactions = () => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchTransactions();
+      fetchBalance();
     }
   }, [isAuthenticated]);
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
-    if (password === "8080") {
+    if (password === "2030") {
       setIsAuthenticated(true);
       setPasswordError("");
       // Save authentication state to localStorage
@@ -47,7 +48,7 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://rpwebhook.mssonukr.workers.dev/");
+      const response = await fetch("https://aurasmm.mssonutech.workers.dev/");
 
       if (!response.ok) {
         throw new Error("Failed to fetch transactions");
@@ -156,6 +157,21 @@ const Transactions = () => {
     }
   };
 
+  const fetchBalance = async () => {
+    try {
+      const response = await fetch("https://smmguru.mssonukr.workers.dev/balance");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setBalanceData(data);
+    } catch (err) {
+      console.error("Error fetching balance:", err);
+      // Optionally set error, but keep showing 0 for now
+      setBalanceData({ balance: 0, currency: "INR" });
+    }
+  };
+
   const getDateCategoryFromDate = (date) => {
     const today = new Date();
     const yesterday = new Date(today);
@@ -198,6 +214,15 @@ const Transactions = () => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount / 100);
+  };
+
+  const formatBalance = (balance) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(balance);
   };
 
   const formatDate = (timestamp) => {
@@ -409,15 +434,22 @@ const Transactions = () => {
                   "View all your payment transactions"}
               </p>
             </div>
-            <div>
+            <div className="flex space-x-4">
+              <Link
+                to="/payout"
+                className="inline-flex items-center gap-2 px-4 h-12  bg-green-500 text-white font-medium rounded-lg  hover:bg-blue-700 active:bg-blue-800 transition-all duration-200"
+              >
+                Payout
+              </Link>
               <Link
                 to="/getorders"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white font-medium rounded-lg  hover:bg-blue-700 active:bg-blue-800 transition-all duration-200"
+                className="inline-flex items-center gap-2 px-4 h-12 bg-green-500 text-white font-medium rounded-lg  hover:bg-blue-700 active:bg-blue-800 transition-all duration-200"
               >
-                📦 View Orders
+                Orders
               </Link>
             </div>
           </div>
+          
 
           {/* Stats Cards */}
           <div className="grid grid-cols-3 gap-2 md:gap-6 mb-8">
@@ -490,18 +522,18 @@ const Transactions = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                     />
                   </svg>
                 </div>
                 <div className="ml-0 md:ml-4 text-center md:text-left">
                   <p className="text-xs md:text-sm font-medium text-gray-600">
-                    {getTranslation("averageAmount", language)}
+                    Balance ({balanceData?.currency || "INR"})
                   </p>
                   <p className="text-lg md:text-2xl font-bold text-gray-900">
-                    {totalStats.totalTx > 0
-                      ? formatAmount(totalStats.totalAmt / totalStats.totalTx)
-                      : "₹0"}
+                    {balanceData?.balance !== undefined
+                      ? formatBalance(balanceData.balance)
+                      : "₹0.00"}
                   </p>
                 </div>
               </div>

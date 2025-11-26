@@ -71,8 +71,9 @@
         "price": 150,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"
-      },{
-        "id":1256,
+      },
+      {
+        "id": 1256,
         "title": "15000 Followers",
         "price": 199,
         "description": "Indian Real Non-drop Followers",
@@ -92,14 +93,14 @@
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"
       },
-       {
+      {
         "id": 11006,
         "title": "100K Followers",
         "price": 799,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers"
       },
-       {
+      {
         "id": 11007,
         "title": "1M Followers",
         "price": 1499,
@@ -169,11 +170,17 @@
         "description": "Indian Girls & Boys Mixed.",
         "filter": "Comments"
       },
-
+      {
+        "id": 8020,
+        "title": "5000 Reel Views",
+        "price": 7,
+        "description": "Boost views on your Instagram reels.",
+        "filter": "Views"
+      },
       {
         "id": 8021,
         "title": "10000 Reel Views",
-        "price": 15,
+        "price": 12,
         "description": "Boost views on your Instagram reels.",
         "filter": "Views"
       },
@@ -328,7 +335,8 @@
         "price": 399,
         "description": "Indian Real Non-drop Subscribers",
         "filter": "Subscribers"
-      }, {
+      },
+      {
         "id": 10161,
         "title": "100K Subscribers",
         "price": 599,
@@ -702,7 +710,6 @@
       }
     },
     "packs": [
-     
       {
         "id": 4021,
         "title": "Spotify 3 Months Premium",

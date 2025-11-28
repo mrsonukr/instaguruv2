@@ -34,7 +34,7 @@ export const PAYMENT_OFFERS = {
   }
 };
 
-const MIN_AMOUNT_FOR_DISCOUNT = 15;
+const MIN_AMOUNT_FOR_DISCOUNT = 20;
 
 // Helper function to get discount for a payment method
 export const getDiscount = (paymentMethod) => {

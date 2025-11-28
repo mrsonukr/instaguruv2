@@ -415,7 +415,7 @@ const Orders = () => {
               <div className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded-lg">
                 {currentTime.toLocaleTimeString()}
               </div>
-                <a className="text-white text-sm  bg-green-500 px-3 py-2 rounded-lg" href="https://wa.me/917225979671?text=Hello%20SmmMayal">Contact Us</a>
+                <a className="text-white text-sm  bg-green-500 px-3 py-2 rounded-lg" href="https://wa.me/917225979671?text=Hello%20Sir">Contact Us</a>
             </div>
           </div>
 

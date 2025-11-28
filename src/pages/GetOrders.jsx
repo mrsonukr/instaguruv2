@@ -17,7 +17,7 @@ export default function GetOrders() {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://smmguru.mssonutech.workers.dev/orders?page=${currentPage}&limit=${limit}`
+        `https://smmguru.mssonukr.workers.dev/orders?page=${currentPage}&limit=${limit}`
       );
       if (!res.ok) throw new Error("Failed to fetch orders");
 

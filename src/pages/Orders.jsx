@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
-import { Package, CheckCircle, Clock, XCircle } from "lucide-react";
+import { Package } from "lucide-react";
 import { updatePageSEO } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../data/translations";
-
+import WhatsAppButton from "../components/ui/WhatsAppButton";
 const enableOrdersDebugLogs = false;
 const logOrdersDebug = (...args) => {
   if (enableOrdersDebugLogs && typeof console !== "undefined") {
@@ -415,7 +415,9 @@ const Orders = () => {
               <div className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded-lg">
                 {currentTime.toLocaleTimeString()}
               </div>
-                <a className="text-white text-sm  bg-green-500 px-3 py-2 rounded-lg" href="https://wa.me/918210220189?text=Hello%20Sir">Contact Us</a>
+              <WhatsAppButton className="text-white text-sm bg-green-500 px-3 py-2 rounded-lg">
+                Contact Us
+              </WhatsAppButton>
             </div>
           </div>
 

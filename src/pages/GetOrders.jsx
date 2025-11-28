@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { ExternalLink, Copy } from "lucide-react";
 import Header from "../components/Header";
 
 export default function GetOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -15,7 +17,7 @@ export default function GetOrders() {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://smmguru.mssonukr.workers.dev/orders?page=${currentPage}&limit=${limit}`
+        `https://smmguru.mssonutech.workers.dev/orders?page=${currentPage}&limit=${limit}`
       );
       if (!res.ok) throw new Error("Failed to fetch orders");
 
@@ -23,7 +25,7 @@ export default function GetOrders() {
       setOrders(data.data || []);
       setTotalPages(data.total_pages || 1);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -33,7 +35,18 @@ export default function GetOrders() {
     fetchOrders(page);
   }, [page]);
 
-   const getServiceIcon = (serviceName) => {
+  const copyToClipboard = async (text) => {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
+
+  const getServiceIcon = (serviceName) => {
     if (!serviceName) return "/ic/default.webp";
 
     const name = serviceName.toLowerCase();
@@ -47,22 +60,55 @@ export default function GetOrders() {
 
     if (name.includes("youtube") || serviceName.includes("यूट्यूब"))
       return "/ic/youtube.webp";
+
     if (name.includes("facebook") || serviceName.includes("फेसबुक"))
       return "/ic/facebook.webp";
+
     if (name.includes("telegram") || serviceName.includes("टेलीग्राम"))
       return "/ic/telegram.webp";
 
     return "/ic/default.webp";
   };
 
-  // Validate URL before making it clickable
   const isValidUrl = (string) => {
+    if (!string) return false;
     try {
       new URL(string);
       return true;
     } catch {
       return false;
     }
+  };
+
+  // ✅ Date formatter: Today / Yesterday / dd Mon yyyy, hh:mm AM/PM
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "-";
+
+    const date = new Date(timestamp * 1000);
+    const now = new Date();
+
+    const isToday = date.toDateString() === now.toDateString();
+
+    const yesterday = new Date();
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+
+    const time = date.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    if (isToday) return `Today, ${time}`;
+    if (isYesterday) return `Yesterday, ${time}`;
+
+    const datePart = date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+    return `${datePart}, ${time}`;
   };
 
   if (loading)
@@ -89,19 +135,26 @@ export default function GetOrders() {
     <>
       <Header />
 
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-gray-50 relative">
+        {/* ✅ Copied toast with icon */}
+        {copied && (
+          <div className="fixed bottom-4 right-4 bg-green-600 rounded-full text-white px-4 py-2  z-50 flex items-center gap-2">
+            <Copy className="w-4 h-4" />
+            <span>Copied!</span>
+          </div>
+        )}
 
-        <div className="mt-20 bg-white shadow-md rounded-xl">
+        <div className="mt-20 bg-white ">
           {/* MOBILE SCROLL FIX */}
           <div className="overflow-x-auto">
             <table className="min-w-[900px] w-full border-collapse">
               <thead>
                 <tr className="bg-gray-100 text-left text-gray-700">
-                  <th className="py-3 px-4 font-semibold">Order</th>
+                  <th className="py-3 px-4 font-semibold">Order ID</th>
                   <th className="py-3 px-4 font-semibold">Quantity</th>
                   <th className="py-3 px-4 font-semibold">Link</th>
                   <th className="py-3 px-4 font-semibold">Amount</th>
-                  <th className="py-3 px-4 font-semibold">Created (IST)</th>
+                  <th className="py-3 px-4 font-semibold">Ordered At</th>
                 </tr>
               </thead>
 
@@ -120,38 +173,40 @@ export default function GetOrders() {
                       <span>{order.id}</span>
                     </td>
 
-                    <td className="py-2 px-4">{order.quantity}</td>
+                    <td className="py-2 text-sm px-4">{order.quantity}</td>
 
-                    <td className="py-2 px-4 text-blue-600 break-all">
-                      {isValidUrl(order.link) ? (
-                        <a
-                          href={order.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:underline"
+                    <td className="py-2  px-4">
+                      <div className="flex items-center gap-1 whitespace-nowrap max-w-xs">
+                        {isValidUrl(order.link) ? (
+                          <a
+                            href={order.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Open link"
+                            className="flex-shrink-0"
+                          >
+                            <ExternalLink className="w-3 h-3 text-blue-500 hover:text-blue-700 cursor-pointer" />
+                          </a>
+                        ) : (
+                          <ExternalLink className="w-3 h-3 text-gray-400" />
+                        )}
+
+                        <div
+                          className="bg-gray-200 px-2 py-1 rounded text-xs text-gray-700 cursor-pointer hover:bg-gray-300 flex-1 overflow-hidden text-ellipsis"
+                          onClick={() => copyToClipboard(order.link)}
+                          title={order.link || "Click to copy"}
                         >
                           {order.link}
-                        </a>
-                      ) : (
-                        <span className="text-gray-500">{order.link}</span>
-                      )}
+                        </div>
+                      </div>
                     </td>
 
-                    <td className="py-2 px-4 font-medium">₹{order.amount}</td>
+                    <td className="py-2 text-sm px-4 font-medium whitespace-nowrap">
+                      ₹{order.amount}
+                    </td>
 
-                    <td className="py-2 px-4 text-sm text-gray-500">
-                      {new Date(order.created_at * 1000).toLocaleString(
-                        "en-IN",
-                        {
-                          timeZone: "Asia/Kolkata",
-                          hour12: true,
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )}
+                    <td className="py-2 px-4 text-sm text-gray-500 whitespace-nowrap">
+                      {formatDate(order.created_at)}
                     </td>
                   </tr>
                 ))}

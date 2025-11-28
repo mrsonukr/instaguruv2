@@ -4,7 +4,7 @@ import { Package } from "lucide-react";
 import { updatePageSEO } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../data/translations";
-import WhatsAppButton from "../components/ui/WhatsAppButton";
+import TawkTo from "../components/TawkTo";
 const enableOrdersDebugLogs = false;
 const logOrdersDebug = (...args) => {
   if (enableOrdersDebugLogs && typeof console !== "undefined") {
@@ -415,9 +415,7 @@ const Orders = () => {
               <div className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded-lg">
                 {currentTime.toLocaleTimeString()}
               </div>
-              <WhatsAppButton className="text-white text-sm bg-green-500 px-3 py-2 rounded-lg">
-                Contact Us
-              </WhatsAppButton>
+       
             </div>
           </div>
 
@@ -527,6 +525,7 @@ const Orders = () => {
           )}
         </div>
       </div>
+       <TawkTo />
     </>
   );
 };

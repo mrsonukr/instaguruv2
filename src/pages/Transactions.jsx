@@ -4,6 +4,7 @@ import Footer from "../components/ui/Footer";
 import { updatePageSEO } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../data/translations";
+import { ClipboardList, Landmark, SlidersHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Transactions = () => {
@@ -16,6 +17,7 @@ const Transactions = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [viewMode, setViewMode] = useState("normal");
 
   useEffect(() => {
     updatePageSEO("transactions");
@@ -28,30 +30,23 @@ const Transactions = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchTransactions();
+      fetchNormalStats();
       fetchBalance();
     }
   }, [isAuthenticated]);
 
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
-    if (password === "2030") {
-      setIsAuthenticated(true);
-      setPasswordError("");
-      // Save authentication state to localStorage
-      localStorage.setItem("transactions_authenticated", "true");
-    } else {
-      setPasswordError("Incorrect password");
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchTransactions();
     }
-  };
+  }, [isAuthenticated, viewMode]);
 
-  const fetchTransactions = async () => {
+  const fetchNormalStats = async () => {
     try {
-      setLoading(true);
       const response = await fetch("https://rpwebhook.mssonukr.workers.dev/");
 
       if (!response.ok) {
-        throw new Error("Failed to fetch transactions");
+        throw new Error("Failed to fetch stats");
       }
 
       const data = await response.json();
@@ -62,43 +57,92 @@ const Transactions = () => {
           totalTx: summary.total_transactions,
           totalAmt: summary.total_amount,
         });
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching stats:", err);
+    }
+  };
 
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const endpoint =
+        viewMode === "normal"
+          ? "https://rpwebhook.mssonukr.workers.dev/"
+          : "https://rpwebhook.mssonukr.workers.dev/earlybuyer";
+      const response = await fetch(endpoint);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch transactions");
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         const grouped = {};
 
-        // Process last_3_days
-        data.last_3_days.forEach((day) => {
-          const date = new Date(day.date);
-          const category = getDateCategoryFromDate(date);
-          if (!grouped[category]) {
-            grouped[category] = {
-              type: "detailed",
-              transactions: [],
-              totalAmount: day.amount,
-              count: day.transactions,
-            };
-          }
-          day.payments.forEach((payment) => {
-            grouped[category].transactions.push({
-              id: payment.id,
-              data: payment,
+        if (viewMode === "normal") {
+          // Process last_3_days
+          data.last_3_days.forEach((day) => {
+            const date = new Date(day.date);
+            const category = getDateCategoryFromDate(date);
+            if (!grouped[category]) {
+              grouped[category] = {
+                type: "detailed",
+                transactions: [],
+                totalAmount: day.amount,
+                count: day.transactions,
+              };
+            }
+            day.payments.forEach((payment) => {
+              grouped[category].transactions.push({
+                id: payment.id,
+                data: payment,
+              });
             });
+            // Sort transactions within the day by created_at desc
+            grouped[category].transactions.sort(
+              (a, b) => b.data.created_at - a.data.created_at
+            );
           });
-          // Sort transactions within the day by created_at desc
-          grouped[category].transactions.sort(
-            (a, b) => b.data.created_at - a.data.created_at
-          );
-        });
 
-        // Process older_data
-        data.older_data.forEach((older) => {
-          const date = new Date(older.date);
-          const category = getDateCategoryFromDate(date);
-          grouped[category] = {
-            type: "summary",
-            totalAmount: older.amount,
-            count: older.transactions,
-          };
-        });
+          // Process older_data
+          data.older_data.forEach((older) => {
+            const date = new Date(older.date);
+            const category = getDateCategoryFromDate(date);
+            grouped[category] = {
+              type: "summary",
+              totalAmount: older.amount,
+              count: older.transactions,
+            };
+          });
+        } else {
+          // Process last_2_days for early buyer mode
+          data.last_2_days.forEach((day) => {
+            const date = new Date(day.date);
+            const category = getDateCategoryFromDate(date);
+            if (!grouped[category]) {
+              grouped[category] = {
+                type: "detailed",
+                transactions: [],
+                totalAmount: day.amount,
+                count: day.transactions,
+              };
+            }
+            day.payments.forEach((payment) => {
+              grouped[category].transactions.push({
+                id: payment.id,
+                data: payment,
+              });
+            });
+            // Sort transactions within the day by created_at desc
+            grouped[category].transactions.sort(
+              (a, b) => b.data.created_at - a.data.created_at
+            );
+          });
+        }
 
         // Sort categories by recency
         const getTimestamp = (cat) => {
@@ -157,9 +201,23 @@ const Transactions = () => {
     }
   };
 
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (password === "8080") {
+      setIsAuthenticated(true);
+      setPasswordError("");
+      // Save authentication state to localStorage
+      localStorage.setItem("transactions_authenticated", "true");
+    } else {
+      setPasswordError("Incorrect password");
+    }
+  };
+
   const fetchBalance = async () => {
     try {
-      const response = await fetch("https://smmguru.mssonukr.workers.dev/balance");
+      const response = await fetch(
+        "https://smmguru.mssonukr.workers.dev/balance"
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -280,10 +338,6 @@ const Transactions = () => {
 
   const getStatusColor = (amount) => {
     return amount > 0 ? "text-green-600" : "text-red-600";
-  };
-
-  const getStatusBg = (amount) => {
-    return amount > 0 ? "bg-green-50" : "bg-red-50";
   };
 
   // Password protection screen
@@ -421,35 +475,32 @@ const Transactions = () => {
     <>
       <Header />
       <div className="mt-20"></div>
-      <div className="min-h-screen bg-white py-8">
+      <div className="min-h-screen bg-white py-4">
         <div className="max-w-6xl mx-auto px-4">
           {/* Header Section */}
           <div className="flex justify-between">
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
                 {getTranslation("transactions", language) || "Transactions"}
               </h1>
-              <p className="text-gray-600">
-                {getTranslation("viewAllTransactions", language) ||
-                  "View all your payment transactions"}
-              </p>
             </div>
             <div className="flex space-x-4">
               <Link
                 to="/payout"
-                className="inline-flex items-center gap-2 px-4 h-12  bg-green-500 text-white font-medium rounded-lg  hover:bg-blue-700 active:bg-blue-800 transition-all duration-200"
+                className="inline-flex items-center gap-2 px-3 h-8 text-sm bg-green-600 text-white font-medium rounded-full  hover:bg-green-700 transition-all duration-200"
               >
+                <Landmark size={16} />
                 Payout
               </Link>
               <Link
                 to="/getorders"
-                className="inline-flex items-center gap-2 px-4 h-12 bg-green-500 text-white font-medium rounded-lg  hover:bg-blue-700 active:bg-blue-800 transition-all duration-200"
+                className="inline-flex items-center gap-2 px-3 h-8 text-sm bg-green-600 text-white font-medium rounded-full hover:bg-green-700  transition-all duration-200"
               >
+                <ClipboardList size={16} />
                 Orders
               </Link>
             </div>
           </div>
-          
 
           {/* Stats Cards */}
           <div className="grid grid-cols-3 gap-2 md:gap-6 mb-8">
@@ -472,7 +523,7 @@ const Transactions = () => {
                 </div>
                 <div className="ml-0 md:ml-4 text-center md:text-left">
                   <p className="text-xs md:text-sm font-medium text-gray-600">
-                    {getTranslation("totalTransactions", language)}
+                    Transactions
                   </p>
                   <p className="text-lg md:text-2xl font-bold text-gray-900">
                     {totalStats.totalTx}
@@ -542,11 +593,20 @@ const Transactions = () => {
 
           {/* Transactions List */}
           <div className="bg-white rounded-lg border border-x-0">
-            <div className="px-6 py-4 border-b border-gray-200">
+            <div className=" py-4 flex justify-between items-center border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
                 {getTranslation("recentTransactions", language) ||
                   "Recent Transactions"}
               </h2>
+              <button
+                onClick={() =>
+                  setViewMode(viewMode === "normal" ? "early" : "normal")
+                }
+                className={`inline-flex items-center gap-2 px-3 h-8 text-sm font-medium rounded-full transition-all duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300`}
+              >
+                <SlidersHorizontal size={16} />{" "}
+                {viewMode === "normal" ? "Early buyers" : "All Transactions"}
+              </button>
             </div>
 
             {Object.keys(groupedData).length === 0 ? (
@@ -609,6 +669,16 @@ const Transactions = () => {
                                 <div>
                                   <p className="text-sm font-medium text-gray-900">
                                     {transaction.data.vpa || "N/A"}
+                                    {viewMode === "early" &&
+                                      transaction.data.vpa_transaction_count >
+                                        0 && (
+                                        <span className="text-xs bg-green-500 px-2  rounded-sm text-white ml-2">
+                                          {
+                                            transaction.data
+                                              .vpa_transaction_count
+                                          }
+                                        </span>
+                                      )}
                                   </p>
                                   <p className="text-xs text-gray-500">
                                     {transaction.data.rrn || "N/A"}

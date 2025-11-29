@@ -49,7 +49,9 @@ export default function GetOrders() {
     setError(null);
     try {
       const res = await fetch(
-        `https://smmguru.mssonukr.workers.dev/search?query=${encodeURIComponent(query)}`
+        `https://smmguru.mssonukr.workers.dev/search?query=${encodeURIComponent(
+          query
+        )}`
       );
 
       if (!res.ok) {
@@ -227,11 +229,11 @@ export default function GetOrders() {
                 )}
               </div>
             </div>
-            {isSearching && orders.length === 0 && !error && (
-             <></>
-            )}
+            {isSearching && orders.length === 0 && !error && <></>}
             {isSearching && orders.length > 0 && (
-              <p className="text-center text-green-600 mt-2 text-sm">Showing search result for: {searchQuery}</p>
+              <p className="text-center text-green-600 mt-2 text-sm">
+                Showing search result for: {searchQuery}
+              </p>
             )}
           </div>
 
@@ -252,14 +254,18 @@ export default function GetOrders() {
                 {orders.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-gray-500">
-                      {isSearching ? "No results found." : "No orders available."}
+                      {isSearching
+                        ? "No results found."
+                        : "No orders available."}
                     </td>
                   </tr>
                 ) : (
                   orders.map((order) => (
                     <tr
                       key={order.id}
-                      className={`border-t hover:bg-gray-50 transition ${isSearching ? "bg-green-50" : ""}`}
+                      className={`border-t hover:bg-gray-50 transition ${
+                        isSearching ? "bg-green-50" : ""
+                      }`}
                     >
                       <td className="py-2 px-4 flex items-center gap-2">
                         <img

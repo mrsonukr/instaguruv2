@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ExternalLink, Copy } from "lucide-react";
+import { ExternalLink, Copy, Search, X } from "lucide-react";
 import Header from "../components/Header";
 
 export default function GetOrders() {
@@ -7,6 +7,10 @@ export default function GetOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -31,9 +35,54 @@ export default function GetOrders() {
     }
   };
 
+  const handleSearch = async (query) => {
+    if (!query.trim()) {
+      // If empty query, reset to full list
+      setIsSearching(false);
+      setSearchQuery("");
+      fetchOrders(1);
+      setPage(1);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `https://smmguru.mssonukr.workers.dev/search?query=${encodeURIComponent(query)}`
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        if (res.status === 404) {
+          // No record found - treat as empty results
+          setOrders([]);
+          setTotalPages(1);
+          setPage(1);
+          setIsSearching(true);
+          return;
+        }
+        throw new Error(errorData.error || "Search failed");
+      }
+
+      const data = await res.json();
+      setOrders(data.data ? [data.data] : []);
+      setTotalPages(1);
+      setPage(1);
+      setIsSearching(true);
+    } catch (err) {
+      setError(err.message || "Search failed");
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchOrders(page);
-  }, [page]);
+    if (!isSearching) {
+      fetchOrders(page);
+    }
+  }, [page, isSearching]);
 
   const copyToClipboard = async (text) => {
     if (!text) return;
@@ -116,7 +165,7 @@ export default function GetOrders() {
       <>
         <Header />
         <div className="flex items-center justify-center h-screen text-lg font-medium text-gray-600">
-          Loading orders...
+          {isSearching ? "Searching..." : "Loading orders..."}
         </div>
       </>
     );
@@ -144,7 +193,48 @@ export default function GetOrders() {
           </div>
         )}
 
-        <div className="mt-20 bg-white ">
+        <div className="mt-20 bg-white">
+          {/* Search Bar */}
+          <div className="p-4 border-b bg-gray-50">
+            <div className="flex items-center gap-2 mx-auto">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by Order ID or UTR..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchQuery(value);
+                    if (!value.trim()) {
+                      setIsSearching(false);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearch(searchQuery);
+                    }
+                  }}
+                  className="w-full pl-10 pr-10 py-1.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                {isSearching && searchQuery && (
+                  <button
+                    onClick={() => handleSearch("")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </div>
+            {isSearching && orders.length === 0 && !error && (
+             <></>
+            )}
+            {isSearching && orders.length > 0 && (
+              <p className="text-center text-green-600 mt-2 text-sm">Showing search result for: {searchQuery}</p>
+            )}
+          </div>
+
           {/* MOBILE SCROLL FIX */}
           <div className="overflow-x-auto">
             <table className="min-w-[900px] w-full border-collapse">
@@ -159,102 +249,114 @@ export default function GetOrders() {
               </thead>
 
               <tbody>
-                {orders.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="border-t hover:bg-gray-50 transition"
-                  >
-                    <td className="py-2 px-4 flex items-center gap-2">
-                      <img
-                        src={getServiceIcon(order.service)}
-                        alt="icon"
-                        className="w-5 h-5 rounded"
-                      />
-                      <span>{order.id}</span>
-                    </td>
-
-                    <td className="py-2 text-sm px-4">{order.quantity}</td>
-
-                    <td className="py-2  px-4">
-                      <div className="flex items-center gap-1 whitespace-nowrap max-w-xs">
-                        {isValidUrl(order.link) ? (
-                          <a
-                            href={order.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title="Open link"
-                            className="flex-shrink-0"
-                          >
-                            <ExternalLink className="w-3 h-3 text-blue-500 hover:text-blue-700 cursor-pointer" />
-                          </a>
-                        ) : (
-                          <ExternalLink className="w-3 h-3 text-gray-400" />
-                        )}
-
-                        <div
-                          className="bg-gray-200 px-2 py-1 rounded text-xs text-gray-700 cursor-pointer hover:bg-gray-300 flex-1 overflow-hidden text-ellipsis"
-                          onClick={() => copyToClipboard(order.link)}
-                          title={order.link || "Click to copy"}
-                        >
-                          {order.link}
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="py-2 text-sm px-4 font-medium whitespace-nowrap">
-                      ₹{order.amount}
-                    </td>
-
-                    <td className="py-2 px-4 text-sm text-gray-500 whitespace-nowrap">
-                      {formatDate(order.created_at)}
+                {orders.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-gray-500">
+                      {isSearching ? "No results found." : "No orders available."}
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  orders.map((order) => (
+                    <tr
+                      key={order.id}
+                      className={`border-t hover:bg-gray-50 transition ${isSearching ? "bg-green-50" : ""}`}
+                    >
+                      <td className="py-2 px-4 flex items-center gap-2">
+                        <img
+                          src={getServiceIcon(order.service)}
+                          alt="icon"
+                          className="w-5 h-5 rounded"
+                        />
+                        <span>{order.id}</span>
+                      </td>
+
+                      <td className="py-2 text-sm px-4">{order.quantity}</td>
+
+                      <td className="py-2  px-4">
+                        <div className="flex items-center gap-1 whitespace-nowrap max-w-xs">
+                          {isValidUrl(order.link) ? (
+                            <a
+                              href={order.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Open link"
+                              className="flex-shrink-0"
+                            >
+                              <ExternalLink className="w-3 h-3 text-green-500 hover:text-green-700 cursor-pointer" />
+                            </a>
+                          ) : (
+                            <ExternalLink className="w-3 h-3 text-gray-400" />
+                          )}
+
+                          <div
+                            className="bg-gray-200 px-2 py-1 rounded text-xs text-gray-700 cursor-pointer hover:bg-gray-300 flex-1 overflow-hidden text-ellipsis"
+                            onClick={() => copyToClipboard(order.link)}
+                            title={order.link || "Click to copy"}
+                          >
+                            {order.link}
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-2 text-sm px-4 font-medium whitespace-nowrap">
+                        ₹{order.amount}
+                      </td>
+
+                      <td className="py-2 px-4 text-sm text-gray-500 whitespace-nowrap">
+                        {formatDate(order.created_at)}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-6 gap-3 flex-wrap">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className={`px-4 py-2 rounded-lg border shadow ${
-              page === 1
-                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                : "bg-white hover:bg-gray-100"
-            }`}
-          >
-            Prev
-          </button>
+        {/* Pagination - Hide when searching single result */}
+        {!isSearching && (
+          <div className="m-6 overflow-x-auto text-sm pb-2">
+            <div className="flex justify-center gap-2 min-w-max">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage(page - 1)}
+                className={`px-4 py-2 rounded-lg border  ${
+                  page === 1
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-white hover:bg-gray-100"
+                }`}
+              >
+                Prev
+              </button>
 
-          {[...Array(totalPages)].map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setPage(i + 1)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium border shadow ${
-                page === i + 1
-                  ? "bg-blue-600 text-white"
-                  : "bg-white hover:bg-gray-100"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border  ${
+                    page === i + 1
+                      ? "bg-green-600 text-white"
+                      : "bg-white hover:bg-gray-100"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
 
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
-            className={`px-4 py-2 rounded-lg border shadow ${
-              page === totalPages
-                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                : "bg-white hover:bg-gray-100"
-            }`}
-          >
-            Next
-          </button>
-        </div>
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage(page + 1)}
+                className={`px-4 py-2 rounded-lg border  ${
+                  page === totalPages
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-white hover:bg-gray-100"
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

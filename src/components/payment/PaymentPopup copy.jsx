@@ -414,7 +414,7 @@ const PaymentPopup = ({
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">
                 {selectedPaymentMethod === "qrcode"
-                  ? "Scan the QR Code by taking a screenshot."
+                  ? "Scan QR Code"
                   : "Payment Processing"}
               </h3>
               <button

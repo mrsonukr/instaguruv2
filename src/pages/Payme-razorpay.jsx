@@ -11,8 +11,8 @@ import {
   isDiscountApplicable,
 } from "../config/paymentOffers";
 
-// ✅ UPI payment address
-const MAIN_PAYMENT_ADDRESS = "akbar3815@amazonpay";
+// ✅ Razorpay payment address
+const MAIN_PAYMENT_ADDRESS = "grocery334078.rzp@icici";
 
 const Payme = () => {
   const { token } = useParams();
@@ -20,7 +20,6 @@ const Payme = () => {
   const [amount, setAmount] = useState("1.00");
   const [amountError, setAmountError] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("phonepe");
-  const [paymentInitiated, setPaymentInitiated] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
@@ -96,14 +95,12 @@ const Payme = () => {
   }, [showPopup, selectedPaymentMethod, timeLeft]);
 
   useEffect(() => {
-    if (!paymentInitiated) {
-      const discountedAmount = getDiscountedAmount(
-        amount,
-        selectedPaymentMethod
-      );
-      setDisplayAmount(discountedAmount.toString());
-    }
-  }, [selectedPaymentMethod, amount, paymentInitiated]);
+    const discountedAmount = getDiscountedAmount(
+      amount,
+      selectedPaymentMethod
+    );
+    setDisplayAmount(discountedAmount.toString());
+  }, [selectedPaymentMethod, amount]);
 
   const handleBack = () => {
     if (token) {
@@ -121,9 +118,9 @@ const Payme = () => {
     navigate("/orders");
   };
 
-  // ✅ Generate UPI QR Code
+  // ✅ Generate Razorpay QR Code
   const generateQRCode = async () => {
-    const qrLink = `upi://pay?pa=${MAIN_PAYMENT_ADDRESS}&pn=Grocery&am=${displayAmount}&cu=INR`;
+    const qrLink = `upi://pay?ver=01&mode=19&pa=${MAIN_PAYMENT_ADDRESS}&pn=Grocery&tr=RZPQq20UpfM9HksWcqrv2&cu=INR&mc=5411&qrMedium=04&tn=Payment%20to%20Grocery&am=${displayAmount}`;
     try {
       const qrDataUrl = await QRCode.toDataURL(qrLink, {
         width: 200,
@@ -136,26 +133,46 @@ const Payme = () => {
     }
   };
 
-  // ✅ Continue button (always opens QR code)
+  // ✅ Continue button (UPI deep links)
   const handleContinue = async () => {
     if (!selectedPaymentMethod) {
       alert("Please select a payment method");
       return;
     }
 
-    // Lock in the discount based on selected method
-    const discountedAmount = getDiscountedAmount(amount, selectedPaymentMethod);
-    setDisplayAmount(discountedAmount.toString());
-    setPaymentInitiated(true);
-
-    // Force QR code mode for popup
-    setSelectedPaymentMethod("qrcode");
-
     setShowPopup(true);
     setIsClosing(false);
     setTimeLeft(180);
 
-    await generateQRCode();
+    if (selectedPaymentMethod === "qrcode") {
+      await generateQRCode();
+      return;
+    }
+
+    // For other payment methods, try to open the app but also start API polling
+    const BASE_UPI_URL = `//pay?ver=01&mode=19&pa=${MAIN_PAYMENT_ADDRESS}&pn=Grocery&tr=RZPQq20UpfM9HksWcqrv2&cu=INR&mc=5411&qrMedium=04&tn=Payment%20to%20Grocery&am=${displayAmount}`;
+
+    let redirect_url;
+    switch (selectedPaymentMethod.toLowerCase()) {
+      case "paytm":
+        redirect_url = `paytmmp:${BASE_UPI_URL}`;
+        break;
+      case "phonepe":
+        redirect_url = `phonepe:${BASE_UPI_URL}`;
+        break;
+      case "gpay":
+        redirect_url = `upi:${BASE_UPI_URL}`;
+        break;
+      default:
+        redirect_url = `upi:${BASE_UPI_URL}`;
+    }
+
+    // Try to open the app but don't redirect the page
+    try {
+      window.location.href = redirect_url;
+    } catch (error) {
+      // Continue with API polling if app doesn't open
+    }
   };
 
   const closePopup = () => {

@@ -31,13 +31,16 @@ const sendOrderToWebhook = async (orderData) => {
 
     logPaymentDebug("Sending order to webhook", webhookData);
 
-    const response = await fetch("https://rpwebhook.mssonukr.workers.dev/neworder", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(webhookData),
-    });
+    const response = await fetch(
+      "https://bharatpe.mssonukr.workers.dev/neworder",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(webhookData),
+      }
+    );
 
     if (response.ok) {
       const result = await response.json();
@@ -67,7 +70,7 @@ const PaymentPopup = ({
   setTimeLeft,
 }) => {
   const [loadedImages, setLoadedImages] = useState({});
-  const [showAppNotInstalled, setShowAppNotInstalled] = useState(false);
+  const [setShowAppInstalled, setShowAppNotInstalled] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("waiting");
   const navigate = useNavigate();
   const isPollingStartedRef = useRef(false);
@@ -81,12 +84,6 @@ const PaymentPopup = ({
       isPollingStartedRef.current = false;
     }
   }, [showPopup]);
-
-
-
-
-
-
 
   // Payment polling logic for all payment methods
   useEffect(() => {
@@ -105,7 +102,9 @@ const PaymentPopup = ({
           setPaymentStatus("success");
 
           // Create payment transaction record for test mode
-          const existingTransactions = JSON.parse(localStorage.getItem("paymentTransactions") || "[]");
+          const existingTransactions = JSON.parse(
+            localStorage.getItem("paymentTransactions") || "[]"
+          );
           const paymentTransaction = {
             id: `test_payment_${Date.now()}`,
             type: "payment",
@@ -117,18 +116,24 @@ const PaymentPopup = ({
             vpa: "test@test",
             rrn: `TEST${Date.now()}`,
             currency: "INR",
-            status: "completed"
+            status: "completed",
           };
 
           // Add to paymentTransactions
           existingTransactions.push(paymentTransaction);
-          localStorage.setItem("paymentTransactions", JSON.stringify(existingTransactions));
+          localStorage.setItem(
+            "paymentTransactions",
+            JSON.stringify(existingTransactions)
+          );
 
           // Get actual service details from localStorage
-          const selectedService = JSON.parse(localStorage.getItem("selectedService") || "{}");
+          const selectedService = JSON.parse(
+            localStorage.getItem("selectedService") || "{}"
+          );
 
           // Create actual order in userOrders with real service details
-          const finalOrderId = orderId || Math.floor(Math.random() * 900000) + 100000;
+          const finalOrderId =
+            orderId || Math.floor(Math.random() * 900000) + 100000;
           const newOrder = {
             id: finalOrderId.toString(),
             service: selectedService.service || "Service Order",
@@ -136,13 +141,15 @@ const PaymentPopup = ({
             link: selectedService.profileLink || "order@example.com",
             amount: Math.floor(amount),
             status: "pending",
-            date: new Date().toISOString().split('T')[0],
+            date: new Date().toISOString().split("T")[0],
             createdAt: new Date().toISOString(),
-            deliveryTime: "24-48 hours"
+            deliveryTime: "24-48 hours",
           };
 
           // Add to userOrders
-          const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
+          const existingOrders = JSON.parse(
+            localStorage.getItem("userOrders") || "[]"
+          );
           existingOrders.push(newOrder);
           localStorage.setItem("userOrders", JSON.stringify(existingOrders));
 
@@ -192,7 +199,9 @@ const PaymentPopup = ({
             paymentToken,
             selectedPaymentMethod,
           });
-          const res = await fetch(`https://rpwebhook.mssonukr.workers.dev/amount/${amountInPaise}`);
+          const res = await fetch(
+            `https://bharatpe.mssonukr.workers.dev/amount/${amountInPaise}`
+          );
           if (res.ok) {
             const data = await res.json();
             logPaymentDebug("API response received", data);
@@ -211,17 +220,22 @@ const PaymentPopup = ({
 
               const paymentId = data.payment_id || `upi_payment_${Date.now()}`;
 
-              const existingTransactions = JSON.parse(localStorage.getItem("paymentTransactions") || "[]");
+              const existingTransactions = JSON.parse(
+                localStorage.getItem("paymentTransactions") || "[]"
+              );
               clearInterval(intervalId);
               clearInterval(countdownId);
 
               setPaymentStatus("success");
-              logPaymentDebug("Payment confirmed, updating records", { paymentId });
+              logPaymentDebug("Payment confirmed, updating records", {
+                paymentId,
+              });
 
               const apiOrderId = data.orderid;
               const finalOrderId =
-                (apiOrderId !== undefined && apiOrderId !== null ? apiOrderId : orderId) ||
-                Math.floor(Math.random() * 900000) + 100000;
+                (apiOrderId !== undefined && apiOrderId !== null
+                  ? apiOrderId
+                  : orderId) || Math.floor(Math.random() * 900000) + 100000;
               const finalOrderIdStr = finalOrderId.toString();
 
               const paymentTransaction = {
@@ -233,13 +247,18 @@ const PaymentPopup = ({
                 paymentId,
                 method: selectedPaymentMethod,
                 status: "completed",
-                orderId: finalOrderIdStr
+                orderId: finalOrderIdStr,
               };
 
               existingTransactions.push(paymentTransaction);
-              localStorage.setItem("paymentTransactions", JSON.stringify(existingTransactions));
+              localStorage.setItem(
+                "paymentTransactions",
+                JSON.stringify(existingTransactions)
+              );
 
-              const selectedService = JSON.parse(localStorage.getItem("selectedService") || "{}");
+              const selectedService = JSON.parse(
+                localStorage.getItem("selectedService") || "{}"
+              );
               const newOrder = {
                 id: finalOrderIdStr,
                 service: selectedService.service || "Service Order",
@@ -251,23 +270,33 @@ const PaymentPopup = ({
                 createdAt: new Date().toISOString(),
                 deliveryTime: "24-48 hours",
                 paymentId,
-                orderId: finalOrderIdStr
+                orderId: finalOrderIdStr,
               };
 
-              const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
+              const existingOrders = JSON.parse(
+                localStorage.getItem("userOrders") || "[]"
+              );
               const isOrderAlreadyStored = existingOrders.some(
-                (order) => order.id?.toString() === finalOrderIdStr || order.orderId?.toString() === finalOrderIdStr
+                (order) =>
+                  order.id?.toString() === finalOrderIdStr ||
+                  order.orderId?.toString() === finalOrderIdStr
               );
 
               if (!isOrderAlreadyStored) {
                 existingOrders.push(newOrder);
-                localStorage.setItem("userOrders", JSON.stringify(existingOrders));
+                localStorage.setItem(
+                  "userOrders",
+                  JSON.stringify(existingOrders)
+                );
                 logPaymentDebug("Stored new order in userOrders", newOrder);
-                
+
                 // Send order to webhook
                 await sendOrderToWebhook(newOrder);
               } else {
-                logPaymentDebug("Order already exists in userOrders, skipping insert", { finalOrderIdStr });
+                logPaymentDebug(
+                  "Order already exists in userOrders, skipping insert",
+                  { finalOrderIdStr }
+                );
               }
 
               localStorage.removeItem("selectedService");
@@ -316,25 +345,36 @@ const PaymentPopup = ({
       if (initialTimeout) clearTimeout(initialTimeout);
       if (testModeTimeout) clearTimeout(testModeTimeout);
     };
-  }, [showPopup, selectedPaymentMethod, orderId, amount, navigate, setTimeLeft]);
+  }, [
+    showPopup,
+    selectedPaymentMethod,
+    orderId,
+    amount,
+    navigate,
+    setTimeLeft,
+  ]);
 
   const handleClose = () => {
-
     // Mark transaction as cancelled if still initiated
     if (paymentToken && paymentStatus === "waiting") {
-      const existingTransactions = JSON.parse(localStorage.getItem("paymentTransactions") || "[]");
-      const updatedTransactions = existingTransactions.map(txn => {
+      const existingTransactions = JSON.parse(
+        localStorage.getItem("paymentTransactions") || "[]"
+      );
+      const updatedTransactions = existingTransactions.map((txn) => {
         if (txn.paymentToken === paymentToken && txn.status === "initiated") {
           return {
             ...txn,
             status: "cancelled",
             updatedAt: new Date().toISOString(),
-            description: `Payment Cancelled - ₹${amount}`
+            description: `Payment Cancelled - ₹${amount}`,
           };
         }
         return txn;
       });
-      localStorage.setItem("paymentTransactions", JSON.stringify(updatedTransactions));
+      localStorage.setItem(
+        "paymentTransactions",
+        JSON.stringify(updatedTransactions)
+      );
     }
 
     onClose();
@@ -388,8 +428,9 @@ const PaymentPopup = ({
         src={src}
         alt={alt}
         onLoad={() => handleImageLoad(imageName)}
-        className={`${className} transition-opacity duration-300 ease-in-out ${loadedImages[imageName] ? "opacity-100" : "opacity-0"
-          }`}
+        className={`${className} transition-opacity duration-300 ease-in-out ${
+          loadedImages[imageName] ? "opacity-100" : "opacity-0"
+        }`}
         style={{ willChange: "opacity", backfaceVisibility: "hidden" }}
       />
     </div>
@@ -400,8 +441,9 @@ const PaymentPopup = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
       <div
-        className={`bg-white w-full rounded-t-3xl transform transition-transform duration-300 ease-out ${isClosing ? "translate-y-full" : "translate-y-0"
-          }`}
+        className={`bg-white w-full rounded-t-3xl transform transition-transform duration-300 ease-out ${
+          isClosing ? "translate-y-full" : "translate-y-0"
+        }`}
       >
         {/* iPhone-style handle bar */}
         <div className="flex justify-center pt-3 pb-2">
@@ -438,12 +480,14 @@ const PaymentPopup = ({
                     <X size={20} />
                   </button>
                   <div className="flex flex-col items-center">
-                    <Lottie 
+                    <Lottie
                       animationData={successAnimation}
                       loop={false}
                       style={{ width: 150, height: 150 }}
                     />
-                    <p className="text-lg font-semibold text-black mt-2">Payment Successful</p>
+                    <p className="text-lg font-semibold text-black mt-2">
+                      Payment Successful
+                    </p>
                   </div>
                 </div>
               ) : paymentStatus === "timeout" ? (
@@ -499,12 +543,14 @@ const PaymentPopup = ({
                     <X size={20} />
                   </button>
                   <div className="flex flex-col items-center">
-                    <Lottie 
+                    <Lottie
                       animationData={successAnimation}
                       loop={false}
                       style={{ width: 150, height: 150 }}
                     />
-                    <p className="text-lg font-semibold text-black mt-2">Payment Successful</p>
+                    <p className="text-lg font-semibold text-black mt-2">
+                      Payment Successful
+                    </p>
                   </div>
                 </div>
               ) : paymentStatus === "timeout" ? (
@@ -514,9 +560,16 @@ const PaymentPopup = ({
               ) : (
                 <>
                   <div className="flex justify-center mb-4">
-                    <ThreeDot color="#3b7aff" size="large" text="" textColor="" />
+                    <ThreeDot
+                      color="#3b7aff"
+                      size="large"
+                      text=""
+                      textColor=""
+                    />
                   </div>
-                  <h4 className="text-lg font-semibold mb-2">Processing Payment</h4>
+                  <h4 className="text-lg font-semibold mb-2">
+                    Processing Payment
+                  </h4>
 
                   <p>Please wait while we process your payment.</p>
                 </>

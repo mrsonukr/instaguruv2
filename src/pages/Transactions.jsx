@@ -4,7 +4,7 @@ import Footer from "../components/ui/Footer";
 import { updatePageSEO } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../data/translations";
-import { ClipboardList, Landmark, SlidersHorizontal } from "lucide-react";
+import { ClipboardList, Landmark } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Transactions = () => {
@@ -17,11 +17,9 @@ const Transactions = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [viewMode, setViewMode] = useState("normal");
 
   useEffect(() => {
     updatePageSEO("transactions");
-    // Check if user was previously authenticated
     const savedAuth = localStorage.getItem("transactions_authenticated");
     if (savedAuth === "true") {
       setIsAuthenticated(true);
@@ -32,33 +30,20 @@ const Transactions = () => {
     if (isAuthenticated) {
       fetchNormalStats();
       fetchBalance();
+      fetchTransactions();
     }
   }, [isAuthenticated]);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchTransactions();
-    }
-  }, [isAuthenticated, viewMode]);
-
   const fetchNormalStats = async () => {
     try {
-      const response = await fetch("https://rpwebhook.mssonukr.workers.dev/");
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch stats");
-      }
-
+      const response = await fetch("https://bharatpe.mssonukr.workers.dev/payments");
+      if (!response.ok) throw new Error("Failed to fetch stats");
       const data = await response.json();
-
       if (data.success) {
-        const summary = data.summary;
         setTotalStats({
-          totalTx: summary.total_transactions,
-          totalAmt: summary.total_amount,
+          totalTx: data.summary.total_transactions,
+          totalAmt: data.summary.total_amount,
         });
-      } else {
-        throw new Error("Invalid response format");
       }
     } catch (err) {
       console.error("Error fetching stats:", err);
@@ -68,137 +53,88 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const endpoint =
-        viewMode === "normal"
-          ? "https://rpwebhook.mssonukr.workers.dev/"
-          : "https://rpwebhook.mssonukr.workers.dev/earlybuyer";
-      const response = await fetch(endpoint);
+      setError(null);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch transactions");
-      }
+      const response = await fetch("https://bharatpe.mssonukr.workers.dev/payments");
+      if (!response.ok) throw new Error("Failed to fetch transactions");
 
       const data = await response.json();
+      if (!data.success) throw new Error("Invalid response format");
 
-      if (data.success) {
-        const grouped = {};
+      const grouped = {};
 
-        if (viewMode === "normal") {
-          // Process last_3_days
-          data.last_3_days.forEach((day) => {
-            const date = new Date(day.date);
-            const category = getDateCategoryFromDate(date);
-            if (!grouped[category]) {
-              grouped[category] = {
-                type: "detailed",
-                transactions: [],
-                totalAmount: day.amount,
-                count: day.transactions,
-              };
-            }
-            day.payments.forEach((payment) => {
-              grouped[category].transactions.push({
-                id: payment.id,
-                data: payment,
-              });
-            });
-            // Sort transactions within the day by created_at desc
-            grouped[category].transactions.sort(
-              (a, b) => b.data.created_at - a.data.created_at
-            );
-          });
+      // Process last_3_days
+      data.last_3_days?.forEach((day) => {
+        const date = new Date(day.date);
+        const category = getDateCategoryFromDate(date);
 
-          // Process older_data
-          data.older_data.forEach((older) => {
-            const date = new Date(older.date);
-            const category = getDateCategoryFromDate(date);
-            grouped[category] = {
-              type: "summary",
-              totalAmount: older.amount,
-              count: older.transactions,
-            };
-          });
-        } else {
-          // Process last_2_days for early buyer mode
-          data.last_2_days.forEach((day) => {
-            const date = new Date(day.date);
-            const category = getDateCategoryFromDate(date);
-            if (!grouped[category]) {
-              grouped[category] = {
-                type: "detailed",
-                transactions: [],
-                totalAmount: day.amount,
-                count: day.transactions,
-              };
-            }
-            day.payments.forEach((payment) => {
-              grouped[category].transactions.push({
-                id: payment.id,
-                data: payment,
-              });
-            });
-            // Sort transactions within the day by created_at desc
-            grouped[category].transactions.sort(
-              (a, b) => b.data.created_at - a.data.created_at
-            );
-          });
+        if (!grouped[category]) {
+          grouped[category] = {
+            type: "detailed",
+            transactions: [],
+            totalAmount: day.amount,
+            count: day.transactions,
+          };
         }
 
-        // Sort categories by recency
-        const getTimestamp = (cat) => {
-          if (cat === "today") {
-            const today = new Date();
-            return today.getTime();
-          }
-          if (cat === "yesterday") {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            return yesterday.getTime();
-          }
-          const match = cat.match(/(\d{1,2})\s+(\w{3})\s+(\d{4})/);
-          if (match) {
-            const [, day, mon, year] = match;
-            const monthMap = {
-              Jan: 0,
-              Feb: 1,
-              Mar: 2,
-              Apr: 3,
-              May: 4,
-              Jun: 5,
-              Jul: 6,
-              Aug: 7,
-              Sep: 8,
-              Oct: 9,
-              Nov: 10,
-              Dec: 11,
-            };
-            const month = monthMap[mon];
-            if (month !== undefined) {
-              const date = new Date(parseInt(year), month, parseInt(day));
-              return date.getTime();
-            }
-          }
-          return 0;
-        };
-
-        const sortedCategories = Object.keys(grouped).sort(
-          (a, b) => getTimestamp(b) - getTimestamp(a)
-        );
-        const sortedGrouped = {};
-        sortedCategories.forEach((cat) => {
-          sortedGrouped[cat] = grouped[cat];
+        day.payments.forEach((payment) => {
+          grouped[category].transactions.push({
+            id: payment.id,
+            data: payment,
+          });
         });
 
-        setGroupedData(sortedGrouped);
-      } else {
-        throw new Error("Invalid response format");
-      }
+        grouped[category].transactions.sort(
+          (a, b) => b.data.created_at - a.data.created_at
+        );
+      });
+
+      // Process older_data (summary only)
+      data.older_data?.forEach((older) => {
+        const date = new Date(older.date);
+        const category = getDateCategoryFromDate(date);
+        grouped[category] = {
+          type: "summary",
+          totalAmount: older.amount,
+          count: older.transactions,
+        };
+      });
+
+      // Sort categories by date (most recent first)
+      const sortedCategories = Object.keys(grouped).sort((a, b) => {
+        const timeA = getTimestampForCategory(a);
+        const timeB = getTimestampForCategory(b);
+        return timeB - timeA;
+      });
+
+      const sortedGrouped = {};
+      sortedCategories.forEach((cat) => {
+        sortedGrouped[cat] = grouped[cat];
+      });
+
+      setGroupedData(sortedGrouped);
     } catch (err) {
       setError(err.message);
-      console.error("Error fetching transactions:", err);
+      console.error("Error:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const getTimestampForCategory = (cat) => {
+    if (cat === "today") return new Date().setHours(0, 0, 0, 0);
+    if (cat === "yesterday") {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      return d.setHours(0, 0, 0, 0);
+    }
+    const match = cat.match(/(\d{1,2})\s+(\w{3})\s+(\d{4})/);
+    if (match) {
+      const [, day, mon, year] = match;
+      const monthMap = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+      return new Date(parseInt(year), monthMap[mon], parseInt(day)).getTime();
+    }
+    return 0;
   };
 
   const handlePasswordSubmit = (e) => {
@@ -206,7 +142,6 @@ const Transactions = () => {
     if (password === "8080") {
       setIsAuthenticated(true);
       setPasswordError("");
-      // Save authentication state to localStorage
       localStorage.setItem("transactions_authenticated", "true");
     } else {
       setPasswordError("Incorrect password");
@@ -215,17 +150,12 @@ const Transactions = () => {
 
   const fetchBalance = async () => {
     try {
-      const response = await fetch(
-        "https://smmguru.mssonukr.workers.dev/balance"
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      const response = await fetch("https://smmguru.mssonukr.workers.dev/balance");
+      if (!response.ok) throw new Error("Balance fetch failed");
       const data = await response.json();
       setBalanceData(data);
     } catch (err) {
-      console.error("Error fetching balance:", err);
-      // Optionally set error, but keep showing 0 for now
+      console.error("Balance error:", err);
       setBalanceData({ balance: 0, currency: "INR" });
     }
   };
@@ -235,112 +165,88 @@ const Transactions = () => {
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
-    // Reset time to compare only dates
-    const dateOnly = new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate()
-    );
-    const todayOnly = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    );
-    const yesterdayOnly = new Date(
-      yesterday.getFullYear(),
-      yesterday.getMonth(),
-      yesterday.getDate()
-    );
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const yesterdayOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
 
-    if (dateOnly.getTime() === todayOnly.getTime()) {
-      return "today";
-    } else if (dateOnly.getTime() === yesterdayOnly.getTime()) {
-      return "yesterday";
-    } else {
-      return date.toLocaleDateString("en-IN", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    }
+    if (dateOnly.getTime() === todayOnly.getTime()) return "today";
+    if (dateOnly.getTime() === yesterdayOnly.getTime()) return "yesterday";
+
+    return date.toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
-  const formatAmount = (amount) => {
-    return new Intl.NumberFormat("en-IN", {
+  const formatAmount = (amount) =>
+    new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount / 100);
-  };
 
-  const formatBalance = (balance) => {
-    return new Intl.NumberFormat("en-IN", {
+  const formatBalance = (balance) =>
+    new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(balance);
-  };
 
   const formatDate = (timestamp) => {
-    const transactionDate = new Date(timestamp * 1000);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    // Reset time to compare only dates
-    const transactionDateOnly = new Date(
-      transactionDate.getFullYear(),
-      transactionDate.getMonth(),
-      transactionDate.getDate()
-    );
-    const todayOnly = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    );
-    const yesterdayOnly = new Date(
-      yesterday.getFullYear(),
-      yesterday.getMonth(),
-      yesterday.getDate()
-    );
-
-    const timeString = transactionDate.toLocaleString("en-IN", {
+    const date = new Date(timestamp * 1000);
+    const timeString = date.toLocaleString("en-IN", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
     });
 
-    if (transactionDateOnly.getTime() === todayOnly.getTime()) {
-      return `today, ${timeString}`;
-    } else if (transactionDateOnly.getTime() === yesterdayOnly.getTime()) {
-      return `yesterday, ${timeString}`;
-    } else {
-      return transactionDate.toLocaleString("en-IN", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-    }
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const isToday = date.toDateString() === today.toDateString();
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+
+    if (isToday) return `today, ${timeString}`;
+    if (isYesterday) return `yesterday, ${timeString}`;
+
+    return date.toLocaleString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
   };
 
-  const getPaymentMethodIcon = () => {
+  // Dynamic Icon Based on Payer
+  const getPaymentMethodIcon = (payer) => {
+    let iconSrc = "/ic/upi.svg"; // Default UPI icon
+
+    if (payer) {
+      const lower = payer.toLowerCase();
+      if (lower.includes("phonepe")) iconSrc = "/ic/phonepe.svg";
+      else if (lower.includes("google") || lower.includes("gpay")) iconSrc = "/ic/gpay.svg";
+      else if (lower.includes("paytm")) iconSrc = "/ic/paytm.svg";
+    }
+
     return (
-      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-        <img src="/ic/upi.svg" alt="UPI" className="w-5 h-5" />
+      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
+        <img
+          src={iconSrc}
+          alt={payer || "UPI"}
+          className="w-5 h-5 object-contain"
+          onError={(e) => (e.target.src = "/ic/upi.svg")} // Fallback if icon missing
+        />
       </div>
     );
   };
 
-  const getStatusColor = (amount) => {
-    return amount > 0 ? "text-green-600" : "text-red-600";
-  };
-
-  // Password protection screen
+  // Password Screen
   if (!isAuthenticated) {
     return (
       <>
@@ -351,34 +257,18 @@ const Transactions = () => {
             <div className="bg-white rounded-lg border p-6 md:p-8">
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
                   {getTranslation("transactions", language)}
                 </h2>
-                <p className="text-gray-600 text-sm md:text-base">
-                  Enter password to view transactions
-                </p>
+                <p className="text-gray-600 text-sm md:text-base">Enter password to view transactions</p>
               </div>
-
               <form onSubmit={handlePasswordSubmit} className="space-y-4">
                 <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                     Password
                   </label>
                   <input
@@ -386,18 +276,15 @@ const Transactions = () => {
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-3 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-3 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder="Enter password"
                     required
                   />
-                  {passwordError && (
-                    <p className="mt-2 text-sm text-red-600">{passwordError}</p>
-                  )}
+                  {passwordError && <p className="mt-2 text-sm text-red-600">{passwordError}</p>}
                 </div>
-
                 <button
                   type="submit"
-                  className="w-full bg-green-600 text-white py-2 md:py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  className="w-full bg-green-600 text-white py-2 md:py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
                 >
                   Access Transactions
                 </button>
@@ -416,13 +303,9 @@ const Transactions = () => {
         <Header />
         <div className="mt-20"></div>
         <div className="min-h-screen bg-white py-8">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
-              <p className="mt-4 text-gray-600">
-                {getTranslation("loadingTransactions", language)}
-              </p>
-            </div>
+          <div className="max-w-6xl mx-auto px-4 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">{getTranslation("loadingTransactions", language)}</p>
           </div>
         </div>
         <Footer />
@@ -436,33 +319,15 @@ const Transactions = () => {
         <Header />
         <div className="mt-40"></div>
         <div className="min-h-screen bg-white py-8">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="text-center">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <svg
-                  className="w-12 h-12 text-red-500 mx-auto mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <h3 className="text-lg font-semibold text-red-800 mb-2">
-                  {getTranslation("errorLoadingTransactions", language)}
-                </h3>
-                <p className="text-red-600 mb-4">{error}</p>
-                <button
-                  onClick={fetchTransactions}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  {getTranslation("tryAgain", language)}
-                </button>
-              </div>
+          <div className="max-w-6xl mx-auto px-4 text-center">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-red-800 mb-2">
+                {getTranslation("errorLoadingTransactions", language)}
+              </h3>
+              <p className="text-red-600 mb-4">{error}</p>
+              <button onClick={fetchTransactions} className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                Try Again
+              </button>
             </div>
           </div>
         </div>
@@ -477,114 +342,61 @@ const Transactions = () => {
       <div className="mt-20"></div>
       <div className="min-h-screen bg-white py-4">
         <div className="max-w-6xl mx-auto px-4">
-          {/* Header Section */}
-          <div className="flex justify-between">
-            <div className="mb-8">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                {getTranslation("transactions", language) || "Transactions"}
-              </h1>
-            </div>
+
+          {/* Header */}
+          <div className="flex justify-between mb-8">
+            <h1 className="text-2xl font-bold text-gray-900">
+              {getTranslation("transactions", language) || "Transactions"}
+            </h1>
             <div className="flex space-x-4">
-              <Link
-                to="/payout"
-                className="inline-flex items-center gap-2 px-3 h-8 text-sm bg-green-600 text-white font-medium rounded-full  hover:bg-green-700 transition-all duration-200"
-              >
-                <Landmark size={16} />
-                Payout
-              </Link>
-              <Link
-                to="/getorders"
-                className="inline-flex items-center gap-2 px-3 h-8 text-sm bg-green-600 text-white font-medium rounded-full hover:bg-green-700  transition-all duration-200"
-              >
-                <ClipboardList size={16} />
-                Orders
+             
+              <Link to="/getorders" className="inline-flex items-center gap-2 px-3 h-8 text-sm bg-green-600 text-white font-medium rounded-full hover:bg-green-700">
+                <ClipboardList size={16} /> Orders
               </Link>
             </div>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-3 gap-2 md:gap-6 mb-8">
-            <div className="bg-white rounded-lg border p-3 md:p-6">
-              <div className="flex flex-col md:flex-row items-center md:items-start">
-                <div className="p-1 md:p-2 bg-green-100 rounded-lg mb-2 md:mb-0">
-                  <svg
-                    className="w-4 h-4 md:w-6 md:h-6 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
+          <div className="grid grid-cols-3 gap-6 mb-8">
+            <div className="bg-white rounded-lg border p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <div className="ml-0 md:ml-4 text-center md:text-left">
-                  <p className="text-xs md:text-sm font-medium text-gray-600">
-                    Transactions
-                  </p>
-                  <p className="text-lg md:text-2xl font-bold text-gray-900">
-                    {totalStats.totalTx}
-                  </p>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Transactions</p>
+                  <p className="text-2xl font-bold text-gray-900">{totalStats.totalTx}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border p-3 md:p-6">
-              <div className="flex flex-col md:flex-row items-center md:items-start">
-                <div className="p-1 md:p-2 bg-blue-100 rounded-lg mb-2 md:mb-0">
-                  <svg
-                    className="w-4 h-4 md:w-6 md:h-6 text-blue-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                    />
+            <div className="bg-white rounded-lg border p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
                 </div>
-                <div className="ml-0 md:ml-4 text-center md:text-left">
-                  <p className="text-xs md:text-sm font-medium text-gray-600">
-                    {getTranslation("totalAmount", language)}
-                  </p>
-                  <p className="text-lg md:text-2xl font-bold text-gray-900">
-                    {formatAmount(totalStats.totalAmt)}
-                  </p>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Total Amount</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatAmount(totalStats.totalAmt)}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border p-3 md:p-6">
-              <div className="flex flex-col md:flex-row items-center md:items-start">
-                <div className="p-1 md:p-2 bg-purple-100 rounded-lg mb-2 md:mb-0">
-                  <svg
-                    className="w-4 h-4 md:w-6 md:h-6 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
+            <div className="bg-white rounded-lg border p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <div className="ml-0 md:ml-4 text-center md:text-left">
-                  <p className="text-xs md:text-sm font-medium text-gray-600">
-                    Balance ({balanceData?.currency || "INR"})
-                  </p>
-                  <p className="text-lg md:text-2xl font-bold text-gray-900">
-                    {balanceData?.balance !== undefined
-                      ? formatBalance(balanceData.balance)
-                      : "₹0.00"}
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Balance ({balanceData?.currency || "INR"})</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {balanceData?.balance !== undefined ? formatBalance(balanceData.balance) : "₹0.00"}
                   </p>
                 </div>
               </div>
@@ -593,111 +405,61 @@ const Transactions = () => {
 
           {/* Transactions List */}
           <div className="bg-white rounded-lg border border-x-0">
-            <div className=" py-4 flex justify-between items-center border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {getTranslation("recentTransactions", language) ||
-                  "Recent Transactions"}
-              </h2>
-              <button
-                onClick={() =>
-                  setViewMode(viewMode === "normal" ? "early" : "normal")
-                }
-                className={`inline-flex items-center gap-2 px-3 h-8 text-sm font-medium rounded-full transition-all duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300`}
-              >
-                <SlidersHorizontal size={16} />{" "}
-                {viewMode === "normal" ? "Early buyers" : "All Transactions"}
-              </button>
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">Recent Transactions</h2>
             </div>
 
             {Object.keys(groupedData).length === 0 ? (
               <div className="text-center py-12">
-                <svg
-                  className="w-16 h-16 text-gray-400 mx-auto mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
+                <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {getTranslation("noTransactionsFound", language)}
-                </h3>
-                <p className="text-gray-600">
-                  {getTranslation("noTransactionsMessage", language)}
-                </p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No transactions found</h3>
               </div>
             ) : (
               <div>
-                {Object.entries(groupedData).map(([dateCategory, group]) => (
-                  <div key={dateCategory}>
+                {Object.entries(groupedData).map(([category, group]) => (
+                  <div key={category}>
                     {/* Date Header */}
                     {group.type === "detailed" ? (
                       <div className="px-6 py-3 border-b border-gray-200">
                         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                          {dateCategory} -{" "}
+                          {category} -{" "}
                           <span className="bg-gray-100 rounded-lg px-2 py-1 text-sm font-medium text-gray-900">
                             {formatAmount(group.totalAmount)} ({group.count})
                           </span>
                         </h3>
                       </div>
                     ) : (
-                      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                        <div className="flex justify-between items-center">
-                          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                            {dateCategory}
-                          </h3>
-                          <span className="bg-gray-100 rounded-lg px-2 py-1 text-sm font-medium text-gray-900">
-                            {formatAmount(group.totalAmount)} ({group.count})
-                          </span>
-                        </div>
+                      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between">
+                        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{category}</h3>
+                        <span className="bg-gray-100 rounded-lg px-2 py-1 text-sm font-medium text-gray-900">
+                          {formatAmount(group.totalAmount)} ({group.count})
+                        </span>
                       </div>
                     )}
 
-                    {/* Transactions for this date or summary */}
+                    {/* Transactions */}
                     {group.type === "detailed" && (
                       <div className="divide-y divide-gray-200">
-                        {group.transactions.map((transaction, index) => (
-                          <div key={transaction.id || index} className="py-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                {getPaymentMethodIcon()}
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">
-                                    {transaction.data.vpa || "N/A"}
-                                    {viewMode === "early" &&
-                                      transaction.data.vpa_transaction_count >
-                                        0 && (
-                                        <span className="text-xs bg-green-500 px-2  rounded-sm text-white ml-2">
-                                          {
-                                            transaction.data
-                                              .vpa_transaction_count
-                                          }
-                                        </span>
-                                      )}
-                                  </p>
-                                  <p className="text-xs text-gray-500">
-                                    {transaction.data.rrn || "N/A"}
-                                  </p>
-                                </div>
-                              </div>
+                        {group.transactions.map((tx) => (
+                          <div key={tx.id} className="px-6 py-4 flex justify-between items-center hover:bg-gray-50 transition">
+                            <div className="flex items-center space-x-3">
+                              {/* Dynamic Icon */}
+                              {getPaymentMethodIcon(tx.data.payer)}
 
-                              <div className="text-right">
-                                <p
-                                  className={`text-lg font-semibold ${getStatusColor(
-                                    transaction.data.amount
-                                  )}`}
-                                >
-                                  {formatAmount(transaction.data.amount)}
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                  {tx.data.payername || "UPI Payment"}
                                 </p>
-                                <p className="text-xs text-gray-500">
-                                  {formatDate(transaction.data.created_at)}
-                                </p>
+                                <p className="text-xs text-gray-500">UTR: {tx.data.utr}</p>
                               </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-semibold text-green-600">
+                                +{formatAmount(tx.data.amount)}
+                              </p>
+                              <p className="text-xs text-gray-500">{formatDate(tx.data.created_at)}</p>
                             </div>
                           </div>
                         ))}

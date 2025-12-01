@@ -21,7 +21,7 @@ export default function GetOrders() {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://smmguru.mssonukr.workers.dev/orders?page=${currentPage}&limit=${limit}`
+        `https://bharatpe.mssonukr.workers.dev/orders?page=${currentPage}&limit=${limit}`
       );
       if (!res.ok) throw new Error("Failed to fetch orders");
 
@@ -37,7 +37,6 @@ export default function GetOrders() {
 
   const handleSearch = async (query) => {
     if (!query.trim()) {
-      // If empty query, reset to full list
       setIsSearching(false);
       setSearchQuery("");
       fetchOrders(1);
@@ -49,26 +48,22 @@ export default function GetOrders() {
     setError(null);
     try {
       const res = await fetch(
-        `https://smmguru.mssonukr.workers.dev/search?query=${encodeURIComponent(
-          query
-        )}`
+        `https://bharatpe.mssonukr.workers.dev/search?query=${encodeURIComponent(query)}`
       );
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
         if (res.status === 404) {
-          // No record found - treat as empty results
           setOrders([]);
           setTotalPages(1);
           setPage(1);
           setIsSearching(true);
           return;
         }
-        throw new Error(errorData.error || "Search failed");
+        throw new Error("Search failed");
       }
 
-      const data = await res.json();
-      setOrders(data.data ? [data.data] : []);
+      const result = await res.json();
+      setOrders(result.data ? [result.data] : []);
       setTotalPages(1);
       setPage(1);
       setIsSearching(true);
@@ -102,19 +97,12 @@ export default function GetOrders() {
 
     const name = serviceName.toLowerCase();
 
-    if (
-      name.includes("insta") ||
-      name.includes("instagram") ||
-      serviceName.includes("इंस्टाग्राम")
-    )
+    if (name.includes("insta") || name.includes("instagram") || serviceName.includes("इंस्टाग्राम"))
       return "/ic/insta.webp";
-
     if (name.includes("youtube") || serviceName.includes("यूट्यूब"))
       return "/ic/youtube.webp";
-
     if (name.includes("facebook") || serviceName.includes("फेसबुक"))
       return "/ic/facebook.webp";
-
     if (name.includes("telegram") || serviceName.includes("टेलीग्राम"))
       return "/ic/telegram.webp";
 
@@ -131,7 +119,6 @@ export default function GetOrders() {
     }
   };
 
-  // ✅ Date formatter: Today / Yesterday / dd Mon yyyy, hh:mm AM/PM
   const formatDate = (timestamp) => {
     if (!timestamp) return "-";
 
@@ -139,7 +126,6 @@ export default function GetOrders() {
     const now = new Date();
 
     const isToday = date.toDateString() === now.toDateString();
-
     const yesterday = new Date();
     yesterday.setDate(now.getDate() - 1);
     const isYesterday = date.toDateString() === yesterday.toDateString();
@@ -187,9 +173,9 @@ export default function GetOrders() {
       <Header />
 
       <div className="min-h-screen bg-gray-50 relative">
-        {/* ✅ Copied toast with icon */}
+        {/* Copied toast */}
         {copied && (
-          <div className="fixed bottom-4 right-4 bg-green-600 rounded-full text-white px-4 py-2  z-50 flex items-center gap-2">
+          <div className="fixed bottom-4 right-4 bg-green-600 rounded-full text-white px-4 py-2 z-50 flex items-center gap-2">
             <Copy className="w-4 h-4" />
             <span>Copied!</span>
           </div>
@@ -229,7 +215,6 @@ export default function GetOrders() {
                 )}
               </div>
             </div>
-            {isSearching && orders.length === 0 && !error && <></>}
             {isSearching && orders.length > 0 && (
               <p className="text-center text-green-600 mt-2 text-sm">
                 Showing search result for: {searchQuery}
@@ -237,7 +222,7 @@ export default function GetOrders() {
             )}
           </div>
 
-          {/* MOBILE SCROLL FIX */}
+          {/* Table */}
           <div className="overflow-x-auto">
             <table className="min-w-[900px] w-full border-collapse">
               <thead>
@@ -246,6 +231,7 @@ export default function GetOrders() {
                   <th className="py-3 px-4 font-semibold">Quantity</th>
                   <th className="py-3 px-4 font-semibold">Link</th>
                   <th className="py-3 px-4 font-semibold">Amount</th>
+                  <th className="py-3 px-4 font-semibold">API ID</th> {/* ← नया कॉलम */}
                   <th className="py-3 px-4 font-semibold">Ordered At</th>
                 </tr>
               </thead>
@@ -253,10 +239,8 @@ export default function GetOrders() {
               <tbody>
                 {orders.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-gray-500">
-                      {isSearching
-                        ? "No results found."
-                        : "No orders available."}
+                    <td colSpan={6} className="py-8 text-center text-gray-500">
+                      {isSearching ? "No results found." : "No orders available."}
                     </td>
                   </tr>
                 ) : (
@@ -278,7 +262,7 @@ export default function GetOrders() {
 
                       <td className="py-2 text-sm px-4">{order.quantity}</td>
 
-                      <td className="py-2  px-4">
+                      <td className="py-2 px-4">
                         <div className="flex items-center gap-1 whitespace-nowrap max-w-xs">
                           {isValidUrl(order.link) ? (
                             <a
@@ -308,6 +292,13 @@ export default function GetOrders() {
                         ₹{order.amount}
                       </td>
 
+                      {/* ← नया API ID कॉलम */}
+                      <td className="py-2 text-sm px-4 text-center font-medium">
+                        <span className={order.apiid ? "text-blue-600" : "text-gray-400"}>
+                          {order.apiid || "---"}
+                        </span>
+                      </td>
+
                       <td className="py-2 px-4 text-sm text-gray-500 whitespace-nowrap">
                         {formatDate(order.created_at)}
                       </td>
@@ -319,14 +310,14 @@ export default function GetOrders() {
           </div>
         </div>
 
-        {/* Pagination - Hide when searching single result */}
+        {/* Pagination */}
         {!isSearching && (
           <div className="m-6 overflow-x-auto text-sm pb-2">
             <div className="flex justify-center gap-2 min-w-max">
               <button
                 disabled={page === 1}
                 onClick={() => setPage(page - 1)}
-                className={`px-4 py-2 rounded-lg border  ${
+                className={`px-4 py-2 rounded-lg border ${
                   page === 1
                     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                     : "bg-white hover:bg-gray-100"
@@ -339,7 +330,7 @@ export default function GetOrders() {
                 <button
                   key={i}
                   onClick={() => setPage(i + 1)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border  ${
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border ${
                     page === i + 1
                       ? "bg-green-600 text-white"
                       : "bg-white hover:bg-gray-100"
@@ -352,7 +343,7 @@ export default function GetOrders() {
               <button
                 disabled={page === totalPages}
                 onClick={() => setPage(page + 1)}
-                className={`px-4 py-2 rounded-lg border  ${
+                className={`px-4 py-2 rounded-lg border ${
                   page === totalPages
                     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                     : "bg-white hover:bg-gray-100"

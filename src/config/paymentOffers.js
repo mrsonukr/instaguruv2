@@ -9,7 +9,7 @@ export const PAYMENT_OFFERS = {
     value: "paytm"
   },
   phonepe: {
-    discount: 2, // ₹2 OFF
+    discount: 0, // ₹2 OFF
     label: "Phone Pe",
     icon: "/ic/phonepe.svg",
     value: "phonepe"
@@ -21,13 +21,13 @@ export const PAYMENT_OFFERS = {
     value: "gpay"
   },
   upi: {
-    discount: 2, // ₹2 OFF
+    discount: 0, // ₹2 OFF
     label: "Other UPI",
     icon: "/ic/upi.svg",
     value: "upi"
   },
   qrcode: {
-    discount: 0, // ₹0 OFF
+    discount: 2, // ₹0 OFF
     label: "Scan QR Code",
     icon: "qr", // Special icon type
     value: "qrcode"

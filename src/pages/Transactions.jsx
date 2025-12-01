@@ -150,7 +150,7 @@ const Transactions = () => {
 
   const fetchBalance = async () => {
     try {
-      const response = await fetch("https://smmguru.mssonukr.workers.dev/balance");
+      const response = await fetch("https://bharatpe.mssonukr.workers.dev/balance");
       if (!response.ok) throw new Error("Balance fetch failed");
       const data = await response.json();
       setBalanceData(data);

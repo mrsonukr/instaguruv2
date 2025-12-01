@@ -1,0 +1,37 @@
+{
+  "name": "bharatpe",
+  "main": "src/index.js",
+  "workers_dev": true,
+  "preview_urls": false,
+  "compatibility_date": "2025-11-30",
+  // Environment variables (available on env.* inside the worker)
+  "vars": {
+    "BHARATPE_MERCHANT_ID": "55476598",
+    "BHARATPE_TOKEN": "ed8acc0816934144bd01754eb3f922c5",
+    "BHARATPE_WINDOW_MINUTES": "5",
+    "AIRGROWSMM_API_KEY": "bd7d6d3ec29ae08dbd2f3636bb99deb79352d80f",
+    "AIRGROWSMM_API_URL": "https://airgrowsmm.com/api/v2"
+  },
+  "d1_databases": [
+    {
+      "binding": "bharatpe",
+      "database_name": "bharatpe",
+      "database_id": "b71fed73-c8b8-49c9-9538-de2678fe479d"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1
+    }
+  }
+}

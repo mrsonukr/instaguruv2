@@ -12,7 +12,7 @@ import {
 } from "../config/paymentOffers";
 
 // ✅ UPI payment address
-const MAIN_PAYMENT_ADDRESS = "akbar3815@amazonpay";
+const MAIN_PAYMENT_ADDRESS = "BHARATPE.8F0Q0K7Y9N63655@fbpe";
 
 const Payme = () => {
   const { token } = useParams();
@@ -123,7 +123,7 @@ const Payme = () => {
 
   // ✅ Generate UPI QR Code
   const generateQRCode = async () => {
-    const qrLink = `upi://pay?pa=${MAIN_PAYMENT_ADDRESS}&pn=Grocery&am=${displayAmount}&cu=INR`;
+    const qrLink = `upi://pay?pa=${MAIN_PAYMENT_ADDRESS}&pn=SmmGuru&am=${displayAmount}&cu=INR`;
     try {
       const qrDataUrl = await QRCode.toDataURL(qrLink, {
         width: 200,

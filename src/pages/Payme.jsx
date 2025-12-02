@@ -12,8 +12,8 @@ import {
 } from "../config/paymentOffers";
 
 // ✅ UPI payment address
-const MAIN_PAYMENT_ADDRESS = "insta999guru@ybl";
-// const MAIN_PAYMENT_ADDRESS = "BHARATPE.8F0Q0K7Y9N63655@fbpe";
+// const MAIN_PAYMENT_ADDRESS = "insta999guru@ybl";
+const MAIN_PAYMENT_ADDRESS = "BHARATPE.8F0Q0K7Y9N63655@fbpe";
 
 const Payme = () => {
   const { token } = useParams();

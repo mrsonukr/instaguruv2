@@ -4,6 +4,53 @@ function nowSeconds() {
 	return Math.floor(Date.now() / 1000);
 }
 
+function escapeHtml(str) {
+	if (str === null || str === undefined) return '';
+	return String(str)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
+}
+
+function formatIstHuman(createdAtSec) {
+	if (!createdAtSec) return 'N/A';
+	const date = new Date(createdAtSec * 1000);
+	const ist = new Date(
+		date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
+	);
+
+	const pad = (n) => String(n).padStart(2, '0');
+	const y = ist.getFullYear();
+	const m = ist.getMonth() + 1;
+	const d = ist.getDate();
+	const h = ist.getHours();
+	const min = ist.getMinutes();
+	const s = ist.getSeconds();
+
+	const today = new Date(
+		new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
+	);
+	const ty = today.getFullYear();
+	const tm = today.getMonth() + 1;
+	const td = today.getDate();
+
+	const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+	const yy = yesterday.getFullYear();
+	const ym = yesterday.getMonth() + 1;
+	const yd = yesterday.getDate();
+
+	const timePart = `${pad(h)}:${pad(min)}:${pad(s)}`;
+
+	if (y === ty && m === tm && d === td) {
+		return `Today, ${timePart}`;
+	}
+	if (y === yy && m === ym && d === yd) {
+		return `Yesterday, ${timePart}`;
+	}
+
+	return `${pad(d)}/${pad(m)}/${y}, ${timePart}`;
+}
+
 export async function getChatState(env, chatId) {
 	const row = await env.bharatpe
 		.prepare('SELECT state FROM tg_state WHERE chat_id = ?1 LIMIT 1')
@@ -80,14 +127,40 @@ export async function notifyAdminsOnNewOrder(env, order) {
 
 	if (!results || !results.length) return;
 
+	const createdAtSec = Number(order.created_at || 0);
+	const istHuman = createdAtSec ? formatIstHuman(createdAtSec) : 'N/A';
+
+	const apiStatus = order.apiid
+		? `<code>${escapeHtml(order.apiid)}</code>`
+		: 'Order Not Placed';
+
+	const amountText = (() => {
+		if (order.amountRupees != null) {
+			return `Amount: \u20b9${escapeHtml(order.amountRupees)}`;
+		}
+		if (order.amountPaise != null) {
+			const rupees = Number(order.amountPaise) / 100;
+			return `Amount: \u20b9${escapeHtml(rupees)}`;
+		}
+		return `Amount: \u20b90`;
+	})();
+
 	const lines = [
-		'New Order',
+		'New Order Received',
 		'',
-		`Order ID: ${order.id}`,
-		`Amount: ${order.amountRupees != null ? order.amountRupees : order.amountPaise}`,
-		order.service ? `Service: ${order.service}` : null,
-		order.link ? `Link: ${order.link}` : null,
-	].filter(Boolean);
+		`Order ID: <code>${escapeHtml(order.id)}</code>`,
+		`Quantity: ${escapeHtml(order.quantity ?? 'N/A')}`,
+		`Link: <code>${escapeHtml(order.link ?? 'N/A')}</code>`,
+		amountText,
+		`Service: ${escapeHtml(order.service ?? 'N/A')}`,
+		`Created At: ${escapeHtml(istHuman)}`,
+		'',
+		`API Status: ${apiStatus}`,
+		'',
+		`Payer Name: ${escapeHtml(order.payername ?? 'N/A')}`,
+		`Payer: ${escapeHtml(order.payer ?? 'N/A')}`,
+		`UTR: ${order.utr ? `<code>${escapeHtml(order.utr)}</code>` : 'N/A'}`,
+	];
 
 	const text = lines.join('\n');
 

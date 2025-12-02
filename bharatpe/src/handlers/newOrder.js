@@ -1,6 +1,7 @@
 import { json } from '../utils';
 import { processInstagramOrder } from './instagram';
 import { notifyAdminsOnNewOrder } from '../tgbot/admin';
+import { findOrderWithPayment } from '../tgbot/orderLookup';
 
 // Handler for POST /neworder
 export async function handleNewOrder(request, env) {
@@ -40,7 +41,14 @@ export async function handleNewOrder(request, env) {
 				.run();
 		}
 
-		// Fire-and-forget: notify all Telegram admins about new order
+		let enriched = null;
+		try {
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+			enriched = await findOrderWithPayment(env, String(id));
+		} catch (e) {
+			console.log('[TG] findOrderWithPayment failed:', e && e.message ? e.message : e);
+		}
+
 		try {
 			await notifyAdminsOnNewOrder(env, {
 				id,
@@ -49,6 +57,11 @@ export async function handleNewOrder(request, env) {
 				amountRupees: amount,
 				amountPaise,
 				service,
+				apiid: enriched && enriched.apiid ? enriched.apiid : smmJson && smmJson.success && smmJson.orderId ? smmJson.orderId : null,
+				created_at: enriched && enriched.created_at ? enriched.created_at : null,
+				payername: enriched && enriched.payername ? enriched.payername : null,
+				payer: enriched && enriched.payer ? enriched.payer : null,
+				utr: enriched && enriched.utr ? enriched.utr : null,
 			});
 		} catch (e) {
 			console.log('[TG] notifyAdminsOnNewOrder failed:', e && e.message ? e.message : e);

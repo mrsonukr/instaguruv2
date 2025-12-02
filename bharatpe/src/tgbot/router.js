@@ -2,7 +2,14 @@
 
 import { findOrderWithPayment } from './orderLookup';
 import { sendTelegramMessage } from './telegramApi';
-import { startAdminSetup, handleAdminPasscode, getChatState } from './admin';
+import {
+	startAdminSetup,
+	handleAdminPasscode,
+	getChatState,
+	isChatAdmin,
+	startBharatpeTokenUpdate,
+	handleBharatpeTokenUpdateMessage,
+} from './admin';
 
 function escapeHtml(str) {
 	if (str === null || str === undefined) return '';
@@ -114,11 +121,19 @@ export async function routeUpdate(update, env) {
 		if (state === 'awaiting_passcode') {
 			console.log('[TG] Handling admin passcode for chat', chatId);
 			replyText = await handleAdminPasscode(env, message, text);
+		} else if (state === 'awaiting_bharatpe_token') {
+			console.log('[TG] Handling BharatPe token update for chat', chatId);
+			replyText = await handleBharatpeTokenUpdateMessage(env, message, text);
 		}
 		// 1) Start admin setup
 		else if (lower === 'admin') {
 			console.log('[TG] Admin setup command detected');
 			replyText = await startAdminSetup(env, message);
+		}
+		// 1b) Start BharatPe token update (admin only)
+		else if (lower === 'token') {
+			console.log('[TG] BharatPe token update command detected');
+			replyText = await startBharatpeTokenUpdate(env, message);
 		}
 		// 2) Balance-related commands
 		else if (['balance', 'amount', 'check', 'b'].includes(lower)) {

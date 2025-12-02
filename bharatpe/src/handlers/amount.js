@@ -1,4 +1,5 @@
 import { json } from '../utils';
+import { notifyAdminsOnBharatpeUnauthorized } from '../tgbot/admin';
 
 // Handler for /amount/:paise
 export async function handleAmount(env, amountRupees) {
@@ -45,16 +46,50 @@ export async function handleAmount(env, amountRupees) {
 		`&sDate=${start.getTime()}&eDate=${now.getTime()}` +
 		`&pageSize=100&pageCount=0&isFromOtDashboard=1`;
 
+	const tokenRow = await env.bharatpe
+		.prepare('SELECT token FROM tg_bharatpe_token WHERE id = 1 LIMIT 1')
+		.first();
+
+	const bharatpeToken = tokenRow?.token;
+	if (!bharatpeToken) {
+		return json({ success: false, error: 'BharatPe token not configured' });
+	}
+
 	const res = await fetch(apiUrl, {
 		headers: {
 			Accept: 'application/json',
-			Token: env.BHARATPE_TOKEN,
+			Token: bharatpeToken,
 			Referer: 'https://enterprise.bharatpe.in/',
 			Origin: 'https://enterprise.bharatpe.in/',
 		},
 	});
 
 	if (!res.ok) {
+		if (res.status === 401) {
+			let bodyText = '';
+			try {
+				bodyText = await res.text();
+			} catch (e) {
+				bodyText = '<failed to read BharatPe body>';
+			}
+
+			try {
+				const parsed = JSON.parse(bodyText);
+				if (
+					parsed &&
+					parsed.responseCode === '401' &&
+					parsed.responseMessage === 'You are not authorised'
+				) {
+					await notifyAdminsOnBharatpeUnauthorized(
+						env,
+						`Raw response: ${bodyText}`
+					);
+				}
+			} catch (e) {
+				console.log('[BHARATPE] Failed to parse 401 body', e);
+			}
+		}
+
 		return json({ success: false, error: 'Failed fetching BharatPe' });
 	}
 

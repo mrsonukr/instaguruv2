@@ -117,6 +117,60 @@ export async function isChatAdmin(env, chatId) {
 	return !!row;
 }
 
+export async function startBharatpeTokenUpdate(env, message) {
+	const chatId = message.chat.id;
+	const isAdmin = await isChatAdmin(env, chatId);
+	if (!isAdmin) {
+		return 'You are not an admin.';
+	}
+
+	// Fetch current token from DB
+	let currentToken = null;
+	try {
+		const row = await env.bharatpe
+			.prepare('SELECT token FROM tg_bharatpe_token WHERE id = 1 LIMIT 1')
+			.first();
+		currentToken = row?.token || null;
+	} catch (e) {
+		console.log('[TG] Failed to read current BharatPe token from DB', e);
+	}
+
+	await setChatState(env, chatId, 'awaiting_bharatpe_token');
+	const shown = currentToken || '<not set>';
+	return (
+		`Your token: ${shown}\n` +
+		'Send a new one if you want to update it.'
+	);
+}
+
+export async function handleBharatpeTokenUpdateMessage(env, message, text) {
+	const chatId = message.chat.id;
+	const isAdmin = await isChatAdmin(env, chatId);
+	if (!isAdmin) {
+		await setChatState(env, chatId, null);
+		return 'You are not an admin.';
+	}
+
+	const newToken = text.trim();
+	if (!newToken) {
+		return 'Token cannot be empty.';
+	}
+	if (newToken.length < 32) {
+		return 'Invalid token. It looks too short.';
+	}
+
+	await env.bharatpe
+		.prepare(
+			'INSERT INTO tg_bharatpe_token (id, token, updated_at) VALUES (1, ?1, ?2)\n' +
+			'\tON CONFLICT(id) DO UPDATE SET token = excluded.token, updated_at = excluded.updated_at'
+		)
+		.bind(newToken, nowSeconds())
+		.run();
+
+	await setChatState(env, chatId, null);
+	return 'bharatpe token updated';
+}
+
 export async function notifyAdminsOnNewOrder(env, order) {
 	const token = env.TELEGRAM_BOT_TOKEN;
 	if (!token) return;
@@ -168,6 +222,36 @@ export async function notifyAdminsOnNewOrder(env, order) {
 		results.map((row) =>
 			sendTelegramMessage(token, row.chat_id, text).catch((err) => {
 				console.log('[TG] notifyAdminsOnNewOrder error for chat', row.chat_id, err);
+			})
+		)
+	);
+}
+
+export async function notifyAdminsOnBharatpeUnauthorized(env, details) {
+	const token = env.TELEGRAM_BOT_TOKEN;
+	if (!token) return;
+
+	const { results } = await env.bharatpe
+		.prepare('SELECT chat_id FROM tg_admins')
+		.all();
+
+	if (!results || !results.length) return;
+
+	const safeDetails = details ? String(details) : '';
+	const lines = [
+		'BharatPe API Unauthorized (401)',
+		'',
+		'The BharatPe API returned 401 UNAUTHORIZED.',
+		'',
+		safeDetails,
+	];
+
+	const text = lines.join('\n');
+
+	await Promise.all(
+		results.map((row) =>
+			sendTelegramMessage(token, row.chat_id, text).catch((err) => {
+				console.log('[TG] notifyAdminsOnBharatpeUnauthorized error for chat', row.chat_id, err);
 			})
 		)
 	);

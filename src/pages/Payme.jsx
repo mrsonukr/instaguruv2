@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { FastForward } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
 import NoCopyText from "../components/ui/NoCopyText";
@@ -20,18 +21,15 @@ const Payme = () => {
   const navigate = useNavigate();
   const [amount, setAmount] = useState("1.00");
   const [amountError, setAmountError] = useState("");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("phonepe");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("qrcode");
   const [paymentInitiated, setPaymentInitiated] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
-  const [timeLeft, setTimeLeft] = useState(180);
+  const [timeLeft, setTimeLeft] = useState(300);
   const [displayAmount, setDisplayAmount] = useState(amount);
 
-  const discountApplicable = isDiscountApplicable(
-    selectedPaymentMethod,
-    amount
-  );
+  const discountApplicable = isDiscountApplicable(selectedPaymentMethod, amount);
 
   useEffect(() => {
     if (token) {
@@ -81,22 +79,6 @@ const Payme = () => {
   }, [token, showPopup, amount]);
 
   useEffect(() => {
-    let timer;
-    if (showPopup && selectedPaymentMethod === "qrcode" && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            closePopup();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [showPopup, selectedPaymentMethod, timeLeft]);
-
-  useEffect(() => {
     if (!paymentInitiated) {
       const discountedAmount = getDiscountedAmount(
         amount,
@@ -139,22 +121,14 @@ const Payme = () => {
 
   // ✅ Continue button (always opens QR code)
   const handleContinue = async () => {
-    if (!selectedPaymentMethod) {
-      alert("Please select a payment method");
-      return;
-    }
-
     // Lock in the discount based on selected method
     const discountedAmount = getDiscountedAmount(amount, selectedPaymentMethod);
     setDisplayAmount(discountedAmount.toString());
     setPaymentInitiated(true);
 
-    // Force QR code mode for popup
-    setSelectedPaymentMethod("qrcode");
-
     setShowPopup(true);
     setIsClosing(false);
-    setTimeLeft(180);
+    setTimeLeft(300);
 
     await generateQRCode();
   };
@@ -165,7 +139,7 @@ const Payme = () => {
       setShowPopup(false);
       setIsClosing(false);
       setQrCodeDataUrl("");
-      setTimeLeft(180);
+      setTimeLeft(300);
     }, 300);
   };
 
@@ -216,14 +190,10 @@ const Payme = () => {
         <div className="mt-auto pb-6">
           <button
             onClick={handleContinue}
-            disabled={!selectedPaymentMethod}
-            className={`w-full py-3 rounded-lg font-semibold text-white transition-colors ${
-              selectedPaymentMethod
-                ? "bg-black hover:bg-gray-800"
-                : "bg-gray-700 cursor-not-allowed"
-            }`}
+            className="w-full py-3 rounded-lg font-semibold text-white transition-colors bg-black hover:bg-gray-800 flex items-center justify-center gap-2"
           >
-            Continue
+            <FastForward size={18} />
+            <span>Pay ₹{displayAmount}</span>
           </button>
         </div>
 

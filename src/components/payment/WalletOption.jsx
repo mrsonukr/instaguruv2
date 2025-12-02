@@ -19,10 +19,7 @@ const WalletOption = ({ icon, label, value, selectedMethod, onSelect }) => {
 
   return (
     <div
-      onClick={() => onSelect(value)}
-      className={`flex items-center justify-between my-2 cursor-pointer p-3 rounded-lg transition-colors ${
-        selectedMethod === value ? 'bg-gray-50' : 'hover:white'
-      }`}
+      className="flex items-center justify-between my-2 p-3 rounded-lg transition-colors bg-white"
     >
       <div className="flex items-center gap-4">
         <div className="w-10 h-10 border border-gray-300 rounded-xl p-1 flex items-center justify-center relative">
@@ -60,16 +57,6 @@ const WalletOption = ({ icon, label, value, selectedMethod, onSelect }) => {
         <div className="font-semibold opacity-80">
           {typeof label === 'string' ? label : label}
         </div>
-      </div>
-      <div className="flex items-center">
-        <input
-          type="radio"
-          name="paymentMethod"
-          value={value}
-          checked={selectedMethod === value}
-          onChange={() => onSelect(value)}
-          className="w-4 h-4 text-black border-gray-300 focus:ring-black accent-black"
-        />
       </div>
     </div>
   );

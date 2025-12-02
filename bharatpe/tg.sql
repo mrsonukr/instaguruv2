@@ -14,3 +14,10 @@ CREATE TABLE IF NOT EXISTS tg_state (
     state      TEXT NOT NULL,
     updated_at INTEGER             -- epoch seconds
 );
+
+-- Store BharatPe API token (single row, id = 1)
+CREATE TABLE IF NOT EXISTS tg_bharatpe_token (
+    id         INTEGER PRIMARY KEY CHECK (id = 1),
+    token      TEXT NOT NULL,
+    updated_at INTEGER             -- epoch seconds when token was last updated
+);

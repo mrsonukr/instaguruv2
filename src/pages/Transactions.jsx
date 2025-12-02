@@ -411,13 +411,13 @@ const Transactions = () => {
             </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
+         {/* Stats Cards */}
+          <div className="grid grid-cols-3 gap-2 md:gap-6 mb-8">
+            <div className="bg-white rounded-lg border p-3 md:p-6">
+              <div className="flex flex-col md:flex-row items-center md:items-start">
+                <div className="p-1 md:p-2 bg-green-100 rounded-lg mb-2 md:mb-0">
                   <svg
-                    className="w-6 h-6 text-green-600"
+                    className="w-4 h-4 md:w-6 md:h-6 text-green-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -430,22 +430,22 @@ const Transactions = () => {
                     />
                   </svg>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
-                    Transactions
+                <div className="ml-0 md:ml-4 text-center md:text-left">
+                  <p className="text-xs md:text-sm font-medium text-gray-600">
+                    {getTranslation("totalTransactions", language)}
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-lg md:text-2xl font-bold text-gray-900">
                     {totalStats.totalTx}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
+            <div className="bg-white rounded-lg border p-3 md:p-6">
+              <div className="flex flex-col md:flex-row items-center md:items-start">
+                <div className="p-1 md:p-2 bg-blue-100 rounded-lg mb-2 md:mb-0">
                   <svg
-                    className="w-6 h-6 text-blue-600"
+                    className="w-4 h-4 md:w-6 md:h-6 text-blue-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -458,22 +458,22 @@ const Transactions = () => {
                     />
                   </svg>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
-                    Total Amount
+                <div className="ml-0 md:ml-4 text-center md:text-left">
+                  <p className="text-xs md:text-sm font-medium text-gray-600">
+                    {getTranslation("totalAmount", language)}
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-lg md:text-2xl font-bold text-gray-900">
                     {formatAmount(totalStats.totalAmt)}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-purple-100 rounded-lg">
+            <div className="bg-white rounded-lg border p-3 md:p-6">
+              <div className="flex flex-col md:flex-row items-center md:items-start">
+                <div className="p-1 md:p-2 bg-purple-100 rounded-lg mb-2 md:mb-0">
                   <svg
-                    className="w-6 h-6 text-purple-600"
+                    className="w-4 h-4 md:w-6 md:h-6 text-purple-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -486,11 +486,11 @@ const Transactions = () => {
                     />
                   </svg>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
+                <div className="ml-0 md:ml-4 text-center md:text-left">
+                  <p className="text-xs md:text-sm font-medium text-gray-600">
                     Balance ({balanceData?.currency || "INR"})
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-lg md:text-2xl font-bold text-gray-900">
                     {balanceData?.balance !== undefined
                       ? formatBalance(balanceData.balance)
                       : "₹0.00"}

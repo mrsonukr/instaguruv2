@@ -4,6 +4,7 @@ import { handleAmount } from './handlers/amount';
 import { processInstagramOrder, getSmmBalance } from './handlers/instagram';
 import { handleOrders, handleOrderById, handleSearch } from './handlers/orders';
 import { handlePaymentsSummary } from './handlers/payments';
+import { handleTelegramWebhook } from './tgbot/handler';
 
 // Entry point / router
 export default {
@@ -49,6 +50,13 @@ export default {
 		// Payments summary endpoint: GET /payments
 		if (pathname === '/payments' && request.method === 'GET') {
 			const res = await handlePaymentsSummary(env);
+			return addCors(res);
+		}
+
+		// Telegram bot webhook endpoint: POST /tgbot
+		// Configure Telegram webhook URL as: https://<your-worker-url>/tgbot
+		if (pathname === '/tgbot' && request.method === 'POST') {
+			const res = await handleTelegramWebhook(request, env);
 			return addCors(res);
 		}
 

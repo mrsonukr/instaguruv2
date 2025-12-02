@@ -1,20 +1,9 @@
 import { json } from '../utils';
+import servicesData from '../services.js';
 
-// Shared Instagram/Airgrow SMM processing logic
+// Shared Instagram SMM processing logic (supports multiple APIs)
 // Used by: /neworder + /instagram endpoint
 export async function processInstagramOrder(env, amount, link) {
-	const apiKey = env.AIRGROWSMM_API_KEY;
-
-	if (!apiKey) {
-		return json(
-			{
-				success: false,
-				error: 'SMM API key not configured',
-			},
-			500
-		);
-	}
-
 	const amountNum = Number(amount);
 	if (!link || !amountNum || amountNum <= 0) {
 		return json(
@@ -32,6 +21,7 @@ export async function processInstagramOrder(env, amount, link) {
 	let serviceId = null;
 	let orderStatus = 'failed';
 	let orderId = null;
+	let selectedApi = null;
 
 	// =============================
 	// ✅ INSTAGRAM LINK VALIDATION
@@ -49,42 +39,39 @@ export async function processInstagramOrder(env, amount, link) {
 	}
 
 	// =============================
-	// ✅ SERVICE & QUANTITY LOGIC
+	// ✅ SERVICE & QUANTITY LOGIC (from services.json)
 	// =============================
+	if (isInstagram && linkType !== 'unknown') {
+		const service = servicesData.find(
+			(s) => s.linkType === linkType && s.price === amountNum
+		);
 
-	// PROFILE PACKAGES
-	if (linkType === 'profile') {
-		serviceId = 850;
-		const profileMap = {
-			15: 100, // ₹15 => 100 followers
-			8: 50, // ₹8  => 50 followers
-			1: 10,
-		};
-		quantity = profileMap[amountNum] || 0;
-	}
-
-	// REEL PACKAGES
-	if (linkType === 'reel') {
-		serviceId = 861;
-		const reelMap = {
-			7: 5000,
-			12: 10000,
-			25: 25000,
-			35: 50000,
-		};
-		quantity = reelMap[amountNum] || 0;
+		if (service) {
+			serviceId = service.serviceId;
+			quantity = service.quantity;
+			selectedApi = service.api;
+		}
 	}
 
 	// =============================
 	// ✅ API CALL
 	// =============================
-	if (isInstagram && quantity > 0 && serviceId) {
-		const baseUrl = env.AIRGROWSMM_API_URL;
-		if (!baseUrl) {
+	if (isInstagram && quantity > 0 && serviceId && selectedApi) {
+		let apiKey, baseUrl;
+
+		if (selectedApi === 'airgrow') {
+			apiKey = env.AIRGROWSMM_API_KEY;
+			baseUrl = env.AIRGROWSMM_API_URL;
+		} else if (selectedApi === 'supportivesmm') {
+			apiKey = env.SUPPORTIVESMM_API_KEY;
+			baseUrl = env.SUPPORTIVESMM_API_URL;
+		}
+
+		if (!apiKey || !baseUrl) {
 			return json(
 				{
 					success: false,
-					error: 'SMM API base URL not configured',
+					error: `${selectedApi} API not configured`,
 				},
 				500
 			);
@@ -104,7 +91,7 @@ export async function processInstagramOrder(env, amount, link) {
 			}
 		} catch (err) {
 			// swallow, keep failed status
-			console.log('SMM API ERROR >>>', err?.message || String(err));
+			console.log(`SMM API ERROR (${selectedApi}) >>>`, err?.message || String(err));
 		}
 	}
 

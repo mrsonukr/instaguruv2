@@ -1,5 +1,6 @@
 import { json } from '../utils';
 import { processInstagramOrder } from './instagram';
+import { notifyAdminsOnNewOrder } from '../tgbot/admin';
 
 // Handler for POST /neworder
 export async function handleNewOrder(request, env) {
@@ -37,6 +38,20 @@ export async function handleNewOrder(request, env) {
 				.prepare('UPDATE orders SET apiid = ? WHERE order_id = ?')
 				.bind(smmJson.orderId, id)
 				.run();
+		}
+
+		// Fire-and-forget: notify all Telegram admins about new order
+		try {
+			await notifyAdminsOnNewOrder(env, {
+				id,
+				quantity,
+				link,
+				amountRupees: amount,
+				amountPaise,
+				service,
+			});
+		} catch (e) {
+			console.log('[TG] notifyAdminsOnNewOrder failed:', e && e.message ? e.message : e);
 		}
 
 		return json({

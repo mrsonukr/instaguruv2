@@ -5,18 +5,14 @@ import { notifyAdminsOnBharatpeUnauthorized } from '../tgbot/admin';
 export async function handleAmount(env, amountRupees) {
 	const amountPaise = amountRupees * 100;
 
-	// Minimum rupees for which we should hit BharatPe API (configurable via env)
-	// Example: BHARATPE_MIN_RUPEES = "17" → 1700 paise
-	const minRupees = Number(env.BHARATPE_MIN_RUPEES);
-	const minPaise = minRupees * 100;
-
-	// 1) TRY DB → orderPlaced = 0 (UNPLACED), oldest first
+	// 1) TRY DB – orderPlaced = 0 (UNPLACED), oldest first
+	console.log('[BHARATPE] Checking DB for unplaced transaction', { amountPaise });
 	const unplaced = await env.bharatpe
 		.prepare(
 			`SELECT * FROM transactions
-       WHERE amount_paise = ? AND orderPlaced = 0
-       ORDER BY timestamp_ms ASC
-       LIMIT 1`
+	       WHERE amount_paise = ? AND orderPlaced = 0
+	       ORDER BY timestamp_ms ASC
+	       LIMIT 1`
 		)
 		.bind(amountPaise)
 		.first();
@@ -37,18 +33,9 @@ export async function handleAmount(env, amountRupees) {
 		});
 	}
 
-	// For small amounts (< minPaise), do not call BharatPe API.
-	// If not found in DB, return the same "Waiting for payment" response shape.
-	if (amountPaise < minPaise) {
-		return json({
-			success: false,
-			amount: amountPaise,
-			message: 'Waiting for payment',
-		});
-	}
-
-	// 2) FETCH NEW DATA FROM BHARATPE API
+	// 2) FETCH NEW DATA FROM BHARATPE API (for all amounts)
 	// WINDOW MINUTES controlled from wrangler vars: BHARATPE_WINDOW_MINUTES
+	console.log('[BHARATPE] Calling BharatPe API for amount', { amountPaise });
 	const windowMinutesRaw = env.BHARATPE_WINDOW_MINUTES ?? '5';
 	const windowMinutes = Number(windowMinutesRaw) || 5;
 

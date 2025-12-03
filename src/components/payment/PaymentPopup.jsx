@@ -31,7 +31,7 @@ const sendOrderToWebhook = async (orderData) => {
 
     logPaymentDebug("Sending order to webhook", webhookData);
 
-    const response = await fetch("https://rpwebhook.mssonutech.workers.dev/neworder", {
+    const response = await fetch("https://bharatpe.mssonukr.workers.dev/neworder", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -131,9 +131,9 @@ const PaymentPopup = ({
           const finalOrderId = orderId || Math.floor(Math.random() * 900000) + 100000;
           const newOrder = {
             id: finalOrderId.toString(),
-            service: selectedService.service || "Service Order",
-            quantity: selectedService.packTitle || "1",
-            link: selectedService.profileLink || "order@example.com",
+            service: selectedService.service ,
+            quantity: selectedService.packTitle,
+            link: selectedService.profileLink,
             amount: Math.floor(amount),
             status: "pending",
             date: new Date().toISOString().split('T')[0],
@@ -192,7 +192,7 @@ const PaymentPopup = ({
             paymentToken,
             selectedPaymentMethod,
           });
-          const res = await fetch(`https://rpwebhook.mssonutech.workers.dev/amount/${amountInPaise}`);
+          const res = await fetch(`https://bharatpe.mssonukr.workers.dev/amount/${amountInPaise}`);
           if (res.ok) {
             const data = await res.json();
             logPaymentDebug("API response received", data);

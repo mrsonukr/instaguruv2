@@ -34,6 +34,19 @@ export async function handleRazorpayWebhook(request, env) {
 		timestamp_ms: timestampMs,
 	};
 
+	// Idempotency: if this UTR already exists, skip insert + external forward
+	const existing = await env.bharatpe
+		.prepare('SELECT orderId FROM transactions WHERE utr = ? LIMIT 1')
+		.bind(refined.utr)
+		.first();
+
+	if (existing) {
+		console.log('[RPWEBHOOK] Duplicate webhook for existing UTR, skipping forward', {
+			utr: refined.utr,
+		});
+		return json({ success: true, data: refined, duplicate: true });
+	}
+
 	// Insert into D1 transactions table (orderPlaced = 0 for webhook payments)
 	const insertPromise = env.bharatpe
 		.prepare(

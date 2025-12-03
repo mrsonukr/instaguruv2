@@ -391,7 +391,7 @@ const Orders = () => {
   // Keep table headers in English only
   const getTableHeaderText = (key) => {
     const headers = {
-      orderDetails: "Order Details",
+      orderDetails: "Order Id",
       service: "Service",
       quantity: "Quantity",
       link: "Link",

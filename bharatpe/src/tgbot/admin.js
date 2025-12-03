@@ -153,9 +153,11 @@ export async function handleBharatpeTokenUpdateMessage(env, message, text) {
 
 	const newToken = text.trim();
 	if (!newToken) {
+		await setChatState(env, chatId, null);
 		return 'Token cannot be empty.';
 	}
 	if (newToken.length < 32) {
+		await setChatState(env, chatId, null);
 		return 'Invalid token. It looks too short.';
 	}
 

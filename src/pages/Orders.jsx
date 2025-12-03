@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
-import { Package } from "lucide-react";
+import { Package, SquareArrowOutUpRight, CircleAlert } from "lucide-react";
 import { updatePageSEO } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../data/translations";
@@ -73,14 +73,40 @@ const Orders = () => {
       const timeDiff = now - createdAt;
       const minutesDiff = timeDiff / (1000 * 60);
 
-      if (minutesDiff >= 660) {
-        // 10 hours + 1 hour = 11 hours (660 minutes)
-        return { ...order, status: "completed" };
-      } else if (minutesDiff >= 600) {
-        // 10 hours = 600 minutes
-        return { ...order, status: "processing" };
-      } else {
+      // If link is invalid, keep status pending for first 20 minutes
+      const hasValidLink =
+        order.link && typeof order.link === "string" && order.link.startsWith("http");
+      if (!hasValidLink && minutesDiff < 20) {
         return { ...order, status: "pending" };
+      }
+
+      // Amount-based status timing
+      const isHighAmount = (order.amount || 0) > 35;
+
+      if (isHighAmount) {
+        // High amount orders:
+        // 0 - 600 minutes (0-10 hours): pending
+        // 600 - 720 minutes (10-12 hours): processing
+        // After 12 hours: completed
+        if (minutesDiff >= 720) {
+          return { ...order, status: "completed" };
+        } else if (minutesDiff >= 600) {
+          return { ...order, status: "processing" };
+        } else {
+          return { ...order, status: "pending" };
+        }
+      } else {
+        // Normal orders:
+        // 0 - 5 minutes: pending
+        // 5 minutes - 120 minutes (2 hours): processing
+        // After 2 hours: completed
+        if (minutesDiff >= 120) {
+          return { ...order, status: "completed" };
+        } else if (minutesDiff >= 5) {
+          return { ...order, status: "processing" };
+        } else {
+          return { ...order, status: "pending" };
+        }
       }
     });
 
@@ -108,14 +134,39 @@ const Orders = () => {
 
       let newStatus = order.status;
 
-      if (minutesDiff >= 660) {
-        // 10 hours + 1 hour = 11 hours (660 minutes)
-        newStatus = "completed";
-      } else if (minutesDiff >= 600) {
-        // 10 hours = 600 minutes
-        newStatus = "processing";
-      } else {
+      // If link is invalid, keep status pending for first 20 minutes
+      const hasValidLink =
+        order.link && typeof order.link === "string" && order.link.startsWith("http");
+      if (!hasValidLink && minutesDiff < 20) {
         newStatus = "pending";
+      } else {
+        const isHighAmount = (order.amount || 0) > 35;
+
+        if (isHighAmount) {
+          // High amount orders:
+          // 0 - 600 minutes (0-10 hours): pending
+          // 600 - 720 minutes (10-12 hours): processing
+          // After 12 hours: completed
+          if (minutesDiff >= 720) {
+            newStatus = "completed";
+          } else if (minutesDiff >= 600) {
+            newStatus = "processing";
+          } else {
+            newStatus = "pending";
+          }
+        } else {
+          // Normal orders:
+          // 0 - 5 minutes: pending
+          // 5 minutes - 120 minutes (2 hours): processing
+          // After 2 hours: completed
+          if (minutesDiff >= 120) {
+            newStatus = "completed";
+          } else if (minutesDiff >= 5) {
+            newStatus = "processing";
+          } else {
+            newStatus = "pending";
+          }
+        }
       }
 
       if (newStatus !== order.status) {
@@ -146,18 +197,54 @@ const Orders = () => {
 
     const hoursDiff = Math.floor(minutesDiff / 60);
     if (hoursDiff < 24)
-      return `${hoursDiff} ${
-        hoursDiff > 1
-          ? getTranslation("hoursAgo", language)
-          : getTranslation("hourAgo", language)
-      }`;
+      return `${hoursDiff} ${hoursDiff > 1
+        ? getTranslation("hoursAgo", language)
+        : getTranslation("hourAgo", language)
+        }`;
 
     const daysDiff = Math.floor(hoursDiff / 24);
-    return `${daysDiff} ${
-      daysDiff > 1
-        ? getTranslation("daysAgo", language)
-        : getTranslation("dayAgo", language)
-    }`;
+    return `${daysDiff} ${daysDiff > 1
+      ? getTranslation("daysAgo", language)
+      : getTranslation("dayAgo", language)
+      }`;
+  };
+
+  const formatOrderDateTime = (createdAt, fallbackDate) => {
+    if (!createdAt && !fallbackDate) return "";
+
+    let created;
+    if (createdAt) {
+      created = new Date(createdAt);
+    } else {
+      created = new Date(fallbackDate + "T00:00:00.000Z");
+    }
+
+    if (Number.isNaN(created.getTime())) {
+      return fallbackDate || "";
+    }
+
+    const now = new Date();
+    const createdDateStr = created.toDateString();
+    const todayStr = now.toDateString();
+    const yesterdayDate = new Date(now);
+    yesterdayDate.setDate(now.getDate() - 1);
+    const yesterdayStr = yesterdayDate.toDateString();
+
+    const timeStr = created.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+    if (createdDateStr === todayStr) {
+      return `Today, ${timeStr}`;
+    }
+
+    if (createdDateStr === yesterdayStr) {
+      return `Yesterday, ${timeStr}`;
+    }
+
+    const dateStr = created.toLocaleDateString();
+    return `${dateStr}, ${timeStr}`;
   };
 
   const getServiceIcon = (service) => {
@@ -388,6 +475,31 @@ const Orders = () => {
     }
   };
 
+  const getApproxProcessingTime = (order, now) => {
+    if (!order || !order.createdAt || !now) return "";
+
+    const created = new Date(order.createdAt);
+    if (Number.isNaN(created.getTime())) return "";
+
+    const diffMs = now - created;
+    const elapsedMinutes = Math.max(0, Math.floor(diffMs / (1000 * 60)));
+
+    // Real processing window: 90 minutes
+    if (elapsedMinutes >= 90) return 13;
+
+    // Phase 1: first 30 minutes -> smooth decrease 20 -> 15
+    if (elapsedMinutes < 30) {
+      // Every 6 minutes drop by 1, from 20 down to 15
+      const steps = Math.min(5, Math.floor(elapsedMinutes / 6));
+      return 20 - steps; // 20,19,18,17,16,15
+    }
+
+    // Phase 2: after 30 minutes -> oscillating pattern
+    const pattern = [15, 17, 14, 16, 13, 15];
+    const index = Math.floor((elapsedMinutes - 30) / 10) % pattern.length;
+    return pattern[index];
+  };
+
   // Keep table headers in English only
   const getTableHeaderText = (key) => {
     const headers = {
@@ -415,7 +527,7 @@ const Orders = () => {
               <div className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded-lg">
                 {currentTime.toLocaleTimeString()}
               </div>
-       
+
             </div>
           </div>
 
@@ -464,13 +576,17 @@ const Orders = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                              order.status
-                            )}`}
-                          >
-                            {getStatusText(order.status)}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                                order.status
+                              )}`}
+                            >
+                              {order.status === "processing"
+                                ? `Processing ~${getApproxProcessingTime(order, currentTime)} min`
+                                : getStatusText(order.status)}
+                            </span>
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
@@ -478,9 +594,22 @@ const Orders = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900 max-w-xs truncate">
-                            {order.link}
-                          </div>
+                          {order.link && typeof order.link === "string" && order.link.startsWith("http") ? (
+                            <a
+                              href={order.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-600 hover:text-blue-800 max-w-xs truncate inline-flex items-center gap-1"
+                            >
+                              <SquareArrowOutUpRight className="w-3 h-3 flex-shrink-0" />
+                              <span className="truncate">{order.link}</span>
+                            </a>
+                          ) : (
+                            <div className="text-sm text-gray-900 max-w-xs truncate inline-flex items-center gap-1">
+                              <CircleAlert className="w-3 h-3 flex-shrink-0 text-red-400" />
+                              <span className="truncate">{order.link}</span>
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
@@ -494,10 +623,7 @@ const Orders = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <div>
-                            <div>{order.date}</div>
-                            <div className="text-xs text-gray-400">
-                              {getTimeAgo(order.createdAt)}
-                            </div>
+                            {formatOrderDateTime(order.createdAt, order.date)}
                           </div>
                         </td>
                       </tr>
@@ -525,7 +651,7 @@ const Orders = () => {
           )}
         </div>
       </div>
-       <TawkTo />
+      <TawkTo />
     </>
   );
 };

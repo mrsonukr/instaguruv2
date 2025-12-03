@@ -136,9 +136,7 @@ const PaymentPopup = ({
             link: selectedService.profileLink,
             amount: Math.floor(amount),
             status: "pending",
-            date: new Date().toISOString().split('T')[0],
-            createdAt: new Date().toISOString(),
-            deliveryTime: "24-48 hours"
+            createdAt: new Date().toISOString()
           };
 
           // Add to userOrders
@@ -247,11 +245,7 @@ const PaymentPopup = ({
                 link: selectedService.profileLink || "order@example.com",
                 amount: parsedAmount,
                 status: "pending",
-                date: new Date().toISOString().split("T")[0],
-                createdAt: new Date().toISOString(),
-                deliveryTime: "24-48 hours",
-                paymentId,
-                orderId: finalOrderIdStr
+                createdAt: new Date().toISOString()
               };
 
               const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");

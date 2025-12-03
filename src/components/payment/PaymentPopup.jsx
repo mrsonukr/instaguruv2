@@ -131,7 +131,7 @@ const PaymentPopup = ({
           const finalOrderId = orderId || Math.floor(Math.random() * 900000) + 100000;
           const newOrder = {
             id: finalOrderId.toString(),
-            service: selectedService.service ,
+            service: selectedService.service,
             quantity: selectedService.packTitle,
             link: selectedService.profileLink,
             amount: Math.floor(amount),
@@ -418,7 +418,11 @@ const PaymentPopup = ({
                   : "Payment Processing"}
               </h3>
               <button
-                onClick={handleClose}
+                onClick={(e) => {
+                  if (e.detail === 2) {
+                    handleClose();
+                  }
+                }}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X size={20} />
@@ -432,7 +436,11 @@ const PaymentPopup = ({
               {paymentStatus === "success" ? (
                 <div className="bg-white p-4 rounded-lg relative">
                   <button
-                    onClick={handleClose}
+                    onClick={(e) => {
+                      if (e.detail === 2) {
+                        handleClose();
+                      }
+                    }}
                     className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
                   >
                     <X size={20} />
@@ -493,7 +501,11 @@ const PaymentPopup = ({
               {paymentStatus === "success" ? (
                 <div className="bg-white p-4 rounded-lg relative">
                   <button
-                    onClick={handleClose}
+                    onClick={(e) => {
+                      if (e.detail === 2) {
+                        handleClose();
+                      }
+                    }}
                     className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
                   >
                     <X size={20} />

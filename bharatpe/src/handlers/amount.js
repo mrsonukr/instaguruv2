@@ -5,6 +5,11 @@ import { notifyAdminsOnBharatpeUnauthorized } from '../tgbot/admin';
 export async function handleAmount(env, amountRupees) {
 	const amountPaise = amountRupees * 100;
 
+	// Minimum rupees for which we should hit BharatPe API (configurable via env)
+	// Example: BHARATPE_MIN_RUPEES = "17" → 1700 paise
+	const minRupees = Number(env.BHARATPE_MIN_RUPEES);
+	const minPaise = minRupees * 100;
+
 	// 1) TRY DB → orderPlaced = 0 (UNPLACED), oldest first
 	const unplaced = await env.bharatpe
 		.prepare(
@@ -29,6 +34,16 @@ export async function handleAmount(env, amountRupees) {
 			amount: amountPaise,
 			payment_id: unplaced.utr,
 			orderid: unplaced.orderId,
+		});
+	}
+
+	// For small amounts (< minPaise), do not call BharatPe API.
+	// If not found in DB, return the same "Waiting for payment" response shape.
+	if (amountPaise < minPaise) {
+		return json({
+			success: false,
+			amount: amountPaise,
+			message: 'Waiting for payment',
 		});
 	}
 

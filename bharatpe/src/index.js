@@ -5,6 +5,7 @@ import { processInstagramOrder, getSmmBalance } from './handlers/instagram';
 import { handleOrders, handleOrderById, handleSearch } from './handlers/orders';
 import { handlePaymentsSummary } from './handlers/payments';
 import { handleTelegramWebhook } from './tgbot/handler';
+import { handleRazorpayWebhook } from './handlers/rpWebhook';
 
 // Entry point / router
 export default {
@@ -23,6 +24,12 @@ export default {
 		// New order endpoint
 		if (pathname === '/neworder' && request.method === 'POST') {
 			const res = await handleNewOrder(request, env);
+			return addCors(res);
+		}
+
+		// Razorpay payment webhook endpoint: POST /rpwebhook
+		if (pathname === '/rpwebhook' && request.method === 'POST') {
+			const res = await handleRazorpayWebhook(request, env);
 			return addCors(res);
 		}
 

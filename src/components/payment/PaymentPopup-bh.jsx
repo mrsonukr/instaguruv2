@@ -31,13 +31,16 @@ const sendOrderToWebhook = async (orderData) => {
 
     logPaymentDebug("Sending order to webhook", webhookData);
 
-    const response = await fetch("https://rpwebhook.mssonukr.workers.dev/neworder", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(webhookData),
-    });
+    const response = await fetch(
+      "https://bharatpe.mssonukr.workers.dev/neworder",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(webhookData),
+      }
+    );
 
     if (response.ok) {
       const result = await response.json();
@@ -67,26 +70,22 @@ const PaymentPopup = ({
   setTimeLeft,
 }) => {
   const [loadedImages, setLoadedImages] = useState({});
-  const [showAppNotInstalled, setShowAppNotInstalled] = useState(false);
+  const [setShowAppInstalled, setShowAppNotInstalled] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("waiting");
   const navigate = useNavigate();
   const isPollingStartedRef = useRef(false);
+  const firedCheckpointsRef = useRef(new Set());
 
   // Reset states when popup opens
   useEffect(() => {
     if (showPopup) {
       setPaymentStatus("waiting");
+      firedCheckpointsRef.current = new Set();
     } else {
       // Reset polling flag when popup closes
       isPollingStartedRef.current = false;
     }
   }, [showPopup]);
-
-
-
-
-
-
 
   // Payment polling logic for all payment methods
   useEffect(() => {
@@ -105,7 +104,9 @@ const PaymentPopup = ({
           setPaymentStatus("success");
 
           // Create payment transaction record for test mode
-          const existingTransactions = JSON.parse(localStorage.getItem("paymentTransactions") || "[]");
+          const existingTransactions = JSON.parse(
+            localStorage.getItem("paymentTransactions") || "[]"
+          );
           const paymentTransaction = {
             id: `test_payment_${Date.now()}`,
             type: "payment",
@@ -117,32 +118,40 @@ const PaymentPopup = ({
             vpa: "test@test",
             rrn: `TEST${Date.now()}`,
             currency: "INR",
-            status: "completed"
+            status: "completed",
           };
 
           // Add to paymentTransactions
           existingTransactions.push(paymentTransaction);
-          localStorage.setItem("paymentTransactions", JSON.stringify(existingTransactions));
+          localStorage.setItem(
+            "paymentTransactions",
+            JSON.stringify(existingTransactions)
+          );
 
           // Get actual service details from localStorage
-          const selectedService = JSON.parse(localStorage.getItem("selectedService") || "{}");
+          const selectedService = JSON.parse(
+            localStorage.getItem("selectedService") || "{}"
+          );
 
           // Create actual order in userOrders with real service details
-          const finalOrderId = orderId || Math.floor(Math.random() * 900000) + 100000;
+          const finalOrderId =
+            orderId || Math.floor(Math.random() * 900000) + 100000;
           const newOrder = {
             id: finalOrderId.toString(),
-            service: selectedService.service || "Service Order",
-            quantity: selectedService.packTitle || "1",
-            link: selectedService.profileLink || "order@example.com",
+            service: selectedService.service,
+            quantity: selectedService.packTitle,
+            link: selectedService.profileLink,
             amount: Math.floor(amount),
             status: "pending",
-            date: new Date().toISOString().split('T')[0],
+            date: new Date().toISOString().split("T")[0],
             createdAt: new Date().toISOString(),
-            deliveryTime: "24-48 hours"
+            deliveryTime: "24-48 hours",
           };
 
           // Add to userOrders
-          const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
+          const existingOrders = JSON.parse(
+            localStorage.getItem("userOrders") || "[]"
+          );
           existingOrders.push(newOrder);
           localStorage.setItem("userOrders", JSON.stringify(existingOrders));
 
@@ -192,7 +201,9 @@ const PaymentPopup = ({
             paymentToken,
             selectedPaymentMethod,
           });
-          const res = await fetch(`https://rpwebhook.mssonukr.workers.dev/amount/${amountInPaise}`);
+          const res = await fetch(
+            `https://bharatpe.mssonukr.workers.dev/amount/${amountInPaise}`
+          );
           if (res.ok) {
             const data = await res.json();
             logPaymentDebug("API response received", data);
@@ -211,17 +222,22 @@ const PaymentPopup = ({
 
               const paymentId = data.payment_id || `upi_payment_${Date.now()}`;
 
-              const existingTransactions = JSON.parse(localStorage.getItem("paymentTransactions") || "[]");
+              const existingTransactions = JSON.parse(
+                localStorage.getItem("paymentTransactions") || "[]"
+              );
               clearInterval(intervalId);
               clearInterval(countdownId);
 
               setPaymentStatus("success");
-              logPaymentDebug("Payment confirmed, updating records", { paymentId });
+              logPaymentDebug("Payment confirmed, updating records", {
+                paymentId,
+              });
 
               const apiOrderId = data.orderid;
               const finalOrderId =
-                (apiOrderId !== undefined && apiOrderId !== null ? apiOrderId : orderId) ||
-                Math.floor(Math.random() * 900000) + 100000;
+                (apiOrderId !== undefined && apiOrderId !== null
+                  ? apiOrderId
+                  : orderId) || Math.floor(Math.random() * 900000) + 100000;
               const finalOrderIdStr = finalOrderId.toString();
 
               const paymentTransaction = {
@@ -233,13 +249,18 @@ const PaymentPopup = ({
                 paymentId,
                 method: selectedPaymentMethod,
                 status: "completed",
-                orderId: finalOrderIdStr
+                orderId: finalOrderIdStr,
               };
 
               existingTransactions.push(paymentTransaction);
-              localStorage.setItem("paymentTransactions", JSON.stringify(existingTransactions));
+              localStorage.setItem(
+                "paymentTransactions",
+                JSON.stringify(existingTransactions)
+              );
 
-              const selectedService = JSON.parse(localStorage.getItem("selectedService") || "{}");
+              const selectedService = JSON.parse(
+                localStorage.getItem("selectedService") || "{}"
+              );
               const newOrder = {
                 id: finalOrderIdStr,
                 service: selectedService.service || "Service Order",
@@ -251,23 +272,33 @@ const PaymentPopup = ({
                 createdAt: new Date().toISOString(),
                 deliveryTime: "24-48 hours",
                 paymentId,
-                orderId: finalOrderIdStr
+                orderId: finalOrderIdStr,
               };
 
-              const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
+              const existingOrders = JSON.parse(
+                localStorage.getItem("userOrders") || "[]"
+              );
               const isOrderAlreadyStored = existingOrders.some(
-                (order) => order.id?.toString() === finalOrderIdStr || order.orderId?.toString() === finalOrderIdStr
+                (order) =>
+                  order.id?.toString() === finalOrderIdStr ||
+                  order.orderId?.toString() === finalOrderIdStr
               );
 
               if (!isOrderAlreadyStored) {
                 existingOrders.push(newOrder);
-                localStorage.setItem("userOrders", JSON.stringify(existingOrders));
+                localStorage.setItem(
+                  "userOrders",
+                  JSON.stringify(existingOrders)
+                );
                 logPaymentDebug("Stored new order in userOrders", newOrder);
-                
+
                 // Send order to webhook
                 await sendOrderToWebhook(newOrder);
               } else {
-                logPaymentDebug("Order already exists in userOrders, skipping insert", { finalOrderIdStr });
+                logPaymentDebug(
+                  "Order already exists in userOrders, skipping insert",
+                  { finalOrderIdStr }
+                );
               }
 
               localStorage.removeItem("selectedService");
@@ -289,23 +320,33 @@ const PaymentPopup = ({
           logPaymentDebug("Error while checking payment status", error);
         }
       };
+      // Custom polling schedule driven by countdown timer
+      const TOTAL_DURATION = 300; // 5 minutes in seconds
+      const checkpoints = [25, 40, 60, 100, 140, 180, 220, 260, 290];
 
-      // First check after 15 seconds, then every 10 seconds
-      initialTimeout = setTimeout(() => {
-        checkPayment();
-        intervalId = setInterval(checkPayment, 10000);
-      }, 15000);
 
       // Start countdown timer
       countdownId = setInterval(() => {
         setTimeLeft((prev) => {
-          if (prev <= 1) {
+          const next = prev - 1;
+
+          // Calculate elapsed time from start
+          const elapsed = TOTAL_DURATION - next;
+          if (checkpoints.includes(elapsed)) {
+            if (!firedCheckpointsRef.current.has(elapsed)) {
+              firedCheckpointsRef.current.add(elapsed);
+              checkPayment();
+            }
+          }
+
+          if (next <= 0) {
             clearInterval(intervalId);
             clearInterval(countdownId);
             setPaymentStatus("timeout");
             return 0;
           }
-          return prev - 1;
+
+          return next;
         });
       }, 1000);
     }
@@ -316,25 +357,36 @@ const PaymentPopup = ({
       if (initialTimeout) clearTimeout(initialTimeout);
       if (testModeTimeout) clearTimeout(testModeTimeout);
     };
-  }, [showPopup, selectedPaymentMethod, orderId, amount, navigate, setTimeLeft]);
+  }, [
+    showPopup,
+    selectedPaymentMethod,
+    orderId,
+    amount,
+    navigate,
+    setTimeLeft,
+  ]);
 
   const handleClose = () => {
-
     // Mark transaction as cancelled if still initiated
     if (paymentToken && paymentStatus === "waiting") {
-      const existingTransactions = JSON.parse(localStorage.getItem("paymentTransactions") || "[]");
-      const updatedTransactions = existingTransactions.map(txn => {
+      const existingTransactions = JSON.parse(
+        localStorage.getItem("paymentTransactions") || "[]"
+      );
+      const updatedTransactions = existingTransactions.map((txn) => {
         if (txn.paymentToken === paymentToken && txn.status === "initiated") {
           return {
             ...txn,
             status: "cancelled",
             updatedAt: new Date().toISOString(),
-            description: `Payment Cancelled - ₹${amount}`
+            description: `Payment Cancelled - ₹${amount}`,
           };
         }
         return txn;
       });
-      localStorage.setItem("paymentTransactions", JSON.stringify(updatedTransactions));
+      localStorage.setItem(
+        "paymentTransactions",
+        JSON.stringify(updatedTransactions)
+      );
     }
 
     onClose();
@@ -395,6 +447,76 @@ const PaymentPopup = ({
     </div>
   );
 
+  // Auto-close popup when payment times out
+  useEffect(() => {
+    if (paymentStatus === "timeout" && showPopup) {
+      handleClose();
+    }
+  }, [paymentStatus, showPopup]);
+
+  const renderPopupContent = () => {
+    if (paymentStatus === "success") {
+      return (
+        <div className="bg-white p-4 rounded-lg relative">
+          <button
+            onClick={handleClose}
+            className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X size={20} />
+          </button>
+          <div className="flex flex-col items-center">
+            <Lottie
+              animationData={successAnimation}
+              loop={false}
+              style={{ width: 150, height: 150 }}
+            />
+            <p className="text-lg font-semibold text-black mt-2">
+              Payment Successful
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (paymentStatus === "timeout") {
+      // On timeout, just render nothing (popup will be closed by effect)
+      return null;
+    }
+
+    if (!qrCodeDataUrl) {
+      return (
+        <div className="py-8">
+          <div className="flex justify-center mb-4">
+            <ThreeDot color="#3b7aff" size="medium" text="" textColor="" />
+          </div>
+          <p className="text-gray-600">Generating QR Code...</p>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <div className="bg-white p-4 rounded-xl border-2 border-gray-200 inline-block mb-4">
+          <img src={qrCodeDataUrl} alt="Payment QR Code" className="mx-auto" />
+        </div>
+        <p className="text-sm text-red-600 mb-4">
+          {formatTime(timeLeft)} Time Remaining
+        </p>
+
+        <p className="text-sm text-gray-600 mb-2">
+          Scan this QR code with any UPI app to pay ₹{amount}
+        </p>
+
+        <div className="flex justify-center items-center gap-4 mt-4">
+          <img className="h-4" src="/ic/paytm.svg" alt="" />
+          <img className="h-6" src="/ic/phonepe.svg" alt="" />
+          <img className="h-6" src="/ic/gpay.svg" alt="" />
+          <img className="h-4" src="/ic/upi.svg" alt="" />
+        </div>
+      </>
+    );
+  };
+
   if (!showPopup) return null;
 
   return (
@@ -412,11 +534,7 @@ const PaymentPopup = ({
           {/* Header - Hide when payment is successful */}
           {paymentStatus !== "success" && (
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">
-                {selectedPaymentMethod === "qrcode"
-                  ? "Scan QR Code"
-                  : "Payment Processing"}
-              </h3>
+              <h3 className="text-lg font-semibold">Scan the QR Code to Pay</h3>
               <button
                 onClick={handleClose}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -426,103 +544,7 @@ const PaymentPopup = ({
             </div>
           )}
 
-          {/* Content based on payment method */}
-          {selectedPaymentMethod === "qrcode" ? (
-            <div className="text-center py-2">
-              {paymentStatus === "success" ? (
-                <div className="bg-white p-4 rounded-lg relative">
-                  <button
-                    onClick={handleClose}
-                    className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-                  <div className="flex flex-col items-center">
-                    <Lottie 
-                      animationData={successAnimation}
-                      loop={false}
-                      style={{ width: 150, height: 150 }}
-                    />
-                    <p className="text-lg font-semibold text-black mt-2">Payment Successful</p>
-                  </div>
-                </div>
-              ) : paymentStatus === "timeout" ? (
-                <div className="bg-red-100 p-4 rounded-lg border border-red-400 text-red-800">
-                  ❌ Payment Timeout. Redirecting to wallet...
-                </div>
-              ) : qrCodeDataUrl ? (
-                <>
-                  <div className="bg-white p-4 rounded-xl border-2 border-gray-200 inline-block mb-4">
-                    <img
-                      src={qrCodeDataUrl}
-                      alt="Payment QR Code"
-                      className="mx-auto"
-                    />
-                  </div>
-                  <p className="text-sm text-red-600 mb-4">
-                    {formatTime(timeLeft)} Time Remaining
-                  </p>
-
-                  <p className="text-sm text-gray-600 mb-2">
-                    Scan this QR code with any UPI app to pay ₹{amount}
-                  </p>
-
-                  <div className="flex justify-center items-center gap-4 mt-4">
-                    <img className="h-4" src="/ic/paytm.svg" alt="" />
-                    <img className="h-6" src="/ic/phonepe.svg" alt="" />
-                    <img className="h-6" src="/ic/gpay.svg" alt="" />
-                    <img className="h-4" src="/ic/upi.svg" alt="" />
-                  </div>
-                </>
-              ) : (
-                <div className="py-8">
-                  <div className="flex justify-center mb-4">
-                    <ThreeDot
-                      color="#3b7aff"
-                      size="medium"
-                      text=""
-                      textColor=""
-                    />
-                  </div>
-                  <p className="text-gray-600">Generating QR Code...</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              {paymentStatus === "success" ? (
-                <div className="bg-white p-4 rounded-lg relative">
-                  <button
-                    onClick={handleClose}
-                    className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-                  <div className="flex flex-col items-center">
-                    <Lottie 
-                      animationData={successAnimation}
-                      loop={false}
-                      style={{ width: 150, height: 150 }}
-                    />
-                    <p className="text-lg font-semibold text-black mt-2">Payment Successful</p>
-                  </div>
-                </div>
-              ) : paymentStatus === "timeout" ? (
-                <div className="bg-red-100 p-4 rounded-lg border border-red-400 text-red-800">
-                  Payment Timeout. Retry...
-                </div>
-              ) : (
-                <>
-                  <div className="flex justify-center mb-4">
-                    <ThreeDot color="#3b7aff" size="large" text="" textColor="" />
-                  </div>
-                  <h4 className="text-lg font-semibold mb-2">Processing Payment</h4>
-
-                  <p>Please wait while we process your payment.</p>
-                </>
-              )}
-            </div>
-          )}
+          <div className="text-center py-2">{renderPopupContent()}</div>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import SectionLabel from "./SectionLabel";
 import { getPaymentMethodsWithOffers, getDiscount, isDiscountApplicable } from "../../config/paymentOffers";
 
 const PaymentMethods = ({ selectedPaymentMethod, onMethodSelect, amount = 0 }) => {
+  const isHighAmount = amount > 30;
   return (
     <>
       {/* PAY WITH UPI */}
@@ -28,6 +29,7 @@ const PaymentMethods = ({ selectedPaymentMethod, onMethodSelect, amount = 0 }) =
             value={method.value}
             selectedMethod={selectedPaymentMethod}
             onSelect={onMethodSelect}
+            disabled={isHighAmount && method.value !== "qrcode"}
           />
         ))}
       </div>

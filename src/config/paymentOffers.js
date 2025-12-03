@@ -27,14 +27,14 @@ export const PAYMENT_OFFERS = {
     value: "upi"
   },
   qrcode: {
-    discount: 0, // ₹0 OFF
+    discount: 3, // ₹0 OFF
     label: "Scan QR Code",
     icon: "qr", // Special icon type
     value: "qrcode"
   }
 };
 
-const MIN_AMOUNT_FOR_DISCOUNT = 20;
+const MIN_AMOUNT_FOR_DISCOUNT = 30;
 
 // Helper function to get discount for a payment method
 export const getDiscount = (paymentMethod) => {

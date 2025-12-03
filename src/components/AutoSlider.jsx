@@ -11,10 +11,16 @@ const AutoSlider = () => {
   const handleBannerClick = (bannerId) => {
     switch (bannerId) {
       case 1:
+        break;
+
+      case 2:
         navigate("/purchase/11004");
         break;
-      case 2:
-        window.open("https://wa.me/918210220189?text=Hello%20SmmGuru", "_blank");
+      case 3:
+        window.open(
+          "https://wa.me/918210220189?text=Hello%20SmmGuru",
+          "_blank"
+        );
         break;
       default:
         break;

@@ -135,8 +135,16 @@ const Payme = () => {
 
   // ✅ Generate Razorpay QR Code
   const generateQRCode = async () => {
-    const qrLink =
-      "upi://pay?pa=BHARATPE.8F0Q0K7Y9N63655@fbpe&pn=SmmGuru&am=&cu=INR";
+    const amountValue = parseFloat(displayAmount);
+    const upiAmount = !Number.isNaN(amountValue) && amountValue > 0
+      ? amountValue.toString()
+      : "";
+
+    const qrAddress = amountValue > 180
+      ? "mynepcure@oksbi"
+      : "BHARATPE.8F0Q0K7Y9N63655@fbpe";
+
+    const qrLink = `upi://pay?pa=${qrAddress}&pn=SmmGuru&am=${upiAmount}&cu=INR`;
     try {
       const qrDataUrl = await QRCode.toDataURL(qrLink, {
         width: 200,

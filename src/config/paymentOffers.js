@@ -27,7 +27,7 @@ export const PAYMENT_OFFERS = {
     value: "upi"
   },
   qrcode: {
-    discount: 3, // ₹0 OFF
+    discount: 0, // ₹0 OFF
     label: "Scan QR Code",
     icon: "qr", // Special icon type
     value: "qrcode"

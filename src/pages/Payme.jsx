@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { FastForward } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
 import NoCopyText from "../components/ui/NoCopyText";
@@ -12,8 +11,8 @@ import {
   isDiscountApplicable,
 } from "../config/paymentOffers";
 
-// ✅ Razorpay payment address
-const MAIN_PAYMENT_ADDRESS = "faizulhaquerizw712365.rzp@rxairtel";
+// ✅ UPI payment address
+const MAIN_PAYMENT_ADDRESS = "BHARATPE.8F0Q0K7Y9N63655@fbpe";
 
 const Payme = () => {
   const { token } = useParams();
@@ -21,30 +20,17 @@ const Payme = () => {
   const [amount, setAmount] = useState("1.00");
   const [amountError, setAmountError] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("phonepe");
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
-  const [timeLeft, setTimeLeft] = useState(300);
+  const [timeLeft, setTimeLeft] = useState(180);
   const [displayAmount, setDisplayAmount] = useState(amount);
 
   const discountApplicable = isDiscountApplicable(
     selectedPaymentMethod,
     amount
   );
-
-  // Scroll to top when Payme page loads
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    }
-  }, []);
-
-  useEffect(() => {
-    const amt = parseFloat(amount);
-    if (!Number.isNaN(amt) && amt > 30 && selectedPaymentMethod !== "qrcode") {
-      setSelectedPaymentMethod("qrcode");
-    }
-  }, [amount, selectedPaymentMethod]);
 
   useEffect(() => {
     if (token) {
@@ -110,12 +96,14 @@ const Payme = () => {
   }, [showPopup, selectedPaymentMethod, timeLeft]);
 
   useEffect(() => {
-    const discountedAmount = getDiscountedAmount(
-      amount,
-      selectedPaymentMethod
-    );
-    setDisplayAmount(discountedAmount.toString());
-  }, [selectedPaymentMethod, amount]);
+    if (!paymentInitiated) {
+      const discountedAmount = getDiscountedAmount(
+        amount,
+        selectedPaymentMethod
+      );
+      setDisplayAmount(discountedAmount.toString());
+    }
+  }, [selectedPaymentMethod, amount, paymentInitiated]);
 
   const handleBack = () => {
     if (token) {
@@ -133,18 +121,9 @@ const Payme = () => {
     navigate("/orders");
   };
 
-  // ✅ Generate Razorpay QR Code
+  // ✅ Generate UPI QR Code
   const generateQRCode = async () => {
-    const amountValue = parseFloat(displayAmount);
-    const upiAmount = !Number.isNaN(amountValue) && amountValue > 0
-      ? amountValue.toString()
-      : "";
-
-    const qrAddress = amountValue > 180
-      ? "mynepcure@oksbi"
-      : "BHARATPE.8F0Q0K7Y9N63655@fbpe";
-
-    const qrLink = `upi://pay?pa=${qrAddress}&pn=SmmGuru&am=${upiAmount}&cu=INR`;
+    const qrLink = `upi://pay?pa=${MAIN_PAYMENT_ADDRESS}&pn=SmmGuru&am=${displayAmount}&cu=INR`;
     try {
       const qrDataUrl = await QRCode.toDataURL(qrLink, {
         width: 200,
@@ -157,46 +136,26 @@ const Payme = () => {
     }
   };
 
-  // ✅ Continue button (UPI deep links)
+  // ✅ Continue button (always opens QR code)
   const handleContinue = async () => {
     if (!selectedPaymentMethod) {
       alert("Please select a payment method");
       return;
     }
 
+    // Lock in the discount based on selected method
+    const discountedAmount = getDiscountedAmount(amount, selectedPaymentMethod);
+    setDisplayAmount(discountedAmount.toString());
+    setPaymentInitiated(true);
+
+    // Force QR code mode for popup
+    setSelectedPaymentMethod("qrcode");
+
     setShowPopup(true);
     setIsClosing(false);
-    setTimeLeft(300);
+    setTimeLeft(180);
 
-    if (selectedPaymentMethod === "qrcode") {
-      await generateQRCode();
-      return;
-    }
-
-    // For other payment methods, try to open the app but also start API polling
-    const BASE_UPI_URL = `//pay?ver=01&mode=19&pa=${MAIN_PAYMENT_ADDRESS}&pn=Grocery&tr=RGN7okehoP9K78qrv2&cu=INR&mc=5411&qrMedium=04&tn=PaymentToFAIZULHAQUERIZWI&am=${displayAmount}`;
-
-    let redirect_url;
-    switch (selectedPaymentMethod.toLowerCase()) {
-      case "paytm":
-        redirect_url = `paytmmp:${BASE_UPI_URL}`;
-        break;
-      case "phonepe":
-        redirect_url = `phonepe:${BASE_UPI_URL}`;
-        break;
-      case "gpay":
-        redirect_url = `upi:${BASE_UPI_URL}`;
-        break;
-      default:
-        redirect_url = `upi:${BASE_UPI_URL}`;
-    }
-
-    // Try to open the app but don't redirect the page
-    try {
-      window.location.href = redirect_url;
-    } catch (error) {
-      // Continue with API polling if app doesn't open
-    }
+    await generateQRCode();
   };
 
   const closePopup = () => {
@@ -205,7 +164,7 @@ const Payme = () => {
       setShowPopup(false);
       setIsClosing(false);
       setQrCodeDataUrl("");
-      setTimeLeft(300);
+      setTimeLeft(180);
     }, 300);
   };
 
@@ -223,7 +182,7 @@ const Payme = () => {
 
   return (
     <NoCopyText>
-      <div className="px-5 ">
+      <div className="px-5 flex flex-col">
         <PaymentHeader onBack={handleBack} />
 
         <div className="flex items-center justify-between my-4">
@@ -257,14 +216,13 @@ const Payme = () => {
           <button
             onClick={handleContinue}
             disabled={!selectedPaymentMethod}
-            className={`w-full py-3 rounded-lg font-semibold text-white flex items-center justify-center gap-2 transition-colors ${
+            className={`w-full py-3 rounded-lg font-semibold text-white transition-colors ${
               selectedPaymentMethod
                 ? "bg-black hover:bg-gray-800"
                 : "bg-gray-700 cursor-not-allowed"
             }`}
           >
-            <FastForward className="w-5 h-5" />
-            <span>Continue</span>
+            Continue
           </button>
         </div>
 

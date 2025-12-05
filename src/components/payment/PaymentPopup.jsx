@@ -131,12 +131,14 @@ const PaymentPopup = ({
           const finalOrderId = orderId || Math.floor(Math.random() * 900000) + 100000;
           const newOrder = {
             id: finalOrderId.toString(),
-            service: selectedService.service,
-            quantity: selectedService.packTitle,
-            link: selectedService.profileLink,
+            service: selectedService.service || "Service Order",
+            quantity: selectedService.packTitle || "1",
+            link: selectedService.profileLink || "order@example.com",
             amount: Math.floor(amount),
             status: "pending",
-            createdAt: new Date().toISOString()
+            date: new Date().toISOString().split('T')[0],
+            createdAt: new Date().toISOString(),
+            deliveryTime: "24-48 hours"
           };
 
           // Add to userOrders
@@ -245,7 +247,11 @@ const PaymentPopup = ({
                 link: selectedService.profileLink || "order@example.com",
                 amount: parsedAmount,
                 status: "pending",
-                createdAt: new Date().toISOString()
+                date: new Date().toISOString().split("T")[0],
+                createdAt: new Date().toISOString(),
+                deliveryTime: "24-48 hours",
+                paymentId,
+                orderId: finalOrderIdStr
               };
 
               const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
@@ -257,7 +263,7 @@ const PaymentPopup = ({
                 existingOrders.push(newOrder);
                 localStorage.setItem("userOrders", JSON.stringify(existingOrders));
                 logPaymentDebug("Stored new order in userOrders", newOrder);
-
+                
                 // Send order to webhook
                 await sendOrderToWebhook(newOrder);
               } else {
@@ -392,7 +398,7 @@ const PaymentPopup = ({
   if (!showPopup) return null;
 
   return (
-    <div className="fixed inset-0 h-50px bg-black bg-opacity-50 z-50 flex items-end">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
       <div
         className={`bg-white w-full rounded-t-3xl transform transition-transform duration-300 ease-out ${isClosing ? "translate-y-full" : "translate-y-0"
           }`}
@@ -408,15 +414,11 @@ const PaymentPopup = ({
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">
                 {selectedPaymentMethod === "qrcode"
-                  ? "Scan QR Code By Taking Screenshot"
+                  ? "Scan QR Code"
                   : "Payment Processing"}
               </h3>
               <button
-                onClick={(e) => {
-                  if (e.detail === 2) {
-                    handleClose();
-                  }
-                }}
+                onClick={handleClose}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X size={20} />
@@ -430,17 +432,13 @@ const PaymentPopup = ({
               {paymentStatus === "success" ? (
                 <div className="bg-white p-4 rounded-lg relative">
                   <button
-                    onClick={(e) => {
-                      if (e.detail === 2) {
-                        handleClose();
-                      }
-                    }}
+                    onClick={handleClose}
                     className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
                   >
                     <X size={20} />
                   </button>
                   <div className="flex flex-col items-center">
-                    <Lottie
+                    <Lottie 
                       animationData={successAnimation}
                       loop={false}
                       style={{ width: 150, height: 150 }}
@@ -495,17 +493,13 @@ const PaymentPopup = ({
               {paymentStatus === "success" ? (
                 <div className="bg-white p-4 rounded-lg relative">
                   <button
-                    onClick={(e) => {
-                      if (e.detail === 2) {
-                        handleClose();
-                      }
-                    }}
+                    onClick={handleClose}
                     className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
                   >
                     <X size={20} />
                   </button>
                   <div className="flex flex-col items-center">
-                    <Lottie
+                    <Lottie 
                       animationData={successAnimation}
                       loop={false}
                       style={{ width: 150, height: 150 }}

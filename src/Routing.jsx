@@ -19,6 +19,7 @@ const Refund = lazy(() => import("./pages/Refund"));
 const HowToPurchase = lazy(() => import("./pages/HowToPurchase"));
 const Transactions = lazy(() => import("./pages/Transactions"));
 const GetOrders = lazy(() => import("./pages/GetOrders")); // ✅ NEW
+const PgPage = lazy(() => import("./pages/PgPage"));
 
 // Simple loading fallback
 const LoadingFallback = () => (
@@ -42,6 +43,7 @@ const Routing = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/:slug" element={<Products />} />
           <Route path="/payment/:token" element={<Payme />} />
+          <Route path="/pg" element={<PgPage />} />
           <Route path="/refer/:referralId" element={<ReferPage />} />
           <Route path="/redirecting" element={<Redirecting />} />
           <Route path="/orders" element={<Orders />} />

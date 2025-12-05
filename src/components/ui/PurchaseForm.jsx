@@ -61,10 +61,18 @@ const PurchaseForm = ({
       
       localStorage.setItem("selectedService", JSON.stringify(serviceDetails));
       
-      // Create a payment token and redirect directly to payment page
-      const timestamp = Date.now();
-      const randomStr = Math.random().toString(36).substring(7);
-      const paymentToken = btoa(`${packPrice}-${timestamp}-${randomStr}`);
+      // Build payment payload for external payment page
+      const payload = {
+        id: Date.now().toString(),
+        quantity: "100",
+        link: input,
+        amount: String(Math.round(Number(packPrice) * 100)),
+        service: config.name,
+        redirectTo: "https://smmguru.shop/orders",
+        fallbackUrl: "https://smmguru.shop/error",
+      };
+
+      const paymentToken = btoa(JSON.stringify(payload));
       
       // Save payment transaction
       const transaction = {
@@ -83,8 +91,8 @@ const PurchaseForm = ({
       existingTransactions.push(transaction);
       localStorage.setItem("paymentTransactions", JSON.stringify(existingTransactions));
       
-      // Redirect directly to payment page
-      navigate(`/payment/${paymentToken}`);
+      // Redirect to external payment gateway
+      window.location.href = `http://pay.smmguru.shop/?payment=${paymentToken}`;
     }
   };
 

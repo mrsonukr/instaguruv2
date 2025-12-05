@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { Package, SquareArrowOutUpRight, CircleAlert } from "lucide-react";
 import { updatePageSEO } from "../utils/seoUtils";
@@ -16,6 +17,93 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const { language } = useLanguage();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleOrderFromQuery = () => {
+    try {
+      const search = location.search || "";
+      if (!search.includes("orderplaced=")) return;
+
+      const params = new URLSearchParams(search);
+      const encoded = params.get("orderplaced");
+      if (!encoded) return;
+
+      let payload;
+      try {
+        const decoded = decodeURIComponent(encoded);
+        const jsonStr = atob(decoded);
+        payload = JSON.parse(jsonStr || "{}");
+      } catch (e) {
+        logOrdersDebug("Failed to decode orderplaced payload", e);
+        return;
+      }
+
+      const {
+        id,
+        service,
+        quantity,
+        link,
+        amount,
+        createdAt,
+        orderId,
+      } = payload || {};
+
+      if (!id || !service || !quantity || !link || amount == null || !orderId) {
+        logOrdersDebug("orderplaced payload missing required fields", payload);
+        return;
+      }
+
+      const numericAmount = Number.isNaN(Number(amount))
+        ? 0
+        : Math.floor(Number(amount));
+
+      const createdDate = createdAt && !Number.isNaN(Date.parse(createdAt))
+        ? new Date(createdAt)
+        : new Date();
+
+      const createdAtIso = createdDate.toISOString();
+      const dateStr = createdAtIso.split("T")[0];
+
+      const newOrder = {
+        id: String(id),
+        service: String(service),
+        quantity: String(quantity),
+        link: String(link),
+        amount: numericAmount,
+        status: "pending",
+        date: dateStr,
+        createdAt: createdAtIso,
+        deliveryTime: "24-48 hours",
+        orderId: orderId,
+      };
+
+      const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
+      const isDuplicate = existingOrders.some((order) => {
+        const existingId = order.id != null ? String(order.id) : null;
+        const existingOrderId = order.orderId != null ? String(order.orderId) : null;
+        return (
+          existingId === newOrder.id ||
+          existingOrderId === String(orderId)
+        );
+      });
+
+      if (!isDuplicate) {
+        existingOrders.push(newOrder);
+        localStorage.setItem("userOrders", JSON.stringify(existingOrders));
+        logOrdersDebug("Stored order from orderplaced query", newOrder);
+      } else {
+        logOrdersDebug("Order from orderplaced query already exists, skipping store", {
+          id: newOrder.id,
+          orderId,
+        });
+      }
+
+      navigate("/orders", { replace: true });
+    } catch (e) {
+      logOrdersDebug("Unexpected error in handleOrderFromQuery", e);
+    }
+  };
 
   const sortOrdersByCreatedAt = (ordersArray) => {
     return [...ordersArray].sort((a, b) => {
@@ -28,6 +116,9 @@ const Orders = () => {
   useEffect(() => {
     // Update SEO for orders page
     updatePageSEO("orders");
+
+    // If redirected with orderplaced payload, store it first
+    handleOrderFromQuery();
 
     // Load orders from localStorage
     loadOrders();

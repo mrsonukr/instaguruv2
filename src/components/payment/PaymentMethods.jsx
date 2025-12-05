@@ -4,7 +4,7 @@ import SectionLabel from "./SectionLabel";
 import { getPaymentMethodsWithOffers, getDiscount, isDiscountApplicable } from "../../config/paymentOffers";
 
 const PaymentMethods = ({ selectedPaymentMethod, onMethodSelect, amount = 0 }) => {
-  const isHighAmount = amount > 30;
+  const isHighAmount = amount > 0;
   return (
     <>
       {/* PAY WITH UPI */}

@@ -15,6 +15,7 @@ const PurchaseForm = ({
   const navigate = useNavigate();
   const variant = COLOR_VARIANTS[color] || COLOR_VARIANTS.red;
   const [input, setInput] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (
     !serviceData ||
@@ -48,7 +49,10 @@ const PurchaseForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     if (input.trim()) {
+      setIsSubmitting(true);
       // Store the service details
       const serviceDetails = {
         service: config.name,
@@ -125,9 +129,16 @@ const PurchaseForm = ({
         
         <button
           type="submit"
-          className={`text-center text-white w-full px-6 py-2 rounded-full gap-2 ${variant.buttonBg} ${variant.buttonHover}`}
+          disabled={isSubmitting}
+          className={`flex items-center justify-center text-center text-white w-full px-6 py-2 rounded-full gap-2 ${variant.buttonBg} ${variant.buttonHover} ${
+            isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+          }`}
         >
-          {getTranslation('continue', language)}
+          {isSubmitting ? (
+            <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          ) : (
+            <span>{getTranslation('continue', language)}</span>
+          )}
         </button>
       </form>
     </>

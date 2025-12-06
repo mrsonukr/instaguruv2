@@ -5,34 +5,6 @@ import { notifyAdminsOnBharatpeUnauthorized } from '../tgbot/admin';
 export async function handleAmount(env, amountRupees) {
 	const amountPaise = amountRupees * 100;
 
-	// 1) TRY DB – orderPlaced = 0 (UNPLACED), oldest first
-	console.log('[BHARATPE] Checking DB for unplaced transaction', { amountPaise });
-	const unplaced = await env.bharatpe
-		.prepare(
-			`SELECT * FROM transactions
-	       WHERE amount_paise = ? AND orderPlaced = 0
-	       ORDER BY timestamp_ms ASC
-	       LIMIT 1`
-		)
-		.bind(amountPaise)
-		.first();
-
-	if (unplaced) {
-		// Mark placed
-		await env.bharatpe
-			.prepare('UPDATE transactions SET orderPlaced = 1 WHERE orderId = ?')
-			.bind(unplaced.orderId)
-			.run();
-
-		return json({
-			success: true,
-			orderplaced: true,
-			amount: amountPaise,
-			payment_id: unplaced.utr,
-			orderid: unplaced.orderId,
-		});
-	}
-
 	// 2) FETCH NEW DATA FROM BHARATPE API (for all amounts)
 	// WINDOW MINUTES controlled from wrangler vars: BHARATPE_WINDOW_MINUTES
 	console.log('[BHARATPE] Calling BharatPe API for amount', { amountPaise });

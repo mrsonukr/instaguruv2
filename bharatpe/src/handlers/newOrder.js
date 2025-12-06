@@ -15,11 +15,31 @@ export async function handleNewOrder(request, env) {
 
 		const amountPaise = Math.round(amount * 100);
 
+		// Validate there is a matching transaction for this order id
+		const tx = await env.bharatpe
+			.prepare(
+				`SELECT * FROM transactions
+		     WHERE orderId = ?1 AND orderPlaced = 0`
+			)
+			.bind(id)
+			.first();
+
+		if (!tx || tx.amount_paise !== amountPaise) {
+			return json(
+				{
+					success: false,
+					error: 'Invalid order',
+					code: 'INVALID_ORDER',
+				},
+				400
+			);
+		}
+
 		await env.bharatpe
 			.prepare(
 				`INSERT INTO orders 
-        (order_id, quantity, link, amount, service, apiid, created_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, NULL, strftime('%s','now'))`
+		        (order_id, quantity, link, amount, service, apiid, created_at)
+		         VALUES (?1, ?2, ?3, ?4, ?5, NULL, strftime('%s','now'))`
 			)
 			.bind(id, quantity, link, amountPaise, service)
 			.run();
@@ -66,6 +86,12 @@ export async function handleNewOrder(request, env) {
 		} catch (e) {
 			console.log('[TG] notifyAdminsOnNewOrder failed:', e && e.message ? e.message : e);
 		}
+
+		// Mark transaction as used for this order
+		await env.bharatpe
+			.prepare('UPDATE transactions SET orderPlaced = 1 WHERE orderId = ?1')
+			.bind(id)
+			.run();
 
 		return json({
 			success: true,

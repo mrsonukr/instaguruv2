@@ -7,7 +7,7 @@
   // Environment variables (available on env.* inside the worker)
   "vars": {
     "BHARATPE_MERCHANT_ID": "55476598",
-    "BHARATPE_WINDOW_MINUTES": "5",
+    "BHARATPE_WINDOW_MINUTES": "15",
     "AIRGROWSMM_API_KEY": "bd7d6d3ec29ae08dbd2f3636bb99deb79352d80f",
     "AIRGROWSMM_API_URL": "https://airgrowsmm.com/api/v2",
     "SUPPORTIVESMM_API_KEY": "025da02065c1701f387b54e857f4c1de",

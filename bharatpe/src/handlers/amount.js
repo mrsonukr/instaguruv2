@@ -1,135 +1,103 @@
 import { json } from '../utils';
-import { notifyAdminsOnBharatpeUnauthorized } from '../tgbot/admin';
 
 // Handler for /amount/:paise
 export async function handleAmount(env, amountRupees) {
 	const amountPaise = amountRupees * 100;
 
-	// 2) FETCH NEW DATA FROM BHARATPE API (for all amounts)
-	// WINDOW MINUTES controlled from wrangler vars: BHARATPE_WINDOW_MINUTES
-	console.log('[BHARATPE] Calling BharatPe API for amount', { amountPaise });
-	const windowMinutesRaw = env.BHARATPE_WINDOW_MINUTES ?? '5';
-	const windowMinutes = Number(windowMinutesRaw) || 5;
+	console.log('[BHARATPE] Calling proxy BharatPe API for amount', { amountPaise });
 
-	const now = new Date();
-	const start = new Date(now.getTime() - windowMinutes * 60 * 1000);
-
-	const apiUrl =
-		`https://payments-tesseract.bharatpe.in/api/v1/merchant/transactions` +
-		`?module=PAYMENT_QR&merchantId=${env.BHARATPE_MERCHANT_ID}` +
-		`&sDate=${start.getTime()}&eDate=${now.getTime()}` +
-		`&pageSize=100&pageCount=0&isFromOtDashboard=1`;
-
-	const tokenRow = await env.bharatpe
-		.prepare('SELECT token FROM tg_bharatpe_token WHERE id = 1 LIMIT 1')
-		.first();
-
-	const bharatpeToken = tokenRow?.token;
-	if (!bharatpeToken) {
-		return json({ success: false, error: 'BharatPe token not configured' });
-	}
-
-	const res = await fetch(apiUrl, {
+	// Fetch recent transactions from the proxy API
+	const res = await fetch('https://apibp.mssonutech.workers.dev/', {
 		headers: {
 			Accept: 'application/json',
-			Token: bharatpeToken,
-			Referer: 'https://enterprise.bharatpe.in/',
-			Origin: 'https://enterprise.bharatpe.in/',
 		},
 	});
 
 	if (!res.ok) {
-		if (res.status === 401) {
-			let bodyText = '';
-			try {
-				bodyText = await res.text();
-			} catch (e) {
-				bodyText = '<failed to read BharatPe body>';
-			}
-
-			try {
-				const parsed = JSON.parse(bodyText);
-				if (
-					parsed &&
-					parsed.responseCode === '401' &&
-					parsed.responseMessage === 'You are not authorised'
-				) {
-					await notifyAdminsOnBharatpeUnauthorized(
-						env,
-						`Raw response: ${bodyText}`
-					);
-				}
-			} catch (e) {
-				console.log('[BHARATPE] Failed to parse 401 body', e);
-			}
-		}
-
-		return json({ success: false, error: 'Failed fetching BharatPe' });
+		return json({ success: false, error: 'Failed fetching BharatPe proxy API' });
 	}
 
 	const api = await res.json();
 	const all = api?.data?.transactions || [];
 
-	// Filter by amount
-	const filtered = all.filter((t) => t.amount * 100 === amountPaise);
+	// Filter transactions for the requested amount.
+	// Proxy API returns amount in rupees, so compare after normalizing.
+	const filtered = all.filter((t) => {
+		const amt = Number(t.amount);
+		if (Number.isNaN(amt)) return false;
+		return Math.round(amt * 100) === amountPaise;
+	});
 
-	// 3) No BharatPe match → Show WAITING
-	if (filtered.length === 0) {
+	if (filtered.length > 0) {
+		// PICK OLDEST transaction from live data
+		filtered.sort((a, b) => a.paymentTimestamp - b.paymentTimestamp); // ASC
+		const candidate = filtered[0];
+
+		// Ensure it exists in local DB with orderPlaced = 0
+		await env.bharatpe
+			.prepare(
+				`INSERT INTO transactions
+		       (utr, amount_paise, payer_name, payer, timestamp_ms, orderPlaced)
+		       VALUES (?1, ?2, ?3, ?4, ?5, 0)
+		       ON CONFLICT(utr) DO NOTHING`
+			)
+			.bind(
+				candidate.bankReferenceNo,
+				amountPaise,
+				candidate.payerName,
+				candidate.payerHandle,
+				candidate.paymentTimestamp
+			)
+			.run();
+
+		const saved = await env.bharatpe
+			.prepare(`SELECT * FROM transactions WHERE utr = ? LIMIT 1`)
+			.bind(candidate.bankReferenceNo)
+			.first();
+
+		// If this transaction is already used for an order (orderPlaced=1),
+		// treat it as not available for new payments.
+		if (!saved || saved.orderPlaced === 1) {
+			return json({
+				success: false,
+				amount: amountPaise,
+				message: 'Waiting for payment',
+			});
+		}
+
 		return json({
-			success: false,
-			amount: amountPaise,
-			message: 'Waiting for payment',
+			success: true,
+			orderplaced: saved.orderPlaced === 1,
+			amount: saved.amount_paise,
+			payment_id: saved.utr,
+			orderid: saved.orderId,
 		});
 	}
 
-	// 4) PICK OLDEST transaction
-	filtered.sort((a, b) => a.paymentTimestamp - b.paymentTimestamp); // ASC
-	const candidate = filtered[0];
-
-	// 5) CHECK if already exists in DB
-	const exist = await env.bharatpe
-		.prepare(`SELECT orderId FROM transactions WHERE utr = ? LIMIT 1`)
-		.bind(candidate.bankReferenceNo)
-		.first();
-
-	if (exist) {
-		return json({
-			success: false,
-			amount: amountPaise,
-			message: 'Waiting for payment',
-		});
-	}
-
-	// 6) INSERT NEW → orderPlaced = 1
-	await env.bharatpe
+	// No live proxy match -> fallback to local DB for any pending transaction of this amount
+	const fallback = await env.bharatpe
 		.prepare(
-			`INSERT INTO transactions
-       (utr, amount_paise, payer_name, payer, timestamp_ms, orderPlaced)
-       VALUES (?1, ?2, ?3, ?4, ?5, 1)
-       ON CONFLICT(utr) DO NOTHING`
+			`SELECT * FROM transactions
+	   WHERE amount_paise = ?1 AND orderPlaced = 0
+	   ORDER BY timestamp_ms ASC
+	   LIMIT 1`
 		)
-		.bind(
-			candidate.bankReferenceNo,
-			amountPaise,
-			candidate.payerName,
-			candidate.payerHandle,
-			candidate.paymentTimestamp
-		)
-		.run();
-
-	// Fetch it back
-	const saved = await env.bharatpe
-		.prepare(`SELECT * FROM transactions WHERE utr = ? LIMIT 1`)
-		.bind(candidate.bankReferenceNo)
+		.bind(amountPaise)
 		.first();
+
+	if (!fallback) {
+		return json({
+			success: false,
+			amount: amountPaise,
+			message: 'Waiting for payment',
+		});
+	}
 
 	return json({
 		success: true,
-		orderplaced: true,
-		amount: amountPaise,
-		payment_id: saved.utr,
-		orderid: saved.orderId,
+		orderplaced: fallback.orderPlaced === 1,
+		amount: fallback.amount_paise,
+		payment_id: fallback.utr,
+		orderid: fallback.orderId,
 	});
 }
-
-

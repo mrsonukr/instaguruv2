@@ -68,7 +68,7 @@ const PurchaseForm = ({
       // Build payment payload for external payment page
       const payload = {
         id: Date.now().toString(),
-        quantity: "100",
+        quantity: packTitle,
         link: input,
         amount: String(Math.round(Number(packPrice) * 100)),
         service: config.name,

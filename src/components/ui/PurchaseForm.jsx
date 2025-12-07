@@ -73,7 +73,7 @@ const PurchaseForm = ({
         amount: String(Math.round(Number(packPrice) * 100)),
         service: config.name,
         redirectTo: "https://smmguru.shop/orders",
-        fallbackUrl: "https://smmguru.shop/error",
+         fallbackUrl: window.location.href,
       };
 
       const paymentToken = btoa(JSON.stringify(payload));

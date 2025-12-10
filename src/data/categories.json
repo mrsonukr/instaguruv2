@@ -303,12 +303,18 @@
     "packs": [
       {
         "id": 2000,
-        "title": "4000 Hours Watchtime",
-        "price": 399,
+        "title": "4000H Watchtime + 2K Subscribers",
+        "price": 499,
         "description": "Youtube monetization special.",
         "filter": "Watchtime"
       },
       {
+        "id": 101778,
+        "title": "100 Subscribers",
+        "price": 11,
+        "description": "Indian Real Non-drop Subscribers",
+        "filter": "Subscribers"
+      },{
         "id": 1017,
         "title": "1000 Subscribers",
         "price": 59,

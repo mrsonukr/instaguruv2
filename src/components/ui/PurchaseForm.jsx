@@ -27,7 +27,7 @@ const PurchaseForm = ({
     return (
       <div className="text-center p-4">
         <p className="text-red-600 font-semibold">
-          {getTranslation('invalidServiceData', language)}
+          {getTranslation("invalidServiceData", language)}
         </p>
       </div>
     );
@@ -40,19 +40,37 @@ const PurchaseForm = ({
   };
 
   // Get the proper translated label for this specific filter
-  const filterLabel = getTranslation(`${config.slug}.filters.${filter}.label`, language) || filterConfig.label;
+  const filterLabel =
+    getTranslation(`${config.slug}.filters.${filter}.label`, language) ||
+    filterConfig.label;
   const translatedFilterConfig = {
     ...filterConfig,
     label: filterLabel,
-    placeholder: filterConfig.placeholder // Placeholder is URL, no translation needed
+    placeholder: filterConfig.placeholder, // Placeholder is URL, no translation needed
+  };
+
+  // UTF-8 safe Base64 encoder for browsers
+  const utf8ToBase64 = (str) => {
+    try {
+      // encodeURIComponent -> percent-encodes utf8, unescape -> raw bytes, btoa -> base64
+      return btoa(unescape(encodeURIComponent(str)));
+    } catch (err) {
+      // Fallback: if any issue, try a more defensive approach (should rarely be needed)
+      console.error("utf8ToBase64 encoding failed:", err);
+      // As last resort, base64 without utf8 handling (may throw)
+      return btoa(str);
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isSubmitting) return;
 
-    if (input.trim()) {
-      setIsSubmitting(true);
+    if (!input.trim()) return;
+
+    setIsSubmitting(true);
+
+    try {
       // Store the service details
       const serviceDetails = {
         service: config.name,
@@ -62,23 +80,24 @@ const PurchaseForm = ({
         serviceSlug: config.slug,
         packTitle: packTitle,
       };
-      
+
       localStorage.setItem("selectedService", JSON.stringify(serviceDetails));
-      
+
       // Build payment payload for external payment page
       const payload = {
         id: Date.now().toString(),
         quantity: packTitle,
         link: input,
-        amount: String(Math.round(Number(packPrice) * 100)),
+        amount: String(Math.round(Number(packPrice) * 100)), // in paise if packPrice in rupees
         service: config.name,
         redirectTo: "https://smmguru.shop/orders",
-         fallbackUrl: window.location.href,
+        fallbackUrl: window.location.href,
       };
 
-      const paymentToken = btoa(JSON.stringify(payload));
-      
-      // Save payment transaction
+      // Use UTF-8 safe base64 encoding
+      const paymentToken = utf8ToBase64(JSON.stringify(payload));
+
+      // Save payment transaction locally
       const transaction = {
         id: `payment_${Date.now()}`,
         type: "payment_initiated",
@@ -87,16 +106,33 @@ const PurchaseForm = ({
         description: `Payment for ${config.name} - ${filter}`,
         status: "initiated",
         paymentToken: paymentToken,
-        serviceDetails: serviceDetails
+        serviceDetails: serviceDetails,
       };
 
-      // Get existing transactions
-      const existingTransactions = JSON.parse(localStorage.getItem("paymentTransactions") || "[]");
+      const existingTransactions = JSON.parse(
+        localStorage.getItem("paymentTransactions") || "[]"
+      );
       existingTransactions.push(transaction);
-      localStorage.setItem("paymentTransactions", JSON.stringify(existingTransactions));
-      
+      localStorage.setItem(
+        "paymentTransactions",
+        JSON.stringify(existingTransactions)
+      );
+
       // Redirect to external payment gateway
-      window.location.href = `http://pay.smmguru.shop/?payment=${paymentToken}`;
+      // Use https by default; if your gateway requires http, change accordingly.
+      // encodeURIComponent to ensure token safe in URL
+      const gatewayUrl = `https://pay.smmguru.shop/?payment=${encodeURIComponent(
+        paymentToken
+      )}`;
+
+      // Small timeout can help some browsers finish localStorage write, but not necessary.
+      // Directly navigate:
+      window.location.href = gatewayUrl;
+    } catch (err) {
+      console.error("Payment init error:", err);
+      setIsSubmitting(false);
+      // Show friendly message; replace with your toast if any
+      alert(getTranslation("paymentInitError", language) || "Kuch error hua, dobara try karo.");
     }
   };
 
@@ -126,7 +162,7 @@ const PurchaseForm = ({
           required
           className={`px-3 py-2 rounded border-[1.5px] ${variant.borderColor} focus:outline-none w-full box-border`}
         />
-        
+
         <button
           type="submit"
           disabled={isSubmitting}
@@ -137,7 +173,7 @@ const PurchaseForm = ({
           {isSubmitting ? (
             <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
           ) : (
-            <span>{getTranslation('continue', language)}</span>
+            <span>{getTranslation("continue", language)}</span>
           )}
         </button>
       </form>

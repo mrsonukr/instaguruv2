@@ -23,16 +23,17 @@
       "Views": {
         "label": "Enter Your Instagram Reel/Story Link",
         "placeholder": "https://www.instagram.com/reel/yourreel"
-      },
-      "Bluetick": {
-        "label": "Enter Your Instagram Profile Link",
-        "placeholder": "https://instagram.com/yourprofile"
       }
     },
     "packs": [
       
-      
-   
+      {
+        "id": 1232,
+        "title": "150 Followers",
+        "price": 15,
+        "description": "Mixed High Quality Followers",
+        "filter": "Followers"
+      },
       {
         "id": 1001,
         "title": "1000 Followers",

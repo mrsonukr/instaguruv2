@@ -26,17 +26,11 @@
       }
     },
     "packs": [
-      {
-        "id": 123278,
-        "title": "50 Followers",
-        "price": 8,
-        "description": "Mixed High Quality Followers",
-        "filter": "Followers"
-      },
+      
       {
         "id": 1232,
-        "title": "150 Followers",
-        "price": 15,
+        "title": "450 Followers",
+        "price": 25,
         "description": "Mixed High Quality Followers",
         "filter": "Followers"
       },

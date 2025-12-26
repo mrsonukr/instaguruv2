@@ -1,18 +1,11 @@
 {
-  "name": "bharatpe",
-  "main": "src/index.js",
+  "name": "bharatpe-backup",
+  "main": "worker.js",
   "workers_dev": true,
   "preview_urls": false,
   "compatibility_date": "2025-11-30",
-  // Environment variables (available on env.* inside the worker)
+  // Only essential vars for amount endpoint
   "vars": {
-    "BHARATPE_MERCHANT_ID": "62389373",
-    "BHARATPE_WINDOW_MINUTES": "15",
-    "AIRGROWSMM_API_KEY": "bd7d6d3ec29ae08dbd2f3636bb99deb79352d80f",
-    "AIRGROWSMM_API_URL": "https://airgrowsmm.com/api/v2",
-    "SUPPORTIVESMM_API_KEY": "025da02065c1701f387b54e857f4c1de",
-    "SUPPORTIVESMM_API_URL": "https://supportivesmm.com/api/v2",
-    "TELEGRAM_BOT_TOKEN": "8589209876:AAEZrm7owPccr_xY31jZLVEOeX4X0v59WgI"
   },
   "d1_databases": [
     {

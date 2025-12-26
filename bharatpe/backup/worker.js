@@ -1,7 +1,32 @@
-import { json } from '../utils';
+// Common utilities: CORS + JSON helpers
+function corsHeaders() {
+	return {
+		'Access-Control-Allow-Origin': '*',
+		'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+		'Access-Control-Allow-Headers': '*',
+	};
+}
+
+function addCors(res) {
+	const headers = new Headers(res.headers);
+	headers.set('Access-Control-Allow-Origin', '*');
+	headers.set('Access-Control-Allow-Headers', '*');
+	headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+	return new Response(res.body, { status: res.status, headers });
+}
+
+function json(obj, status = 200) {
+	return new Response(JSON.stringify(obj), {
+		status,
+		headers: {
+			'Content-Type': 'application/json',
+			...corsHeaders(),
+		},
+	});
+}
 
 // Handler for /amount/:paise
-export async function handleAmount(env, amountRupees) {
+async function handleAmount(env, amountRupees) {
 	const amountPaise = amountRupees * 100;
 
 	console.log('[BHARATPE] Calling proxy BharatPe API for amount', { amountPaise });
@@ -107,3 +132,31 @@ export async function handleAmount(env, amountRupees) {
 		orderid: fallback.orderId,
 	});
 }
+
+// Entry point / router
+export default {
+	async fetch(request, env) {
+		const url = new URL(request.url);
+		const pathname = url.pathname;
+
+		// CORS preflight
+		if (request.method === 'OPTIONS') {
+			return new Response(null, {
+				status: 204,
+				headers: corsHeaders(),
+			});
+		}
+
+		// Amount endpoint: /amount/:paise
+		if (pathname.startsWith('/amount/')) {
+			const amt = Number(pathname.split('/')[2]);
+			if (!amt) return json({ success: false, error: 'Invalid amount' });
+
+			// amt is paise; convert to rupees for internal logic
+			const amountRupees = amt / 100;
+			return await handleAmount(env, amountRupees);
+		}
+
+		return new Response('Not Found', { status: 404, headers: corsHeaders() });
+	},
+};

@@ -6,6 +6,7 @@ import { handleOrders, handleOrderById, handleSearch } from './handlers/orders';
 import { handlePaymentsSummary } from './handlers/payments';
 import { handleTelegramWebhook } from './tgbot/handler';
 import { handleRazorpayWebhook } from './handlers/rpWebhook';
+import { handleWebhook } from './handlers/webhook';
 
 // Entry point / router
 export default {
@@ -30,6 +31,12 @@ export default {
 		// Razorpay payment webhook endpoint: POST /rpwebhook
 		if (pathname === '/rpwebhook' && request.method === 'POST') {
 			const res = await handleRazorpayWebhook(request, env);
+			return addCors(res);
+		}
+
+		// Generic webhook endpoint: POST /webhook
+		if (pathname === '/webhook' && request.method === 'POST') {
+			const res = await handleWebhook(request, env);
 			return addCors(res);
 		}
 

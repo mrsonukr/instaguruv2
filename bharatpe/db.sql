@@ -22,22 +22,22 @@ CREATE INDEX IF NOT EXISTS idx_transactions_timestamp ON transactions(timestamp_
 -- 2) Create orders table
 -- ===================================
 CREATE TABLE IF NOT EXISTS orders (
-  order_id INTEGER,
+  order_id INTEGER PRIMARY KEY AUTOINCREMENT,
   quantity TEXT NOT NULL,
   link TEXT NOT NULL,
   amount REAL NOT NULL,
   service TEXT NOT NULL,
   apiid INTEGER DEFAULT NULL,
   created_at INTEGER NOT NULL,
-
-  PRIMARY KEY(order_id),
-  FOREIGN KEY(order_id) REFERENCES transactions(orderId)
+  txnId TEXT
 );
 
 -- Indexes for orders
 CREATE INDEX IF NOT EXISTS idx_orders_link ON orders(link);
 CREATE INDEX IF NOT EXISTS idx_orders_service ON orders(service);
 CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
+-- Note: Unique index for txnId commented out due to existing duplicates
+-- CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_txnId ON orders(txnId);
 
 
 -- ===================================
@@ -50,6 +50,25 @@ VALUES ('temp-utr', 1, strftime('%s','now'));
 -- 4) Delete dummy row
 -- ===================================
 DELETE FROM transactions WHERE utr = 'temp-utr';
+
+-- ===================================
+-- 6) Create webhook table
+-- ===================================
+CREATE TABLE IF NOT EXISTS webhook (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id TEXT NOT NULL,
+  utr TEXT NOT NULL,
+  txn_id TEXT NOT NULL,
+  status TEXT NOT NULL,
+  amount INTEGER NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+-- Indexes for webhook
+CREATE INDEX IF NOT EXISTS idx_webhook_order_id ON webhook(order_id);
+CREATE INDEX IF NOT EXISTS idx_webhook_utr ON webhook(utr);
+CREATE INDEX IF NOT EXISTS idx_webhook_txn_id ON webhook(txn_id);
+CREATE INDEX IF NOT EXISTS idx_webhook_status ON webhook(status);
 
 -- ===================================
 -- 5) Set AUTO_INCREMENT start value => 1000

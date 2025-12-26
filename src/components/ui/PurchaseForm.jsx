@@ -86,6 +86,7 @@ const PurchaseForm = ({
       // Build payment payload for external payment page
       const payload = {
         id: Date.now().toString(),
+        txnId: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
         quantity: packTitle,
         link: input,
         amount: String(Math.round(Number(packPrice) * 100)), // in paise if packPrice in rupees
@@ -121,7 +122,7 @@ const PurchaseForm = ({
       // Redirect to external payment gateway
       // Use https by default; if your gateway requires http, change accordingly.
       // encodeURIComponent to ensure token safe in URL
-      const gatewayUrl = `https://pay.smmguru.shop/?payment=${encodeURIComponent(
+      const gatewayUrl = `https://payment.smmguru.shop/?payment=${encodeURIComponent(
         paymentToken
       )}`;
 

@@ -17,8 +17,9 @@ export async function handlePaymentsSummary(env) {
 	// Last 3 days (rolling 72 hours) detailed from webhook table
 	const nowMs = Date.now();
 	const threeDaysAgoSec = Math.floor((nowMs - 3 * 24 * 60 * 60 * 1000) / 1000);
-	// Compute "today" in UTC for labeling
-	const nowUtcDateStr = new Date(nowMs).toISOString().slice(0, 10);
+	// Compute "today" in IST (UTC+5:30) for labeling
+	const nowIstMs = nowMs + 19800000; // 5.5 hours in ms
+	const nowIstDateStr = new Date(nowIstMs).toISOString().slice(0, 10);
 
 	const { results: recent } = await env.bharatpe
 		.prepare(
@@ -35,11 +36,12 @@ export async function handlePaymentsSummary(env) {
 	for (const row of recent || []) {
 		const createdAtSec = Number(row.created_at);
 		const createdAtMs = createdAtSec * 1000;
-		// Use UTC directly for display
-		const d = new Date(createdAtMs);
+		// Shift to IST for display
+		const istMs = createdAtMs + 19800000; // 5.5 hours
+		const d = new Date(istMs);
 		const dateStr = d.toISOString().slice(0, 10);
 
-		// Build human-readable label: "Today, 08:31 pm" or "YYYY-MM-DD, 08:31 pm"
+		// Build human-readable label: "Today, 08:31 pm" or "YYYY-MM-DD, 08:31 pm" in IST
 		let hour = d.getUTCHours();
 		const minute = d.getUTCMinutes();
 		const ampm = hour >= 12 ? 'pm' : 'am';
@@ -48,7 +50,7 @@ export async function handlePaymentsSummary(env) {
 		const hourStr = hour < 10 ? `0${hour}` : String(hour);
 		const minuteStr = minute < 10 ? `0${minute}` : String(minute);
 		const timeStr = `${hourStr}:${minuteStr} ${ampm}`;
-		const dayLabel = dateStr === nowUtcDateStr ? 'Today' : dateStr;
+		const dayLabel = dateStr === nowIstDateStr ? 'Today' : dateStr;
 		const createdAtLabel = `${dayLabel}, ${timeStr}`;
 
 		if (!last3ByDate.has(dateStr)) {

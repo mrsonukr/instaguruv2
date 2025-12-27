@@ -122,7 +122,7 @@ const PurchaseForm = ({
       // Redirect to external payment gateway
       // Use https by default; if your gateway requires http, change accordingly.
       // encodeURIComponent to ensure token safe in URL
-      const gatewayUrl = `http://localhost:5173/?payment=${encodeURIComponent(
+      const gatewayUrl = `http:payment.smmguru.shop/?payment=${encodeURIComponent(
         paymentToken
       )}`;
 

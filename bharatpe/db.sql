@@ -61,7 +61,8 @@ CREATE TABLE IF NOT EXISTS webhook (
   txn_id TEXT NOT NULL,
   status TEXT NOT NULL,
   amount INTEGER NOT NULL,
-  created_at INTEGER NOT NULL
+  remark TEXT,
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
 );
 
 -- Indexes for webhook

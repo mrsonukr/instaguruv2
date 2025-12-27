@@ -65,6 +65,12 @@ export async function processInstagramOrder(env, amount, link) {
 		} else if (selectedApi === 'supportivesmm') {
 			apiKey = env.SUPPORTIVESMM_API_KEY;
 			baseUrl = env.SUPPORTIVESMM_API_URL;
+		} else if (selectedApi === 'tntsmm') {
+			apiKey = env.TNTSMM_API_KEY;
+			baseUrl = env.TNTSMM_API_URL;
+		} else if (selectedApi === 'sakbasmm') {
+			apiKey = env.SAKBASMM_API_KEY;
+			baseUrl = env.SAKBASMM_API_URL;
 		}
 
 		if (!apiKey || !baseUrl) {
@@ -105,18 +111,36 @@ export async function processInstagramOrder(env, amount, link) {
 	});
 }
 
-// Get SMM panel balance using same API key
-export async function getSmmBalance(env) {
-	const apiKey = env.AIRGROWSMM_API_KEY;
+// Get SMM panel balance using API key (supports multiple APIs)
+export async function getSmmBalance(env, api = 'airgrow') {
+	let apiKey, baseUrl, panelName;
+
+	if (api === 'airgrow') {
+		apiKey = env.AIRGROWSMM_API_KEY;
+		baseUrl = env.AIRGROWSMM_API_URL;
+		panelName = 'air grow smm';
+	} else if (api === 'supportivesmm') {
+		apiKey = env.SUPPORTIVESMM_API_KEY;
+		baseUrl = env.SUPPORTIVESMM_API_URL;
+		panelName = 'supportive smm';
+	} else if (api === 'tntsmm') {
+		apiKey = env.TNTSMM_API_KEY;
+		baseUrl = env.TNTSMM_API_URL;
+		panelName = 'tnt smm';
+	} else if (api === 'sakbasmm') {
+		apiKey = env.SAKBASMM_API_KEY;
+		baseUrl = env.SAKBASMM_API_URL;
+		panelName = 'sabka smm';
+	}
+
 	if (!apiKey) {
-		return json({ success: false, error: 'SMM API key not configured' }, 500);
+		return json({ success: false, error: `${panelName} API key not configured` }, 500);
 	}
 
 	try {
-		const baseUrl = env.AIRGROWSMM_API_URL;
 		if (!baseUrl) {
 			return json(
-				{ success: false, error: 'SMM API base URL not configured' },
+				{ success: false, error: `${panelName} API base URL not configured` },
 				500
 			);
 		}
@@ -128,7 +152,7 @@ export async function getSmmBalance(env) {
 		return json({
 			...data,
 			currency: 'INR',
-			panel: 'air grow smm',
+			panel: panelName,
 		});
 	} catch (err) {
 		return json(

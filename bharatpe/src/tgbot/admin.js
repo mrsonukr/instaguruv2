@@ -59,7 +59,7 @@ export async function getChatState(env, chatId) {
 	return row ? row.state : null;
 }
 
-async function setChatState(env, chatId, state) {
+export async function setChatState(env, chatId, state) {
 	if (!state) {
 		await env.bharatpe
 			.prepare('DELETE FROM tg_state WHERE chat_id = ?1')
@@ -186,9 +186,14 @@ export async function notifyAdminsOnNewOrder(env, order) {
 	const createdAtSec = Number(order.created_at || 0);
 	const istHuman = createdAtSec ? formatIstHuman(createdAtSec) : 'N/A';
 
-	const apiStatus = order.apiid
-		? `<code>${escapeHtml(order.apiid)}</code>`
-		: 'Order Not Placed';
+	let apiStatus;
+	if (!order.apiid) {
+		apiStatus = 'Order Not Placed';
+	} else if (String(order.apiid) === 'failed') {
+		apiStatus = 'Order Not Placed';
+	} else {
+		apiStatus = `<code>${escapeHtml(order.apiid)}</code>`;
+	}
 
 	const amountText = (() => {
 		if (order.amountRupees != null) {
@@ -212,10 +217,6 @@ export async function notifyAdminsOnNewOrder(env, order) {
 		`Created At: ${escapeHtml(istHuman)}`,
 		'',
 		`API Status: ${apiStatus}`,
-		'',
-		`Payer Name: ${escapeHtml(order.payername ?? 'N/A')}`,
-		`Payer: ${escapeHtml(order.payer ?? 'N/A')}`,
-		`UTR: ${order.utr ? `<code>${escapeHtml(order.utr)}</code>` : 'N/A'}`,
 	];
 
 	const text = lines.join('\n');

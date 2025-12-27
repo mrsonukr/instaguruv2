@@ -1,10 +1,10 @@
-//  supportivesmm and airgrow
+//  supportivesmm and airgrow ,tntsmm,sakbasmm
 export default [
 	{
 		linkType: 'profile',
-		serviceId: 512,
+		serviceId: 565,
 		quantity: 100,
-		price: 15,
+		price: 12,
 		api: 'supportivesmm',
 	},
 	{
@@ -16,30 +16,30 @@ export default [
 	},
 	{
 		linkType: 'reel',
-		serviceId: 521,
+		serviceId: 6685,
 		quantity: 5000,
 		price: 7,
-		api: 'supportivesmm',
+		api: 'tntsmm',
 	},
 	{
 		linkType: 'reel',
-		serviceId: 521,
+		serviceId: 6685,
 		quantity: 10000,
 		price: 12,
-		api: 'supportivesmm',
+		api: 'tntsmm',
 	},
 	{
 		linkType: 'reel',
-		serviceId: 521,
+		serviceId: 6685,
 		quantity: 25000,
 		price: 25,
-		api: 'supportivesmm',
+		api: 'tntsmm',
 	},
 	{
 		linkType: 'reel',
-		serviceId: 521,
+		serviceId: 6685,
 		quantity: 50000,
 		price: 35,
-		api: 'supportivesmm',
+		api: 'tntsmm',
 	},
 ];

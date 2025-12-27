@@ -12,6 +12,11 @@
     "AIRGROWSMM_API_URL": "https://airgrowsmm.com/api/v2",
     "SUPPORTIVESMM_API_KEY": "025da02065c1701f387b54e857f4c1de",
     "SUPPORTIVESMM_API_URL": "https://supportivesmm.com/api/v2",
+    "TNTSMM_API_KEY": "32881cb8689c65dbf6fa9ef80fcb761c",
+    "TNTSMM_API_URL": "https://tntsmm.in/api/v2",
+    "SAKBASMM_API_KEY": "5a41f38015c6514f3a4f0022d487c4a7",
+    "SAKBASMM_API_URL": "https://sabkasmm.com/api/v2",
+    
     "TELEGRAM_BOT_TOKEN": "8589209876:AAEZrm7owPccr_xY31jZLVEOeX4X0v59WgI"
   },
   "d1_databases": [

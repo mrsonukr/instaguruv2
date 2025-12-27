@@ -9,9 +9,9 @@ export async function handleWebhook(request, env) {
 		const {
 			customer_mobile, // Note: typo in incoming data, but we don't store it
 			utr,
-			remark, // Not stored
+			remark,
 			txn_id,
-			create_at, // Note: incoming field name
+			create_at, // Incoming field, but we now ignore it for created_at and use current time
 			order_id,
 			status,
 			amount
@@ -25,27 +25,17 @@ export async function handleWebhook(request, env) {
 			}, 400);
 		}
 
-		// Convert amount to integer (paise) and created_at to timestamp
+		// Convert amount to integer (paise)
 		const amountPaise = Math.round(parseFloat(amount) * 100);
-		let createdAtTimestamp;
 
-		if (create_at) {
-			// Parse the datetime string and convert to Unix timestamp
-			const date = new Date(create_at);
-			createdAtTimestamp = Math.floor(date.getTime() / 1000);
-		} else {
-			// Fallback to current time
-			createdAtTimestamp = Math.floor(Date.now() / 1000);
-		}
-
-		// Insert into webhook table
+		// Insert into webhook table (created_at handled by DB default)
 		const result = await env.bharatpe
 			.prepare(
 				`INSERT INTO webhook 
-				        (order_id, utr, txn_id, status, amount, created_at)
+				        (order_id, utr, txn_id, status, amount, remark)
 				         VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
 			)
-			.bind(order_id, utr, txn_id, status, amountPaise, createdAtTimestamp)
+			.bind(order_id, utr, txn_id, status, amountPaise, remark ?? null)
 			.run();
 
 		// Get the inserted record ID

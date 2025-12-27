@@ -49,9 +49,33 @@ export default {
 			return addCors(res);
 		}
 
-		// GET /balance - SMM panel balance
+		// GET /balance - SMM panel balance (default: airgrow)
 		if (pathname === '/balance' && request.method === 'GET') {
 			const res = await getSmmBalance(env);
+			return addCors(res);
+		}
+
+		// GET /balance/tntsmm - TNT SMM panel balance
+		if (pathname === '/balance/tntsmm' && request.method === 'GET') {
+			const res = await getSmmBalance(env, 'tntsmm');
+			return addCors(res);
+		}
+
+		// GET /balance/supportivesmm - Supportive SMM panel balance
+		if (pathname === '/balance/supportivesmm' && request.method === 'GET') {
+			const res = await getSmmBalance(env, 'supportivesmm');
+			return addCors(res);
+		}
+
+		// GET /balance/airgrow - Airgrow SMM panel balance
+		if (pathname === '/balance/airgrow' && request.method === 'GET') {
+			const res = await getSmmBalance(env, 'airgrow');
+			return addCors(res);
+		}
+
+		// GET /balance/sakbasmm - Sabka SMM panel balance
+		if (pathname === '/balance/sakbasmm' && request.method === 'GET') {
+			const res = await getSmmBalance(env, 'sakbasmm');
 			return addCors(res);
 		}
 

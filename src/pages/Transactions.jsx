@@ -578,7 +578,7 @@ const Transactions = () => {
                                 {formatAmount(tx.data.amount)}
                               </p>
                               <p className="text-xs text-gray-500">
-                                {formatDate(tx.data.created_at)}
+                                {tx.data.created_at_label}
                               </p>
                             </div>
                           </div>

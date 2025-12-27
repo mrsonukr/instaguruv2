@@ -9,7 +9,9 @@ import {
 	isChatAdmin,
 	startBharatpeTokenUpdate,
 	handleBharatpeTokenUpdateMessage,
+	setChatState,
 } from './admin';
+import { processInstagramOrder } from '../handlers/instagram';
 
 function escapeHtml(str) {
 	if (str === null || str === undefined) return '';
@@ -60,6 +62,112 @@ function formatIstHuman(createdAtSec) {
 	return `${pad(d)}/${pad(m)}/${y}, ${timePart}`;
 }
 
+// Parse Instagram link and quantity from user message
+function parseInstagramMessage(text) {
+	const trimmedText = text.trim();
+	
+	// Look for Instagram URL followed by quantity
+	const instagramUrlPattern = /(https?:\/\/(www\.)?instagram\.com\/[^\s]+)/i;
+	const urlMatch = trimmedText.match(instagramUrlPattern);
+	
+	if (!urlMatch) return null;
+	
+	const url = urlMatch[1];
+	const afterUrl = trimmedText.substring(urlMatch.index + urlMatch[0].length).trim();
+	
+	// Extract quantity from the remaining text
+	const quantityMatch = afterUrl.match(/^(\d+)/);
+	if (!quantityMatch) return null;
+	
+	const quantity = quantityMatch[1];
+	
+	return { url, quantity };
+}
+
+// Get service details based on link type
+function getServiceDetails(url) {
+	if (/instagram\.com\/reel\//i.test(url)) {
+		return {
+			serviceId: 6685,
+			api: 'tntsmm',
+			linkType: 'reel',
+			serviceName: 'Reel Views'
+		};
+	} else if (/instagram\.com\/[^\/]+\/?(\?.*)?$/i.test(url)) {
+		return {
+			serviceId: 565,
+			api: 'supportivesmm',
+			linkType: 'profile',
+			serviceName: 'Followers'
+		};
+	}
+	return null;
+}
+
+// Generate random transaction ID
+function generateTxnId() {
+	const length = Math.floor(Math.random() * 3) + 7; // 7-9 digits
+	let result = '';
+	for (let i = 0; i < length; i++) {
+		result += Math.floor(Math.random() * 10);
+	}
+	return result;
+}
+
+// Place order via internal API
+async function placeOrder(env, orderData) {
+	try {
+		console.log('[TG] Placing order with data:', JSON.stringify(orderData, null, 2));
+		
+		// Get service details based on link type
+		const serviceDetails = getServiceDetails(orderData.link);
+		
+		if (!serviceDetails) {
+			return { success: false, error: 'Invalid Instagram link type' };
+		}
+		
+		// Fixed pricing based on service type
+		let pricePerUnit;
+		if (serviceDetails.linkType === 'reel') {
+			pricePerUnit = 7 / 5000; // ₹7 for 5000 reel views = ₹0.0014 per view
+		} else {
+			pricePerUnit = 8 / 50; // ₹8 for 50 followers = ₹0.16 per follower
+		}
+		
+		const requestedQuantity = parseInt(orderData.quantity.split(' ')[0]);
+		const calculatedAmount = pricePerUnit * requestedQuantity;
+		
+		// Update order data with fixed service ID and calculated amount
+		const updatedOrderData = {
+			quantity: requestedQuantity.toString(), // Send only the number to SMM API
+			link: orderData.link,
+			amount: calculatedAmount,
+			service: serviceDetails.serviceId.toString(),
+			txnId: generateTxnId()
+		};
+		
+		console.log('[TG] Updated order data:', JSON.stringify(updatedOrderData, null, 2));
+		
+		// Call the handler directly instead of making HTTP request
+		const { handleNewOrder } = await import('../handlers/newOrder.js');
+		
+		// Create a mock request object
+		const mockRequest = {
+			json: async () => updatedOrderData
+		};
+		
+		const result = await handleNewOrder(mockRequest, env);
+		const response = await result.json();
+		
+		console.log('[TG] Order response data:', response);
+		
+		return response;
+	} catch (error) {
+		console.error('[TG] Error placing order:', error);
+		return { success: false, error: error.message || 'Failed to place order' };
+	}
+}
+
 async function fetchPanelBalance(env, panel) {
 	try {
 		let apiKey;
@@ -74,6 +182,14 @@ async function fetchPanelBalance(env, panel) {
 			apiKey = env.SUPPORTIVESMM_API_KEY;
 			baseUrl = env.SUPPORTIVESMM_API_URL;
 			label = 'supportive smm';
+		} else if (panel === 'tnt') {
+			apiKey = env.TNTSMM_API_KEY;
+			baseUrl = env.TNTSMM_API_URL;
+			label = 'tnt smm';
+		} else if (panel === 'sakba') {
+			apiKey = env.SAKBASMM_API_KEY;
+			baseUrl = env.SAKBASMM_API_URL;
+			label = 'sabka smm';
 		} else {
 			return { ok: false, error: 'Unknown panel' };
 		}
@@ -124,6 +240,33 @@ export async function routeUpdate(update, env) {
 		} else if (state === 'awaiting_bharatpe_token') {
 			console.log('[TG] Handling BharatPe token update for chat', chatId);
 			replyText = await handleBharatpeTokenUpdateMessage(env, message, text);
+		} else if (state && state.includes('instagram_order')) {
+			// Handle Instagram order confirmation
+			console.log('[TG] Handling Instagram order confirmation for chat', chatId);
+			if (lower === 'y' || lower === 'yes') {
+				try {
+					const orderData = JSON.parse(state);
+					console.log('[TG] Placing Instagram order:', orderData);
+					
+					const result = await placeOrder(env, orderData);
+					
+					if (result.success) {
+						replyText = `Order placed successfully! Order ID: ${result.order_id}`;
+					} else {
+						replyText = `Failed to place order: ${result.error || 'Unknown error'}`;
+					}
+				} catch (error) {
+					console.error('[TG] Error placing Instagram order:', error);
+					replyText = 'Failed to place order. Please try again.';
+				}
+				
+				// Clear the state
+				await setChatState(env, chatId, null);
+			} else {
+				// Clear the state and show cancellation message
+				await setChatState(env, chatId, null);
+				replyText = 'Order cancelled. You can send a new Instagram link with quantity to place a new order.';
+			}
 		}
 		// 1) Start admin setup
 		else if (lower === 'admin') {
@@ -138,9 +281,11 @@ export async function routeUpdate(update, env) {
 		// 2) Balance-related commands
 		else if (['balance', 'amount', 'check', 'b'].includes(lower)) {
 			console.log('[TG] Balance command detected');
-			const [airgrow, supportive] = await Promise.all([
+			const [airgrow, supportive, tnt, sakba] = await Promise.all([
 				fetchPanelBalance(env, 'airgrow'),
 				fetchPanelBalance(env, 'supportive'),
+				fetchPanelBalance(env, 'tnt'),
+				fetchPanelBalance(env, 'sakba'),
 			]);
 
 			const formatBal = (v) => {
@@ -166,58 +311,98 @@ export async function routeUpdate(update, env) {
 				lines.push(`Supportive: Error - ${supportive.error}`);
 			}
 
-			replyText = lines.join('\n');
-		}
-		// 2) Numeric => order lookup (order_id / apiid / utr)
-		else if (/^\d+$/.test(text)) {
-			console.log('[TG] Numeric DM detected, query=', text);
-			const query = text;
-			const result = await findOrderWithPayment(env, query);
-
-			if (!result) {
-				console.log('[TG] Order lookup: no result');
-				replyText = 'Order not found';
+			if (tnt.ok) {
+				lines.push(
+					`TNT: ${formatBal(tnt.balance)} ${tnt.currency}`
+				);
 			} else {
-			console.log('[TG] Order lookup: found result');
-			const createdAtSec = Number(result.created_at || 0);
-			const istHuman = createdAtSec ? formatIstHuman(createdAtSec) : 'N/A';
+				lines.push(`TNT: Error - ${tnt.error}`);
+			}
 
-			const apiStatus = result.apiid
-				? `<code>${escapeHtml(result.apiid)}</code>`
-				: 'Order Not Placed';
-
-			const lines = [
-				'Order Details',
-				'',
-				`Order ID: <code>${escapeHtml(result.id)}</code>`,
-				`Quantity: ${escapeHtml(result.quantity ?? 'N/A')}`,
-				`Link: <code>${escapeHtml(result.link ?? 'N/A')}</code>`,
-				`Amount: \u20b9${result.amount != null ? escapeHtml(result.amount) : '0'}`,
-				`Service: ${escapeHtml(result.service ?? 'N/A')}`,
-				`Created At: ${escapeHtml(istHuman)}`,
-				'',
-				`API Status: ${apiStatus}`,
-				'',
-				`Payer Name: ${escapeHtml(result.payername ?? 'N/A')}`,
-				`Payer: ${escapeHtml(result.payer ?? 'N/A')}`,
-				`UTR: ${result.utr ? `<code>${escapeHtml(result.utr)}</code>` : 'N/A'}`,
-			];
+			if (sakba.ok) {
+				lines.push(
+					`Sabka: ${formatBal(sakba.balance)} ${sakba.currency}`
+				);
+			} else {
+				lines.push(`Sabka: Error - ${sakba.error}`);
+			}
 
 			replyText = lines.join('\n');
 		}
-		}
-		// 3) Greetings
-		else if (lower === 'hi' || lower === 'hello') {
-			replyText = 'hello';
-		}
-		// 4) Anything else => simple help
+		// 3) Instagram order - check for Instagram link with quantity
 		else {
-			replyText = [
-				'How to use this bot:',
-				'',
-				'1) Send an order id / api id / UTR (only digits) to get order details.',
-				'2) Send "balance", "amount", "check" or "b" to see SMM panel balances.',
-			].join('\n');
+			const instagramData = parseInstagramMessage(text);
+			if (instagramData) {
+				console.log('[TG] Instagram order detected', instagramData);
+				const serviceDetails = getServiceDetails(instagramData.url);
+				
+				if (serviceDetails) {
+					// Store pending order in chat state
+					await setChatState(env, chatId, JSON.stringify({
+						type: 'instagram_order',
+						quantity: `${instagramData.quantity} ${serviceDetails.serviceName}`,
+						link: instagramData.url,
+						amount: 0,
+						service: 'Instagram',
+						txnId: ''
+					}));
+					
+					replyText = `Quantity: ${instagramData.quantity} ${serviceDetails.serviceName}
+Link: <code>${instagramData.url}</code>
+
+Send y or yes to confirm`;
+				} else {
+					replyText = 'Invalid Instagram link format. Please send a valid Instagram reel or profile link followed by quantity.';
+				}
+			}
+			// 4) Numeric => order lookup (order_id / apiid / utr)
+			else if (/^\d+$/.test(text)) {
+				console.log('[TG] Numeric DM detected, query=', text);
+				const query = text;
+				const result = await findOrderWithPayment(env, query);
+
+				if (!result) {
+					console.log('[TG] Order lookup: no result');
+					replyText = 'Order not found';
+				} else {
+					console.log('[TG] Order lookup: found result');
+					const createdAtSec = Number(result.created_at || 0);
+					const istHuman = createdAtSec ? formatIstHuman(createdAtSec) : 'N/A';
+
+					const apiStatus = result.apiid
+						? `<code>${escapeHtml(result.apiid)}</code>`
+						: 'Order Not Placed';
+
+					const lines = [
+						'Order Details',
+						'',
+						`Order ID: <code>${escapeHtml(result.id)}</code>`,
+						`Quantity: ${escapeHtml(result.quantity ?? 'N/A')}`,
+						`Link: <code>${escapeHtml(result.link ?? 'N/A')}</code>`,
+						`Amount: \u20b9${result.amount != null ? escapeHtml(result.amount) : '0'}`,
+						`Service: ${escapeHtml(result.service ?? 'N/A')}`,
+						`Created At: ${escapeHtml(istHuman)}`,
+						'',
+						`API Status: ${apiStatus}`,
+					];
+
+					replyText = lines.join('\n');
+				}
+			}
+			// 5) Greetings
+			else if (lower === 'hi' || lower === 'hello') {
+				replyText = 'hello';
+			}
+			// 6) Anything else => simple help
+			else {
+				replyText = [
+					'How to use this bot:',
+					'',
+					'1) Send an order id / api id / UTR (only digits) to get order details.',
+					'2) Send "balance", "amount", "check" or "b" to see SMM panel balances.',
+					'3) Send Instagram link with quantity (e.g., https://instagram.com/reel/xyz 1000)',
+				].join('\n');
+			}
 		}
 	}
 

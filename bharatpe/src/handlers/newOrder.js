@@ -53,23 +53,92 @@ export async function handleNewOrder(request, env) {
 		const createdAt = orderRow && orderRow.created_at ? orderRow.created_at : null;
 
 		// Also trigger Instagram/Airgrow processing (non-blocking for DB insert)
-		const smmRes = await processInstagramOrder(env, amount, link);
 		let smmJson;
-		try {
-			smmJson = await smmRes.json();
-		} catch {
-			smmJson = null;
+		
+		// Check if this is an Instagram order with service ID
+		if (service && /^\d+$/.test(service)) {
+			// This is an Instagram order with service ID, process directly
+			const serviceId = parseInt(service);
+			let selectedApi;
+			
+			// Determine API based on service ID
+			if (serviceId === 6685) {
+				selectedApi = 'tntsmm';
+			} else if (serviceId === 565) {
+				selectedApi = 'supportivesmm';
+			} else {
+				selectedApi = 'airgrow';
+			}
+			
+			// Make direct SMM API call
+			let apiKey, baseUrl;
+			if (selectedApi === 'tntsmm') {
+				apiKey = env.TNTSMM_API_KEY;
+				baseUrl = env.TNTSMM_API_URL;
+			} else if (selectedApi === 'supportivesmm') {
+				apiKey = env.SUPPORTIVESMM_API_KEY;
+				baseUrl = env.SUPPORTIVESMM_API_URL;
+			} else {
+				apiKey = env.AIRGROWSMM_API_KEY;
+				baseUrl = env.AIRGROWSMM_API_URL;
+			}
+			
+			if (apiKey && baseUrl) {
+				try {
+					const apiUrl = `${baseUrl}?key=${apiKey}&action=add&service=${serviceId}&link=${encodeURIComponent(link)}&quantity=${quantity}`;
+					const smmRes = await fetch(apiUrl);
+					smmJson = await smmRes.json();
+				} catch (err) {
+					smmJson = { success: false, error: err.message };
+				}
+			}
+		} else {
+			// Original logic for other orders
+			const smmRes = await processInstagramOrder(env, amount, link);
+			try {
+				smmJson = await smmRes.json();
+			} catch {
+				smmJson = null;
+			}
 		}
 
-		// If SMM order succeeded, store its order id into apiid
-		if (smmJson && smmJson.success && smmJson.orderId) {
-			await env.bharatpe
-				.prepare('UPDATE orders SET apiid = ? WHERE order_id = ?')
-				.bind(smmJson.orderId, id)
-				.run();
+		// If SMM order returned an id, store it into apiid
+		if (smmJson) {
+			let smmOrderId = null;
+			if (smmJson.orderId) {
+				// Many panels return explicit orderId field
+				smmOrderId = smmJson.orderId;
+			} else if (
+				smmJson.order !== undefined &&
+				typeof smmJson.order === 'number'
+			) {
+				// Some return numeric order directly in `order`
+				smmOrderId = smmJson.order;
+			}
+
+			if (smmOrderId) {
+				await env.bharatpe
+					.prepare('UPDATE orders SET apiid = ? WHERE order_id = ?')
+					.bind(smmOrderId, id)
+					.run();
+			}
 		}
 
 		try {
+			let notifyApiId = null;
+			if (smmJson) {
+				if (smmJson.orderId) {
+					notifyApiId = smmJson.orderId;
+				} else if (
+					smmJson.order !== undefined &&
+					typeof smmJson.order === 'number'
+				) {
+					notifyApiId = smmJson.order;
+				} else if (smmJson.order === 'failed') {
+					notifyApiId = 'failed';
+				}
+			}
+
 			await notifyAdminsOnNewOrder(env, {
 				id,
 				quantity,
@@ -77,7 +146,7 @@ export async function handleNewOrder(request, env) {
 				amountRupees: amount,
 				amountPaise,
 				service,
-				apiid: smmJson && smmJson.success && smmJson.orderId ? smmJson.orderId : null,
+				apiid: notifyApiId,
 				created_at: createdAt,
 				payername: null,
 				payer: null,

@@ -226,8 +226,21 @@ const Transactions = () => {
       maximumFractionDigits: 2,
     }).format(balance);
 
-  const formatDate = (timestamp) => {
+  const capitalizeText = (str) => {
+    if (!str || typeof str !== "string") return str;
+    return str
+      .split(" ")
+      .map((word) =>
+        word.length > 0
+          ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          : ""
+      )
+      .join(" ");
+  };
+
+  const formatTime = (timestamp) => {
     const date = new Date(timestamp * 1000);
+
     const timeString = date.toLocaleString("en-IN", {
       hour: "2-digit",
       minute: "2-digit",
@@ -241,17 +254,15 @@ const Transactions = () => {
     const isToday = date.toDateString() === today.toDateString();
     const isYesterday = date.toDateString() === yesterday.toDateString();
 
-    if (isToday) return `today, ${timeString}`;
-    if (isYesterday) return `yesterday, ${timeString}`;
+    if (isToday) return `Today, ${timeString}`;
+    if (isYesterday) return `Yesterday, ${timeString}`;
 
-    return date.toLocaleString("en-IN", {
-      year: "numeric",
+    const datePart = date.toLocaleDateString("en-IN", {
+      day: "2-digit",
       month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
     });
+
+    return `${datePart}, ${timeString}`; // e.g., "12 Dec, 8:10 AM"
   };
 
   // Dynamic Icon Based on Payer
@@ -566,7 +577,11 @@ const Transactions = () => {
 
                               <div>
                                 <p className="text-sm font-medium text-gray-900">
-                                  {tx.data.payername || "UPI Payment"}
+                                  {tx.data.remark || tx.data.payername
+                                    ? `From ${capitalizeText(
+                                        tx.data.remark || tx.data.payername
+                                      )}`
+                                    : "UPI Payment"}
                                 </p>
                                 <p className="text-xs text-gray-500">
                                   UTR: {tx.data.utr}
@@ -578,7 +593,7 @@ const Transactions = () => {
                                 {formatAmount(tx.data.amount)}
                               </p>
                               <p className="text-xs text-gray-500">
-                                {tx.data.created_at_label}
+                                {formatTime(tx.data.created_at)}
                               </p>
                             </div>
                           </div>

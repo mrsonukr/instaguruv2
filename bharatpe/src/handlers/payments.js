@@ -23,7 +23,7 @@ export async function handlePaymentsSummary(env) {
 
 	const { results: recent } = await env.bharatpe
 		.prepare(
-			`SELECT order_id, utr, amount, created_at
+			`SELECT order_id, utr, amount, remark, created_at
 	      FROM webhook
 	      WHERE created_at >= ?1
 	      ORDER BY created_at DESC`
@@ -41,17 +41,7 @@ export async function handlePaymentsSummary(env) {
 		const d = new Date(istMs);
 		const dateStr = d.toISOString().slice(0, 10);
 
-		// Build human-readable label: "Today, 08:31 pm" or "YYYY-MM-DD, 08:31 pm" in IST
-		let hour = d.getUTCHours();
-		const minute = d.getUTCMinutes();
-		const ampm = hour >= 12 ? 'pm' : 'am';
-		hour = hour % 12;
-		if (hour === 0) hour = 12;
-		const hourStr = hour < 10 ? `0${hour}` : String(hour);
-		const minuteStr = minute < 10 ? `0${minute}` : String(minute);
-		const timeStr = `${hourStr}:${minuteStr} ${ampm}`;
-		const dayLabel = dateStr === nowIstDateStr ? 'Today' : dateStr;
-		const createdAtLabel = `${dayLabel}, ${timeStr}`;
+		// (Previously: built created_at_label here; no longer needed)
 
 		if (!last3ByDate.has(dateStr)) {
 			last3ByDate.set(dateStr, {
@@ -71,9 +61,8 @@ export async function handlePaymentsSummary(env) {
 			amount: row.amount != null ? Number(row.amount) : null, // paise
 			payer: 'BHIM',
 			utr: row.utr,
-			order_id: row.order_id,
+			remark: row.remark ?? null,
 			created_at: createdAtSec,
-			created_at_label: createdAtLabel,
 		});
 	}
 

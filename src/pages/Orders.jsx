@@ -15,7 +15,6 @@ const logOrdersDebug = (...args) => {
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const { language } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
@@ -128,14 +127,8 @@ const Orders = () => {
       updateOrderStatuses();
     }, 60000); // Check every minute
 
-    // Update current time every second
-    const timeUpdateInterval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
     return () => {
       clearInterval(statusUpdateInterval);
-      clearInterval(timeUpdateInterval);
     };
   }, []);
 
@@ -566,31 +559,6 @@ const Orders = () => {
     }
   };
 
-  const getApproxProcessingTime = (order, now) => {
-    if (!order || !order.createdAt || !now) return "";
-
-    const created = new Date(order.createdAt);
-    if (Number.isNaN(created.getTime())) return "";
-
-    const diffMs = now - created;
-    const elapsedMinutes = Math.max(0, Math.floor(diffMs / (1000 * 60)));
-
-    // Real processing window: 90 minutes
-    if (elapsedMinutes >= 90) return 13;
-
-    // Phase 1: first 30 minutes -> smooth decrease 20 -> 15
-    if (elapsedMinutes < 30) {
-      // Every 6 minutes drop by 1, from 20 down to 15
-      const steps = Math.min(5, Math.floor(elapsedMinutes / 6));
-      return 20 - steps; // 20,19,18,17,16,15
-    }
-
-    // Phase 2: after 30 minutes -> oscillating pattern
-    const pattern = [15, 17, 14, 16, 13, 15];
-    const index = Math.floor((elapsedMinutes - 30) / 10) % pattern.length;
-    return pattern[index];
-  };
-
   // Keep table headers in English only
   const getTableHeaderText = (key) => {
     const headers = {
@@ -614,12 +582,6 @@ const Orders = () => {
             <h1 className="text-2xl font-bold text-gray-800">
               {getTranslation("myOrders", language)}
             </h1>
-            <div className="flex justify-between items-center gap-4">
-              <div className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded-lg">
-                {currentTime.toLocaleTimeString()}
-              </div>
-
-            </div>
           </div>
 
           {orders.length > 0 ? (
@@ -673,9 +635,7 @@ const Orders = () => {
                                 order.status
                               )}`}
                             >
-                              {order.status === "processing"
-                                ? `Processing ~${getApproxProcessingTime(order, currentTime)} min`
-                                : getStatusText(order.status)}
+                              {getStatusText(order.status)}
                             </span>
                           </div>
                         </td>

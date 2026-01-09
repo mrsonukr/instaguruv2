@@ -52,6 +52,13 @@ const Products = () => {
     ...new Set(currentService.packs.map((pack) => pack.filter)),
   ].sort(); // Sort for consistent order
 
+  // Helper: follower count from pack title
+  const extractFollowerCount = (title) => {
+    if (!title || typeof title !== "string") return 0;
+    const match = title.match(/(\d+)\s*Followers/i);
+    return match ? parseInt(match[1], 10) : 0;
+  };
+
   // Filter packs based on selected filter
   const filteredPacks =
     selectedFilter === "All"
@@ -80,16 +87,31 @@ const Products = () => {
         <div className="m-4 mt-0 flex flex-col items-center">
           {filteredPacks.length > 0 ? (
             filteredPacks.map((pack) => (
+              (() => {
+                const isInstagramFollowersOffer =
+                  (currentService.slug === "instagram" ||
+                    currentService.name?.toLowerCase() === "instagram") &&
+                  pack.filter === "Followers" &&
+                  extractFollowerCount(pack.title) >= 5000;
+
+                const originalPrice = Number(pack.price) || 0;
+                const displayPrice = isInstagramFollowersOffer
+                  ? Math.floor(originalPrice * 0.9) // 10% off, rounded down
+                  : originalPrice;
+
+                return (
               <PackCard
                 key={pack.id}
                 color={currentService.color}
                 title={pack.title}
                 description={pack.description}
-                price={pack.price}
+                price={displayPrice}
                 link={`/purchase/${pack.id}`}
                 logo={currentService.logo}
                 packId={pack.id}
               />
+                );
+              })()
             ))
           ) : (
             <p className="text-gray-600">{getTranslation('noPlansAvailable', language)}</p>

@@ -64,7 +64,6 @@ const PurchaseForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (isSubmitting) return;
 
     if (!input.trim()) return;

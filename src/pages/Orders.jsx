@@ -559,24 +559,6 @@ const Orders = () => {
     }
   };
 
-  // Detect if Instagram Followers 5k+ offer was applied for a given order
-  const extractFollowerCountFromQuantity = (quantity) => {
-    if (!quantity || typeof quantity !== "string") return 0;
-    const match = quantity.match(/(\d+)\s*Followers/i);
-    return match ? parseInt(match[1], 10) : 0;
-  };
-
-  const isInstagramFollowersOfferOrder = (order) => {
-    if (!order) return false;
-    const serviceName = (order.service || "").toLowerCase();
-    const followerCount = extractFollowerCountFromQuantity(order.quantity || "");
-
-    return (
-      (serviceName === "instagram" || serviceName.includes("instagram")) &&
-      followerCount >= 5000
-    );
-  };
-
   // Keep table headers in English only
   const getTableHeaderText = (key) => {
     const headers = {
@@ -683,11 +665,6 @@ const Orders = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
                             ₹{order.amount}
-                            {isInstagramFollowersOfferOrder(order) && (
-                              <div className="text-xs text-gray-500">
-                                (10% off for 5k+ followers)
-                              </div>
-                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

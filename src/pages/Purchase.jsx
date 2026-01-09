@@ -58,23 +58,6 @@ const Purchase = () => {
     );
   }
 
-  // Apply 10% discount only for Instagram Followers packs with >= 5000 followers
-  const extractFollowerCount = (title) => {
-    if (!title || typeof title !== "string") return 0;
-    const match = title.match(/(\d+)\s*Followers/i);
-    return match ? parseInt(match[1], 10) : 0;
-  };
-
-  const isInstagramFollowersOffer =
-    (service.slug === "instagram" || service.name?.toLowerCase() === "instagram") &&
-    pack.filter === "Followers" &&
-    extractFollowerCount(pack.title) >= 5000;
-
-  const originalPrice = Number(pack.price) || 0;
-  const displayPrice = isInstagramFollowersOffer
-    ? Math.floor(originalPrice * 0.9) // 10% off, rounded down
-    : originalPrice;
-
   const variant = COLOR_VARIANTS[service.color] || COLOR_VARIANTS.red;
   return (
     <div>
@@ -104,7 +87,7 @@ const Purchase = () => {
           <div
             className={`flex-shrink-0 text-white text-sm px-4 py-2 rounded-full flex items-center gap-1 ${variant.buttonBg}`}
           >
-            {displayPrice}₹
+            {pack.price}₹
           </div>
         </div>
 
@@ -112,7 +95,7 @@ const Purchase = () => {
           serviceData={service}
           color={service.color}
           filter={pack.filter}
-          packPrice={displayPrice}
+          packPrice={pack.price}
           packTitle={pack.title}
           onSubmit={(link) => console.log("Submitted:", link)}
         />

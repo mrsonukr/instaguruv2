@@ -35,8 +35,8 @@ const Home = () => {
         <div className="flex justify-center gap-4 items-center mt-6 m-4 bg-green-200 text-wh p-3 rounded-lg">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="32"
-            height="32"
+            width="24"
+            height="24"
             fill="none"
             viewBox="0 0 48 48"
             id="whatsapp"
@@ -66,6 +66,37 @@ const Home = () => {
           </svg>
         </div>
       </WhatsAppButton>
+
+      <div className="flex justify-center gap-4 items-center mt-2 m-4 bg-red-200 p-3 rounded-lg">
+        <a
+          href="https://youtube.com/shorts/ZimFmGjxtmE?si=8LJZd5PzTR0pWpC0"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 28.57 20"
+            width="32"
+            height="22"
+            aria-hidden="true"
+          >
+            <path
+              d="M27.9727 3.12324C27.6435 1.89323 26.6768 0.926623 25.4468 0.597366C23.2197 0 14.285 0 14.285 0C14.285 0 5.35042 0 3.12323 0.597366C1.89323 0.926623 0.926623 1.89323 0.597366 3.12324C0 5.35042 0 10 0 10C0 10 0 14.6496 0.597366 16.8768C0.926623 18.1068 1.89323 19.0734 3.12323 19.4026C5.35042 20 14.285 20 14.285 20C14.285 20 23.2197 20 25.4468 19.4026C26.6768 19.0734 27.6435 18.1068 27.9727 16.8768C28.5701 14.6496 28.5701 10 28.5701 10C28.5701 10 28.5677 5.35042 27.9727 3.12324Z"
+              fill="#FF0000"
+            />
+            <path
+              d="M11.4253 14.2854L18.8477 10.0004L11.4253 5.71533V14.2854Z"
+              fill="#FFFFFF"
+            />
+          </svg>
+
+          <p className="font-semibold text-black">
+            {getTranslation("watchVideoHowToBuy", language)}
+          </p>
+        </a>
+      </div>
+
 
       <div className="text-center mt-6 ">
         <p className="text-lg font-semibold mt-4 mb-2 gradient-text">

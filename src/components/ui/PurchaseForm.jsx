@@ -72,28 +72,11 @@ const PurchaseForm = ({
     setIsSubmitting(true);
 
     try {
-      // Apply 10% discount only for Instagram Followers packs with >= 5000 followers
-      const extractFollowerCount = (title) => {
-        if (!title || typeof title !== "string") return 0;
-        const match = title.match(/(\d+)\s*Followers/i);
-        return match ? parseInt(match[1], 10) : 0;
-      };
-
-      const isInstagramFollowersOffer =
-        (config.slug === "instagram" || config.name?.toLowerCase() === "instagram") &&
-        filter === "Followers" &&
-        extractFollowerCount(packTitle) >= 5000;
-
-      const originalPrice = Number(packPrice) || 0;
-      const discountedPrice = isInstagramFollowersOffer
-        ? Math.floor(originalPrice * 0.9) // 10% off, always rounded down to natural number
-        : originalPrice;
-
       // Store the service details
       const serviceDetails = {
         service: config.name,
         filter: filter,
-        packPrice: discountedPrice,
+        packPrice: packPrice,
         profileLink: input,
         serviceSlug: config.slug,
         packTitle: packTitle,
@@ -107,7 +90,7 @@ const PurchaseForm = ({
         txnId: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
         quantity: packTitle,
         link: input,
-        amount: String(Math.round(discountedPrice * 100)), // in paise if packPrice in rupees
+        amount: String(Math.round(Number(packPrice) * 100)), // in paise if packPrice in rupees
         service: config.name,
         redirectTo: "https://smmguru.shop/orders",
         fallbackUrl: window.location.href,
@@ -120,7 +103,7 @@ const PurchaseForm = ({
       const transaction = {
         id: `payment_${Date.now()}`,
         type: "payment_initiated",
-        amount: discountedPrice,
+        amount: packPrice,
         date: new Date().toISOString(),
         description: `Payment for ${config.name} - ${filter}`,
         status: "initiated",

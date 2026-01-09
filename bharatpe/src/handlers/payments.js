@@ -1,15 +1,22 @@
+
 import { json } from '../utils';
 
-// Handler for GET /payments - summary + last 3 days detail
-export async function handlePaymentsSummary(env) {
+// Shared helper to build summary-style response from webhook with optional remark filter
+async function buildPaymentsLikeSummary(env, remarkFilter = null) {
 	// Overall summary from webhook table
-	const summaryRow = await env.bharatpe
-		.prepare(
-			`SELECT COUNT(*) AS total_transactions,
-		             COALESCE(SUM(amount), 0) AS total_amount
-	      FROM webhook`
-			)
-		.first();
+	let summaryQuery = `SELECT COUNT(*) AS total_transactions,
+	             COALESCE(SUM(amount), 0) AS total_amount
+	      FROM webhook`;
+	const summaryParams = [];
+	if (remarkFilter) {
+		summaryQuery += ` WHERE remark = ?1`;
+		summaryParams.push(remarkFilter);
+	}
+	let summaryStmt = env.bharatpe.prepare(summaryQuery);
+	if (summaryParams.length) {
+		summaryStmt = summaryStmt.bind(...summaryParams);
+	}
+	const summaryRow = await summaryStmt.first();
 
 	const totalTransactions = Number(summaryRow?.total_transactions || 0);
 	const totalAmountPaise = Number(summaryRow?.total_amount || 0);
@@ -21,15 +28,16 @@ export async function handlePaymentsSummary(env) {
 	const nowIstMs = nowMs + 19800000; // 5.5 hours in ms
 	const nowIstDateStr = new Date(nowIstMs).toISOString().slice(0, 10);
 
-	const { results: recent } = await env.bharatpe
-		.prepare(
-			`SELECT order_id, utr, amount, remark, created_at
+	let recentQuery = `SELECT order_id, utr, amount, remark, created_at
 	      FROM webhook
-	      WHERE created_at >= ?1
-	      ORDER BY created_at DESC`
-			)
-		.bind(threeDaysAgoSec)
-		.all();
+	      WHERE created_at >= ?1`;
+	const recentParams = [threeDaysAgoSec];
+	if (remarkFilter) {
+		recentQuery += ` AND remark = ?2`;
+	}
+	recentQuery += ` ORDER BY created_at DESC`;
+	let recentStmt = env.bharatpe.prepare(recentQuery).bind(...recentParams, ...(remarkFilter ? [remarkFilter] : []));
+	const { results: recent } = await recentStmt.all();
 
 	// Group by date (YYYY-MM-DD) directly from created_at
 	const last3ByDate = new Map();
@@ -77,20 +85,22 @@ export async function handlePaymentsSummary(env) {
 		}));
 
 	// Older data (before 3 days) aggregated per date from webhook table (IST)
-	const { results: older } = await env.bharatpe
-		.prepare(
-			`SELECT
+	let olderQuery = `SELECT
 	        -- Shift by +5:30 hours (19800 seconds) to get India date (IST)
 	        strftime('%Y-%m-%d', created_at + 19800, 'unixepoch') AS date,
 	        COUNT(*) AS transactions,
 	        COALESCE(SUM(amount), 0) AS amount
 	      FROM webhook
-	      WHERE created_at < ?1
+	      WHERE created_at < ?1`;
+	const olderParams = [threeDaysAgoSec];
+	if (remarkFilter) {
+		olderQuery += ` AND remark = ?2`;
+	}
+	olderQuery += `
 	      GROUP BY date
-	      ORDER BY date DESC`
-			)
-		.bind(threeDaysAgoSec)
-		.all();
+	      ORDER BY date DESC`;
+	let olderStmt = env.bharatpe.prepare(olderQuery).bind(...olderParams, ...(remarkFilter ? [remarkFilter] : []));
+	const { results: older } = await olderStmt.all();
 
 	const olderData = (older || []).map((row) => ({
 		date: row.date,
@@ -109,4 +119,12 @@ export async function handlePaymentsSummary(env) {
 	});
 }
 
+// Handler for GET /payments - summary + last 3 days detail (all webhook rows)
+export async function handlePaymentsSummary(env) {
+	return buildPaymentsLikeSummary(env, null);
+}
 
+// Handler for GET /smmgrowth - same structure but only remark = 'smmgrowth'
+export async function handleSmmGrowthSummary(env) {
+	return buildPaymentsLikeSummary(env, 'Smmgrowth');
+}

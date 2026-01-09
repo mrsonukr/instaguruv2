@@ -64,6 +64,9 @@ export async function handleNewOrder(request, env) {
 			// Determine API based on service ID
 			if (serviceId === 6685) {
 				selectedApi = 'tntsmm';
+			} else if (serviceId === 13015) {
+				// Instagram followers via SabkaSMM
+				selectedApi = 'sakbasmm';
 			} else if (serviceId === 565) {
 				selectedApi = 'supportivesmm';
 			} else {
@@ -75,6 +78,9 @@ export async function handleNewOrder(request, env) {
 			if (selectedApi === 'tntsmm') {
 				apiKey = env.TNTSMM_API_KEY;
 				baseUrl = env.TNTSMM_API_URL;
+			} else if (selectedApi === 'sakbasmm') {
+				apiKey = env.SAKBASMM_API_KEY;
+				baseUrl = env.SAKBASMM_API_URL;
 			} else if (selectedApi === 'supportivesmm') {
 				apiKey = env.SUPPORTIVESMM_API_KEY;
 				baseUrl = env.SUPPORTIVESMM_API_URL;
@@ -110,7 +116,10 @@ export async function handleNewOrder(request, env) {
 				smmOrderId = smmJson.orderId;
 			} else if (
 				smmJson.order !== undefined &&
-				typeof smmJson.order === 'number'
+				(
+					typeof smmJson.order === 'number' ||
+					(typeof smmJson.order === 'string' && /^\d+$/.test(smmJson.order))
+				)
 			) {
 				// Some return numeric order directly in `order`
 				smmOrderId = smmJson.order;
@@ -131,7 +140,10 @@ export async function handleNewOrder(request, env) {
 					notifyApiId = smmJson.orderId;
 				} else if (
 					smmJson.order !== undefined &&
-					typeof smmJson.order === 'number'
+					(
+						typeof smmJson.order === 'number' ||
+						(typeof smmJson.order === 'string' && /^\d+$/.test(smmJson.order))
+					)
 				) {
 					notifyApiId = smmJson.order;
 				} else if (smmJson.order === 'failed') {

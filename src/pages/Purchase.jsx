@@ -115,42 +115,26 @@ const Purchase = () => {
 
       {/* How to Use Video */}
       <div>
-        <div className="text-center mt-6">
-          <p className="text-lg font-semibold mt-4 mb-2 gradient-text">
-            {getTranslation('howToUse', language)}
-          </p>
-        </div>
-        <div className="mx-0 md:mx-4 rounded-none md:rounded-2xl overflow-hidden" style={{padding: '56.25% 0 0 0', position: 'relative'}}>
-          {!showVideo ? (
-            // Thumbnail with play button overlay
-            <div 
-              className="cursor-pointer"
-              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-              onClick={() => setShowVideo(true)}
-            >
-              <img
-                src="https://cdn.smmmayal.in/mythumbnail.jpg"
-                alt="Video thumbnail"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 hover:bg-opacity-40 transition-all duration-200">
-                <BsPlayCircleFill className="text-white text-6xl md:text-8xl drop-shadow-lg hover:scale-110 transition-transform duration-200" />
-              </div>
-            </div>
-          ) : (
-            // Actual video - only created when showVideo is true
-            <video
-              controls
-              autoPlay
-              preload="metadata"
-              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-            >
-              <source src="https://cdn.smmmayal.in/smmguru.webm" type="video/webm" />
-              Your browser does not support the video tag.
-            </video>
-          )}
-        </div>
-      </div>
+  <div className="text-center mt-6">
+    <p className="text-lg font-semibold mt-4 mb-2 gradient-text">
+      {getTranslation('howToUse', language)}
+    </p>
+  </div>
+
+  <div
+    className="mx-0 md:mx-4 rounded-none md:rounded-2xl overflow-hidden"
+    style={{ padding: "56.25% 0 0 0", position: "relative" }}
+  >
+    <iframe
+      src="https://www.youtube.com/embed/ZimFmGjxtmE?autoplay=0&mute=0"
+      title="How to use"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+      className="absolute top-0 left-0 w-full h-full"
+    />
+  </div>
+</div>
+
     </div>
   );
 };

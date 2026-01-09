@@ -95,8 +95,8 @@ function getServiceDetails(url) {
 		};
 	} else if (/instagram\.com\/[^\/]+\/?(\?.*)?$/i.test(url)) {
 		return {
-			serviceId: 565,
-			api: 'supportivesmm',
+			serviceId: 13015,
+			api: 'sabkasmm',
 			linkType: 'profile',
 			serviceName: 'Followers'
 		};

@@ -3,7 +3,7 @@ import { handleNewOrder } from './handlers/newOrder';
 import { handleAmount } from './handlers/amount';
 import { processInstagramOrder, getSmmBalance } from './handlers/instagram';
 import { handleOrders, handleOrderById, handleSearch } from './handlers/orders';
-import { handlePaymentsSummary } from './handlers/payments';
+import { handlePaymentsSummary, handleSmmGrowthSummary } from './handlers/payments';
 import { handleTelegramWebhook } from './tgbot/handler';
 import { handleRazorpayWebhook } from './handlers/rpWebhook';
 import { handleWebhook } from './handlers/webhook';
@@ -88,6 +88,12 @@ export default {
 		// Payments summary endpoint: GET /payments
 		if (pathname === '/payments' && request.method === 'GET') {
 			const res = await handlePaymentsSummary(env);
+			return addCors(res);
+		}
+
+		// Smmgrowth summary endpoint: GET /smmgrowth (remark = 'smmgrowth')
+		if (pathname === '/smmgrowth' && request.method === 'GET') {
+			const res = await handleSmmGrowthSummary(env);
 			return addCors(res);
 		}
 

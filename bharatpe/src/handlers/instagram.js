@@ -31,6 +31,9 @@ export async function processInstagramOrder(env, amount, link) {
 
 		if (/instagram\.com\/reel\/[A-Za-z0-9._-]+/i.test(link)) {
 			linkType = 'reel';
+		} else if (/instagram\.com\/p\/[A-Za-z0-9._-]+/i.test(link)) {
+			// Standard Instagram post URL
+			linkType = 'post';
 		} else if (
 			/^https?:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._-]+\/?(\?.*)?$/i.test(link)
 		) {

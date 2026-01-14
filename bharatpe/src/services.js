@@ -39,7 +39,36 @@ export default [
 		linkType: 'reel',
 		serviceId: 6685,
 		quantity: 50000,
-		price: 35,
+		price: 45,
 		api: 'tntsmm',
+	},
+	// SupportiveSMM Instagram likes (post + reel)
+	{
+		linkType: 'reel',
+		serviceId: 588,
+		quantity: 1000,
+		price: 30,
+		api: 'supportivesmm',
+	},
+	{
+		linkType: 'post',
+		serviceId: 588,
+		quantity: 1000,
+		price: 30,
+		api: 'supportivesmm',
+	},
+	{
+		linkType: 'reel',
+		serviceId: 588,
+		quantity: 1000,
+		price: 35,
+		api: 'supportivesmm',
+	},
+	{
+		linkType: 'post',
+		serviceId: 588,
+		quantity: 1000,
+		price: 35,
+		api: 'supportivesmm',
 	},
 ];

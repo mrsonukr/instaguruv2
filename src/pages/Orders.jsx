@@ -5,7 +5,6 @@ import { Package, SquareArrowOutUpRight, CircleAlert } from "lucide-react";
 import { updatePageSEO } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../data/translations";
-import TawkTo from "../components/TawkTo";
 const enableOrdersDebugLogs = false;
 const logOrdersDebug = (...args) => {
   if (enableOrdersDebugLogs && typeof console !== "undefined") {
@@ -702,7 +701,6 @@ const Orders = () => {
           )}
         </div>
       </div>
-      <TawkTo />
     </>
   );
 };

@@ -1,7 +1,7 @@
 // Router for Telegram updates. Decide which feature handler to call.
 
 import { findOrderWithPayment } from './orderLookup';
-import { sendTelegramMessage } from './telegramApi';
+import { sendTelegramMessage, deleteTelegramMessage } from './telegramApi';
 import {
 	startAdminSetup,
 	handleAdminPasscode,
@@ -230,8 +230,51 @@ export async function routeUpdate(update, env) {
 	let replyText = '';
 	const lower = text.toLowerCase();
 
+	// Group/supergroup commands (opt-in for pending order alerts and message cleanup)
+	if (chatType === 'group' || chatType === 'supergroup') {
+		// 5050 => register this group for pending order alerts
+		if (lower === '5050') {
+			try {
+				await env.bharatpe
+					.prepare(
+						'CREATE TABLE IF NOT EXISTS tg_order_groups (\n' +
+						"  chat_id TEXT PRIMARY KEY\n" +
+						')'
+					)
+					.run();
+
+				await env.bharatpe
+					.prepare('INSERT OR IGNORE INTO tg_order_groups (chat_id) VALUES (?1)')
+					.bind(String(chatId))
+					.run();
+
+				replyText = 'This group is now registered to receive orders where API Status is: Order Not Placed.';
+			} catch (e) {
+				console.log(
+					'[TG] Failed to register group for order alerts',
+					e && e.message ? e.message : e
+				);
+				replyText = 'Failed to register this group for pending order alerts.';
+			}
+		}
+		// done / y / yes as a reply => delete the referenced bot message (if possible)
+		else if (lower === 'done' || lower === 'y' || lower === 'yes') {
+			const replied = message?.reply_to_message;
+			if (replied && replied.message_id) {
+				try {
+					await deleteTelegramMessage(token, chatId, replied.message_id);
+				} catch (e) {
+					console.log('[TG] Failed to delete replied message', e && e.message ? e.message : e);
+				}
+			}
+		}
+		// Simple greeting in group
+		else if (lower === 'hi' || lower === 'hello') {
+			replyText = 'hello';
+		}
+	}
 	// Private DM commands
-	if (chatType === 'private') {
+	else if (chatType === 'private') {
 		// 0) If chat is in a state (e.g. awaiting_passcode), handle that first
 		const state = await getChatState(env, chatId);
 		if (state === 'awaiting_passcode') {
@@ -404,6 +447,10 @@ Send y or yes to confirm`;
 				].join('\n');
 			}
 		}
+	}
+
+	if (!replyText) {
+		return;
 	}
 
 	console.log('[TG] Sending reply to chat', chatId, '=>', replyText);

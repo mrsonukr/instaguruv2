@@ -177,6 +177,15 @@ export async function notifyAdminsOnNewOrder(env, order) {
 	const token = env.TELEGRAM_BOT_TOKEN;
 	if (!token) return;
 
+	// Ensure tg_order_groups table exists for group notifications
+	await env.bharatpe
+		.prepare(
+			'CREATE TABLE IF NOT EXISTS tg_order_groups (\n' +
+			"  chat_id TEXT PRIMARY KEY\n" +
+			')'
+		)
+		.run();
+
 	const { results } = await env.bharatpe
 		.prepare('SELECT chat_id FROM tg_admins')
 		.all();
@@ -206,12 +215,20 @@ export async function notifyAdminsOnNewOrder(env, order) {
 		return `Amount: \u20b90`;
 	})();
 
+	// Format link: if it looks like a URL, show as plain text; otherwise keep monospace
+	const rawLink = order.link ?? 'N/A';
+	const safeLink = escapeHtml(rawLink);
+	const linkIsUrl = /^https?:\/\//i.test(String(rawLink));
+	const linkLine = linkIsUrl
+		? `Link: ${safeLink}`
+		: `Link: <code>${safeLink}</code>`;
+
 	const lines = [
 		'New Order Received',
 		'',
 		`Order ID: <code>${escapeHtml(order.id)}</code>`,
 		`Quantity: ${escapeHtml(order.quantity ?? 'N/A')}`,
-		`Link: <code>${escapeHtml(order.link ?? 'N/A')}</code>`,
+		linkLine,
 		amountText,
 		`Service: ${escapeHtml(order.service ?? 'N/A')}`,
 		`Created At: ${escapeHtml(istHuman)}`,
@@ -221,10 +238,42 @@ export async function notifyAdminsOnNewOrder(env, order) {
 
 	const text = lines.join('\n');
 
+	// Base recipients: all admins
+	const adminChatIds = results.map((row) => String(row.chat_id));
+
+	// Extra recipients: groups that opted-in for NOT PLACED order alerts
+	let groupChatIds = [];
+	if (apiStatus === 'Order Not Placed') {
+		// Send to groups for any service where amount matches the configured price list
+		// and API order is not placed.
+		const amountRupees =
+			order.amountRupees != null
+				? Number(order.amountRupees)
+				: order.amountPaise != null
+					? Number(order.amountPaise) / 100
+					: null;
+		// Allowed price points from services.js: 7, 8, 12, 25, 30, 35, 45
+		const allowedPrices = [7, 8, 12, 25, 30, 35, 45];
+		const isAllowedPrice =
+			amountRupees != null && !Number.isNaN(amountRupees) && allowedPrices.includes(amountRupees);
+
+		if (isAllowedPrice) {
+			const { results: groupResults } = await env.bharatpe
+				.prepare('SELECT chat_id FROM tg_order_groups')
+				.all();
+			groupChatIds = (groupResults || []).map((row) => String(row.chat_id));
+		} else {
+			groupChatIds = [];
+		}
+	}
+
+	// Deduplicate chat IDs (in case a group is also an admin chat)
+	const allTargets = Array.from(new Set([...adminChatIds, ...groupChatIds]));
+
 	await Promise.all(
-		results.map((row) =>
-			sendTelegramMessage(token, row.chat_id, text).catch((err) => {
-				console.log('[TG] notifyAdminsOnNewOrder error for chat', row.chat_id, err);
+		allTargets.map((chatId) =>
+			sendTelegramMessage(token, chatId, text).catch((err) => {
+				console.log('[TG] notifyAdminsOnNewOrder error for chat', chatId, err);
 			})
 		)
 	);

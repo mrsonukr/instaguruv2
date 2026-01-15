@@ -9,7 +9,14 @@ export default [
 	},
 	{
 		linkType: 'profile',
-		serviceId: 13015,
+		serviceId: 511,
+		quantity: 100,
+		price: 13,
+		api: 'supportivesmm',
+	},
+	{
+		linkType: 'profile',
+		serviceId: 12985,
 		quantity: 50,
 		price: 8,
 		api: 'sakbasmm',

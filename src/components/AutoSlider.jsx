@@ -18,7 +18,7 @@ const AutoSlider = () => {
         break;
       case 3:
         window.open(
-          "https://wa.me/918210220189?text=Hello%20SmmGuru",
+          "https://wa.me/919973843805?text=Hello%20SmmGuru",
           "_blank"
         );
         break;

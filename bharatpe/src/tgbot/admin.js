@@ -253,7 +253,7 @@ export async function notifyAdminsOnNewOrder(env, order) {
 					? Number(order.amountPaise) / 100
 					: null;
 		// Allowed price points from services.js: 7, 8, 12, 25, 30, 35, 45
-		const allowedPrices = [7, 8, 12, 13, 25, 30, 35, 45];
+		const allowedPrices = [7, 8, 12, 13, 15, 25, 30, 35, 45];
 		const isAllowedPrice =
 			amountRupees != null && !Number.isNaN(amountRupees) && allowedPrices.includes(amountRupees);
 

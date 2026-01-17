@@ -4,7 +4,7 @@ export default [
 		linkType: 'profile',
 		serviceId: 511,
 		quantity: 100,
-		price: 12,
+		price: 15,
 		api: 'supportivesmm',
 	},
 	{

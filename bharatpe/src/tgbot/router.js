@@ -269,15 +269,148 @@ export async function routeUpdate(update, env) {
 				replyText = 'Failed to register this group for pending order alerts.';
 			}
 		}
-		// done / y / yes as a reply => delete the referenced bot message (if possible)
+		// done / y / yes as a reply => delete the referenced NOT PLACED order notification (if possible)
 		else if (lower === 'done' || lower === 'y' || lower === 'yes') {
 			const replied = message?.reply_to_message;
-			if (replied && replied.message_id) {
-				try {
-					await deleteTelegramMessage(token, chatId, replied.message_id);
-				} catch (e) {
-					console.log('[TG] Failed to delete replied message', e && e.message ? e.message : e);
+			if (replied && replied.message_id && typeof replied.text === 'string') {
+				// Only act on our own New Order notifications where API Status is 'Order Not Placed'
+				const repliedText = replied.text;
+				if (
+					repliedText.includes('New Order Received') &&
+					repliedText.includes('API Status: Order Not Placed')
+				) {
+					try {
+						// Delete the notification message
+						await deleteTelegramMessage(token, chatId, replied.message_id);
+
+						// Track how many NOT PLACED orders this user has completed in this group
+						const userId = message?.from?.id ? String(message.from.id) : null;
+						if (userId) {
+							const username = message.from.username || null;
+							const firstName = message.from.first_name || null;
+
+							// Ensure table exists
+							await env.bharatpe
+								.prepare(
+									'CREATE TABLE IF NOT EXISTS tg_order_cleanup (\n' +
+									"  chat_id TEXT,\n" +
+									"  user_id TEXT,\n" +
+									"  username TEXT,\n" +
+									"  first_name TEXT,\n" +
+									"  count INTEGER DEFAULT 0,\n" +
+									"  PRIMARY KEY (chat_id, user_id)\n" +
+									')'
+								)
+								.run();
+
+							// Increment count for this user in this group
+							await env.bharatpe
+								.prepare(
+									'INSERT INTO tg_order_cleanup (chat_id, user_id, username, first_name, count) VALUES (?1, ?2, ?3, ?4, 1)\n' +
+									'ON CONFLICT(chat_id, user_id) DO UPDATE SET count = count + 1'
+								)
+								.bind(String(chatId), userId, username, firstName)
+								.run();
+
+							// Fetch updated count
+							const row = await env.bharatpe
+								.prepare(
+									'SELECT count, username, first_name FROM tg_order_cleanup WHERE chat_id = ?1 AND user_id = ?2 LIMIT 1'
+								)
+								.bind(String(chatId), userId)
+								.first();
+							// We only store the updated count; no reply message is sent.
+						}
+					} catch (e) {
+						console.log('[TG] Failed to delete replied message', e && e.message ? e.message : e);
+					}
 				}
+			}
+		}
+		// Individual cleanup stats for this user in this group
+		else if (lower === 'my') {
+			try {
+				const userId = message?.from?.id ? String(message.from.id) : null;
+				if (!userId) {
+					replyText = 'Could not identify you.';
+				} else {
+					// Ensure table exists (no-op if already created)
+					await env.bharatpe
+						.prepare(
+							'CREATE TABLE IF NOT EXISTS tg_order_cleanup (\n' +
+							"  chat_id TEXT,\n" +
+							"  user_id TEXT,\n" +
+							"  username TEXT,\n" +
+							"  first_name TEXT,\n" +
+							"  count INTEGER DEFAULT 0,\n" +
+							"  PRIMARY KEY (chat_id, user_id)\n" +
+							')'
+						)
+						.run();
+
+					const row = await env.bharatpe
+						.prepare(
+							'SELECT count, username, first_name FROM tg_order_cleanup WHERE chat_id = ?1 AND user_id = ?2 LIMIT 1'
+						)
+						.bind(String(chatId), userId)
+						.first();
+
+					const completedCount = row?.count ?? 0;
+					const displayName =
+						row?.username
+							? `@${row.username}`
+							: row?.first_name
+								? String(row.first_name)
+								: 'You';
+
+					replyText = `${displayName}\nOrder completed: ${completedCount}`;
+				}
+			} catch (e) {
+				console.log('[TG] Failed to fetch individual cleanup stats', e && e.message ? e.message : e);
+				replyText = 'Failed to fetch your stats.';
+			}
+		}
+		// Group cleanup stats
+		else if (lower === 'stats') {
+			try {
+				// Ensure table exists (no-op if already created)
+				await env.bharatpe
+					.prepare(
+						'CREATE TABLE IF NOT EXISTS tg_order_cleanup (\n' +
+						"  chat_id TEXT,\n" +
+						"  user_id TEXT,\n" +
+						"  username TEXT,\n" +
+						"  first_name TEXT,\n" +
+						"  count INTEGER DEFAULT 0,\n" +
+						"  PRIMARY KEY (chat_id, user_id)\n" +
+						')'
+					)
+					.run();
+
+				const { results } = await env.bharatpe
+					.prepare(
+						'SELECT user_id, username, first_name, count FROM tg_order_cleanup WHERE chat_id = ?1 ORDER BY count DESC LIMIT 10'
+					)
+					.bind(String(chatId))
+					.all();
+
+				if (!results || !results.length) {
+					replyText = 'No completed NOT PLACED orders recorded yet.';
+				} else {
+					const lines = ['Order cleanup stats', ''];
+					results.forEach((row, idx) => {
+						const displayName = row.username
+							? `@${row.username}`
+							: row.first_name
+								? String(row.first_name)
+								: `User ${idx + 1}`;
+						lines.push(`${idx + 1}. ${displayName} - ${row.count} orders`);
+					});
+					replyText = lines.join('\n');
+				}
+			} catch (e) {
+				console.log('[TG] Failed to fetch cleanup stats', e && e.message ? e.message : e);
+				replyText = 'Failed to fetch stats.';
 			}
 		}
 		// Simple greeting in group

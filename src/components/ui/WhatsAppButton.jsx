@@ -34,7 +34,7 @@ const getRandomMessage = () => {
 };
 
 // ✅ Your WhatsApp Number is fixed here
-const WHATSAPP_NUMBER = "918700604735";
+const WHATSAPP_NUMBER = "917493028113";
 
 const WhatsAppButton = ({ className = "", children = "Contact Us" }) => {
   const message = getRandomMessage();

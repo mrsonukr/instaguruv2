@@ -196,7 +196,10 @@ const Orders = () => {
 
     // Save updated orders back to localStorage
     localStorage.setItem("userOrders", JSON.stringify(updatedOrders));
-    setOrders(sortOrdersByCreatedAt(updatedOrders));
+
+    // Hide ₹1 orders from the visible list
+    const visibleOrders = updatedOrders.filter((order) => Number(order.amount) !== 1);
+    setOrders(sortOrdersByCreatedAt(visibleOrders));
   };
 
   const updateOrderStatuses = () => {
@@ -263,7 +266,10 @@ const Orders = () => {
 
     if (hasUpdates) {
       localStorage.setItem("userOrders", JSON.stringify(updatedOrders));
-      setOrders(sortOrdersByCreatedAt(updatedOrders));
+
+      // Hide ₹1 orders from the visible list
+      const visibleOrders = updatedOrders.filter((order) => Number(order.amount) !== 1);
+      setOrders(sortOrdersByCreatedAt(visibleOrders));
     }
   };
 

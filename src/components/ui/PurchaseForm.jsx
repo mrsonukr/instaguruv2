@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import COLOR_VARIANTS from "../../utils/colorVariants";
 import { useLanguage } from "../../context/LanguageContext";
 import { getTranslation } from "../../data/translations";
+import servicesData from "../../data/categories.json";
 
 const PurchaseForm = ({
   color = "green",
@@ -71,11 +72,18 @@ const PurchaseForm = ({
     setIsSubmitting(true);
 
     try {
+      // Resolve original pack price from categories.json (source of truth)
+      const originalService = servicesData.find((s) => s.slug === config.slug);
+      const originalPack = originalService?.packs?.find(
+        (p) => p.title === packTitle && p.filter === filter
+      );
+      const originalPrice = originalPack?.price ?? packPrice;
+
       // Store the service details
       const serviceDetails = {
         service: config.name,
         filter: filter,
-        packPrice: packPrice,
+        packPrice: originalPrice,
         profileLink: input,
         serviceSlug: config.slug,
         packTitle: packTitle,
@@ -89,8 +97,9 @@ const PurchaseForm = ({
         txnId: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
         quantity: packTitle,
         link: input,
+        amount: String(Math.round(Number(originalPrice) * 100)), // in paise if packPrice in rupees
         service: getTranslation(`${config.slug}.name`, 'en') || config.name,
-        redirectTo: "https://smmguru.shop/orders",
+        redirectTo: "https://auragrowth.shop/orders",
         fallbackUrl: window.location.href,
       };
 
@@ -166,8 +175,9 @@ const PurchaseForm = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`flex items-center justify-center text-center text-white w-full px-6 py-2 rounded-full gap-2 ${variant.buttonBg} ${variant.buttonHover} ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-            }`}
+          className={`flex items-center justify-center text-center text-white w-full px-6 py-2 rounded-full gap-2 ${variant.buttonBg} ${variant.buttonHover} ${
+            isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+          }`}
         >
           {isSubmitting ? (
             <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>

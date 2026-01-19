@@ -58,6 +58,14 @@ const Products = () => {
       ? currentService.packs
       : currentService.packs.filter((pack) => pack.filter === selectedFilter);
 
+  // Show offer packs at the top (offer === true), others follow
+  const sortedPacks = [...filteredPacks].sort((a, b) => {
+    const aOffer = !!a.offer;
+    const bOffer = !!b.offer;
+    if (aOffer === bOffer) return 0;
+    return bOffer ? 1 : -1; // true comes before false
+  });
+
   return (
     <div>
       <Header />
@@ -78,8 +86,8 @@ const Products = () => {
           serviceSlug={currentService.slug}
         />
         <div className="m-4 mt-0 flex flex-col items-center">
-          {filteredPacks.length > 0 ? (
-            filteredPacks.map((pack) => (
+          {sortedPacks.length > 0 ? (
+            sortedPacks.map((pack) => (
               <PackCard
                 key={pack.id}
                 color={currentService.color}
@@ -89,6 +97,7 @@ const Products = () => {
                 link={`/purchase/${pack.id}`}
                 logo={currentService.logo}
                 packId={pack.id}
+                offer={pack.offer}
               />
             ))
           ) : (

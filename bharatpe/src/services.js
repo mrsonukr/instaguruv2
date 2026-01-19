@@ -2,24 +2,24 @@
 export default [
 	{
 		linkType: 'profile',
-		serviceId: 511,
+		serviceId: 589,
 		quantity: 100,
 		price: 15,
 		api: 'supportivesmm',
 	},
 	{
 		linkType: 'profile',
-		serviceId: 511,
+		serviceId: 589,
 		quantity: 100,
 		price: 13,
 		api: 'supportivesmm',
 	},
 	{
 		linkType: 'profile',
-		serviceId: 12973,
+		serviceId: 589,
 		quantity: 50,
 		price: 8,
-		api: 'sakbasmm',
+		api: 'supportivesmm',
 	},
 	{
 		linkType: 'reel',

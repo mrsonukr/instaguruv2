@@ -73,7 +73,8 @@
         "title": "15000 Followers",
         "price": 199,
         "description": "Indian Real Non-drop Followers",
-        "filter": "Followers"
+        "filter": "Followers",
+        "offer": true
       },
       {
         "id": 11004,
@@ -324,6 +325,14 @@
         "price": 199,
         "description": "Indian Real Non-drop Subscribers",
         "filter": "Subscribers"
+      },
+      {
+        "id": 10160,
+        "title": "25000 Subscribers",
+        "price": 249,
+        "description": "Indian Real Non-drop Subscribers",
+        "filter": "Subscribers",
+        "offer": true
       },
       {
         "id": 10160,

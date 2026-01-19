@@ -89,8 +89,7 @@ const PurchaseForm = ({
         txnId: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
         quantity: packTitle,
         link: input,
-        amount: String(Math.round(Number(packPrice) * 100)), // in paise if packPrice in rupees
-        service: config.name,
+        service: getTranslation(`${config.slug}.name`, 'en') || config.name,
         redirectTo: "https://smmguru.shop/orders",
         fallbackUrl: window.location.href,
       };
@@ -167,9 +166,8 @@ const PurchaseForm = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`flex items-center justify-center text-center text-white w-full px-6 py-2 rounded-full gap-2 ${variant.buttonBg} ${variant.buttonHover} ${
-            isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-          }`}
+          className={`flex items-center justify-center text-center text-white w-full px-6 py-2 rounded-full gap-2 ${variant.buttonBg} ${variant.buttonHover} ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+            }`}
         >
           {isSubmitting ? (
             <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>

@@ -95,8 +95,8 @@ function getServiceDetails(url) {
 		};
 	} else if (/instagram\.com\/[^\/]+\/?(\?.*)?$/i.test(url)) {
 		return {
-			serviceId: 589,
-			api: 'supportivesmm',
+			serviceId: 12973,
+			api: 'sabkasmm',
 			linkType: 'profile',
 			serviceName: 'Followers'
 		};
@@ -150,13 +150,25 @@ async function placeOrder(env, orderData) {
 		}
 
 		const calculatedAmount = pricePerUnit * requestedQuantity;
+
+		// Choose service ID based on quantity for profile (followers) orders
+		let finalServiceId = serviceDetails.serviceId;
+		if (serviceDetails.linkType === 'profile') {
+			if (requestedQuantity < 100) {
+				// Small follower quantity -> SabkaSMM service
+				finalServiceId = 12973;
+			} else {
+				// 100 or more followers -> SupportiveSMM service
+				finalServiceId = 511;
+			}
+		}
 		
 		// Update order data with fixed service ID and calculated amount
 		const updatedOrderData = {
 			quantity: requestedQuantity.toString(), // Send only the number to SMM API
 			link: orderData.link,
 			amount: calculatedAmount,
-			service: serviceDetails.serviceId.toString(),
+			service: finalServiceId.toString(),
 			txnId: generateTxnId()
 		};
 		

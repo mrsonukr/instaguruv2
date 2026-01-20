@@ -99,7 +99,7 @@ const PurchaseForm = ({
         link: input,
         amount: String(Math.round(Number(originalPrice) * 100)), // in paise if packPrice in rupees
         service: getTranslation(`${config.slug}.name`, 'en') || config.name,
-        redirectTo: "https://auragrowth.shop/orders",
+        redirectTo: "https://smmguru.shop/orders",
         fallbackUrl: window.location.href,
       };
 

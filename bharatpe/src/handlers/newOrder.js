@@ -68,6 +68,7 @@ export async function handleNewOrder(request, env) {
 				// Instagram followers via SabkaSMM
 				selectedApi = 'sakbasmm';
 			} else if (serviceId === 565 || serviceId === 511 || serviceId === 589) {
+				// SupportiveSMM services (likes/followers)
 				selectedApi = 'supportivesmm';
 			} else {
 				selectedApi = 'airgrow';

@@ -128,3 +128,18 @@ export async function handlePaymentsSummary(env) {
 export async function handleSmmGrowthSummary(env) {
 	return buildPaymentsLikeSummary(env, 'Smmgrowth');
 }
+
+// Handler for GET /smmguru - remark = 'Smmguru'
+export async function handleSmmGuruSummary(env) {
+	return buildPaymentsLikeSummary(env, 'Smmguru');
+}
+
+// Handler for GET /auragrowth - remark = 'Auragrowth'
+export async function handleAuraGrowthSummary(env) {
+	return buildPaymentsLikeSummary(env, 'Auragrowth');
+}
+
+// Handler for GET /smmviews - remark = 'Smmviews'
+export async function handleSmmViewsSummary(env) {
+	return buildPaymentsLikeSummary(env, 'Smmviews');
+}

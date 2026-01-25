@@ -37,7 +37,7 @@ const Transactions = () => {
   const fetchNormalStats = async () => {
     try {
       const response = await fetch(
-        "https://bharatpe.mssonukr.workers.dev/smmguru"
+        "https://bharatpe.mssonukr.workers.dev/payments"
       );
       if (!response.ok) throw new Error("Failed to fetch stats");
       const data = await response.json();
@@ -58,7 +58,7 @@ const Transactions = () => {
       setError(null);
 
       const response = await fetch(
-        "https://bharatpe.mssonukr.workers.dev/smmguru"
+        "https://bharatpe.mssonukr.workers.dev/payments"
       );
       if (!response.ok) throw new Error("Failed to fetch transactions");
 

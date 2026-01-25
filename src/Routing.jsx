@@ -6,6 +6,7 @@ import Payme from "./pages/Payme";
 import Getdata from "./pages/Getdata";
 
 // Lazy load components
+import AllTransactions from "./pages/AllTransactions";
 const About = lazy(() => import("./pages/About"));
 const Purchase = lazy(() => import("./pages/Purchase"));
 const Contact = lazy(() => import("./pages/Contact"));
@@ -52,6 +53,7 @@ const Routing = () => {
           <Route path="/how-to-purchase" element={<HowToPurchase />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/getorders" element={<GetOrders />} />
+          <Route path="/total" element={<AllTransactions />} />
         </Routes>
       </Suspense>
     </Router>

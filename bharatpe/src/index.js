@@ -3,7 +3,13 @@ import { handleNewOrder } from './handlers/newOrder';
 import { handleAmount } from './handlers/amount';
 import { processInstagramOrder, getSmmBalance } from './handlers/instagram';
 import { handleOrders, handleOrderById, handleSearch } from './handlers/orders';
-import { handlePaymentsSummary, handleSmmGrowthSummary } from './handlers/payments';
+import {
+	handlePaymentsSummary,
+	handleSmmGrowthSummary,
+	handleSmmGuruSummary,
+	handleAuraGrowthSummary,
+	handleSmmViewsSummary,
+} from './handlers/payments';
 import { handleTelegramWebhook } from './tgbot/handler';
 import { handleRazorpayWebhook } from './handlers/rpWebhook';
 import { handleWebhook } from './handlers/webhook';
@@ -94,6 +100,24 @@ export default {
 		// Smmgrowth summary endpoint: GET /smmgrowth (remark = 'smmgrowth')
 		if (pathname === '/smmgrowth' && request.method === 'GET') {
 			const res = await handleSmmGrowthSummary(env);
+			return addCors(res);
+		}
+
+		// Smmguru summary endpoint: GET /smmguru (remark = 'Smmguru')
+		if (pathname === '/smmguru' && request.method === 'GET') {
+			const res = await handleSmmGuruSummary(env);
+			return addCors(res);
+		}
+
+		// Auragrowth summary endpoint: GET /auragrowth (remark = 'Auragrowth')
+		if (pathname === '/auragrowth' && request.method === 'GET') {
+			const res = await handleAuraGrowthSummary(env);
+			return addCors(res);
+		}
+
+		// Smmviews summary endpoint: GET /smmviews (remark = 'Smmviews')
+		if (pathname === '/smmviews' && request.method === 'GET') {
+			const res = await handleSmmViewsSummary(env);
 			return addCors(res);
 		}
 

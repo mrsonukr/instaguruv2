@@ -9,7 +9,7 @@ async function buildPaymentsLikeSummary(env, remarkFilter = null) {
 	      FROM webhook`;
 	const summaryParams = [];
 	if (remarkFilter) {
-		summaryQuery += ` WHERE remark = ?1`;
+		summaryQuery += ` WHERE LOWER(remark) = LOWER(?1)`;
 		summaryParams.push(remarkFilter);
 	}
 	let summaryStmt = env.bharatpe.prepare(summaryQuery);
@@ -33,7 +33,7 @@ async function buildPaymentsLikeSummary(env, remarkFilter = null) {
 	      WHERE created_at >= ?1`;
 	const recentParams = [threeDaysAgoSec];
 	if (remarkFilter) {
-		recentQuery += ` AND remark = ?2`;
+		recentQuery += ` AND LOWER(remark) = LOWER(?2)`;
 	}
 	recentQuery += ` ORDER BY created_at DESC`;
 	let recentStmt = env.bharatpe.prepare(recentQuery).bind(...recentParams, ...(remarkFilter ? [remarkFilter] : []));
@@ -94,7 +94,7 @@ async function buildPaymentsLikeSummary(env, remarkFilter = null) {
 	      WHERE created_at < ?1`;
 	const olderParams = [threeDaysAgoSec];
 	if (remarkFilter) {
-		olderQuery += ` AND remark = ?2`;
+		olderQuery += ` AND LOWER(remark) = LOWER(?2)`;
 	}
 	olderQuery += `
 	      GROUP BY date
@@ -122,6 +122,21 @@ async function buildPaymentsLikeSummary(env, remarkFilter = null) {
 // Handler for GET /payments - summary + last 3 days detail (all webhook rows)
 export async function handlePaymentsSummary(env) {
 	return buildPaymentsLikeSummary(env, null);
+}
+
+// Generic handler for GET /history/:remark - remark provided dynamically (case-insensitive input)
+export async function handleHistorySummary(env, rawRemark) {
+	// Normalize input remark to stored format: first letter upper, rest lower
+	// e.g. 'smmguru' -> 'Smmguru', 'SmmGuru' -> 'Smmguru'
+	const remark = typeof rawRemark === 'string' && rawRemark.length
+		? rawRemark[0].toUpperCase() + rawRemark.slice(1).toLowerCase()
+		: null;
+
+	if (!remark) {
+		return json({ success: false, error: 'Invalid remark' }, 400);
+	}
+
+	return buildPaymentsLikeSummary(env, remark);
 }
 
 // Handler for GET /smmgrowth - same structure but only remark = 'smmgrowth'

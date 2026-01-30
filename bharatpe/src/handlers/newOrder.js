@@ -64,7 +64,7 @@ export async function handleNewOrder(request, env) {
 			// Determine API based on service ID
 			if (serviceId === 6685) {
 				selectedApi = 'tntsmm';
-			} else if (serviceId === 13015 || serviceId === 12973) {
+			} else if (serviceId === 13015 || serviceId === 13787) {
 				// Instagram followers via SabkaSMM
 				selectedApi = 'sakbasmm';
 			} else if (serviceId === 565 || serviceId === 511 || serviceId === 589) {

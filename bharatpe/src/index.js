@@ -5,6 +5,7 @@ import { processInstagramOrder, getSmmBalance } from './handlers/instagram';
 import { handleOrders, handleOrderById, handleSearch } from './handlers/orders';
 import {
 	handlePaymentsSummary,
+	handleHistorySummary,
 	handleSmmGrowthSummary,
 	handleSmmGuruSummary,
 	handleAuraGrowthSummary,
@@ -94,6 +95,17 @@ export default {
 		// Payments summary endpoint: GET /payments
 		if (pathname === '/payments' && request.method === 'GET') {
 			const res = await handlePaymentsSummary(env);
+			return addCors(res);
+		}
+
+		// History summary endpoint: GET /history/:remark (case-insensitive input)
+		if (pathname.startsWith('/history/') && request.method === 'GET') {
+			const parts = pathname.split('/');
+			const rawRemark = parts[2] || '';
+			if (!rawRemark) {
+				return json({ success: false, error: 'Missing remark' }, 400);
+			}
+			const res = await handleHistorySummary(env, rawRemark);
 			return addCors(res);
 		}
 

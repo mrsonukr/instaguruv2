@@ -95,7 +95,7 @@ function getServiceDetails(url) {
 		};
 	} else if (/instagram\.com\/[^\/]+\/?(\?.*)?$/i.test(url)) {
 		return {
-			serviceId: 12973,
+			serviceId: 13787,
 			api: 'sabkasmm',
 			linkType: 'profile',
 			serviceName: 'Followers'
@@ -156,7 +156,7 @@ async function placeOrder(env, orderData) {
 		if (serviceDetails.linkType === 'profile') {
 			if (requestedQuantity < 100) {
 				// Small follower quantity -> SabkaSMM service
-				finalServiceId = 12973;
+				finalServiceId = 13787;
 			} else {
 				// 100 or more followers -> SupportiveSMM service
 				finalServiceId = 511;

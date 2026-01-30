@@ -21,6 +21,7 @@ const HowToPurchase = lazy(() => import("./pages/HowToPurchase"));
 const Transactions = lazy(() => import("./pages/Transactions"));
 const GetOrders = lazy(() => import("./pages/GetOrders")); // ✅ NEW
 const PgPage = lazy(() => import("./pages/PgPage"));
+const Smmviews = lazy(() => import("./pages/Smmviews"));
 
 // Simple loading fallback
 const LoadingFallback = () => (
@@ -54,6 +55,7 @@ const Routing = () => {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/getorders" element={<GetOrders />} />
           <Route path="/total" element={<AllTransactions />} />
+          <Route path="/smmviews" element={<Smmviews />} />
         </Routes>
       </Suspense>
     </Router>

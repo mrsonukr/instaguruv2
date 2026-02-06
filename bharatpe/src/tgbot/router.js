@@ -88,8 +88,8 @@ function parseInstagramMessage(text) {
 function getServiceDetails(url) {
 	if (/instagram\.com\/reel\//i.test(url)) {
 		return {
-			serviceId: 6685,
-			api: 'tntsmm',
+			serviceId: 602,
+			api: 'supportivesmm',
 			linkType: 'reel',
 			serviceName: 'Reel Views'
 		};
@@ -341,6 +341,90 @@ export async function routeUpdate(update, env) {
 				}
 			}
 		}
+		// Today's payments summary in group (command-only: /today)
+		else if (lower === '/today' || lower.startsWith('/today@')) {
+			try {
+				// Compute today's date in IST (UTC+5:30)
+				const nowUtcMs = Date.now();
+				const nowIstMs = nowUtcMs + 19800000; // 5.5 hours in ms
+				const istDate = new Date(nowIstMs);
+				const yyyyMmDd = istDate.toISOString().slice(0, 10);
+
+				// Human label like: Today, 2 Feb
+				const day = istDate.getDate();
+				const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+				const monthLabel = monthNames[istDate.getMonth()];
+
+				// Group today's webhook rows by remark in IST date
+				const stmt = env.bharatpe
+					.prepare(
+						`SELECT
+						    COALESCE(remark, '(no remark)') AS remark,
+						    COALESCE(SUM(amount), 0) AS total_amount
+						  FROM webhook
+						  WHERE strftime('%Y-%m-%d', created_at + 19800, 'unixepoch') = ?1
+						  GROUP BY LOWER(remark), remark
+						  ORDER BY total_amount DESC`
+					)
+					.bind(yyyyMmDd);
+
+				const { results } = await stmt.all();
+
+				if (!results || !results.length) {
+					replyText = `📅 Date: Today, ${day} ${monthLabel}\n\n💰 <b>Payment Summary</b>\n━━━━━━━━━━━━━━\nNo payments found.`;
+				} else {
+					const formatRs = (paise) => {
+						const p = Number(paise || 0);
+						// Amounts in webhook are in paise; convert to rupees and format with separators
+						const rupees = p / 100;
+						// Using en-IN for Indian style grouping (e.g. 21,172)
+						return rupees.toLocaleString('en-IN', { maximumFractionDigits: 0, minimumFractionDigits: 0 });
+					};
+
+					// Nicely format remark label: first letter upper, rest lower
+					const formatLabel = (label) => {
+						if (!label) return '(no remark)';
+						const trimmed = String(label).trim();
+						if (!trimmed.length || trimmed === '(no remark)') return '(no remark)';
+						return trimmed[0].toUpperCase() + trimmed.slice(1).toLowerCase();
+					};
+
+					let totalPaise = 0;
+					const rows = (results || []).map((row) => {
+						const rawRemark = row.remark || '(no remark)';
+						const label = formatLabel(rawRemark);
+						const amtPaise = Number(row.total_amount || 0);
+						totalPaise += amtPaise;
+						return { label, amtPaise };
+					});
+
+					const maxLabelLen = rows.reduce(
+						(max, r) => (r.label.length > max ? r.label.length : max),
+						0
+					);
+
+					const lines = [
+						`📅 Date: Today, ${day} ${monthLabel}`,
+						'',
+						'💰 <b>Payment Summary</b>',
+						'━━━━━━━━━━━━━━',
+					];
+
+					for (const r of rows) {
+						const labelPadded = r.label.padEnd(maxLabelLen, ' ');
+						lines.push(`• ${labelPadded} : ₹${formatRs(r.amtPaise)}`);
+					}
+
+					lines.push('━━━━━━━━━━━━━━');
+					lines.push(`✅ <b>Total Amount : ₹${formatRs(totalPaise)}</b>`);
+
+					replyText = lines.join('\n');
+				}
+			} catch (e) {
+				console.log('[TG] Failed to build today summary (group)', e && e.message ? e.message : e);
+				replyText = 'Failed to fetch today summary.';
+			}
+		}
 		// Individual cleanup stats for this user in this group
 		else if (lower === 'my') {
 			try {
@@ -480,7 +564,93 @@ export async function routeUpdate(update, env) {
 			console.log('[TG] BharatPe token update command detected');
 			replyText = await startBharatpeTokenUpdate(env, message);
 		}
-		// 2) Balance-related commands
+		// 2) Today's payments summary grouped by remark (IST)
+		else if (lower === 'today' || lower === '/today' || lower.startsWith('/today@')) {
+			try {
+				// Compute today's date in IST (UTC+5:30)
+				const nowUtcMs = Date.now();
+				const nowIstMs = nowUtcMs + 19800000; // 5.5 hours in ms
+				const istDate = new Date(nowIstMs);
+				const yyyyMmDd = istDate.toISOString().slice(0, 10);
+
+				// Human label like: Today, 2 Feb
+				const day = istDate.getDate();
+				const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+				const monthLabel = monthNames[istDate.getMonth()];
+
+				// Group today's webhook rows by remark in IST date
+				const stmt = env.bharatpe
+					.prepare(
+						`SELECT
+						    COALESCE(remark, '(no remark)') AS remark,
+						    COALESCE(SUM(amount), 0) AS total_amount
+						  FROM webhook
+						  WHERE strftime('%Y-%m-%d', created_at + 19800, 'unixepoch') = ?1
+						  GROUP BY LOWER(remark), remark
+						  ORDER BY total_amount DESC`
+					)
+					.bind(yyyyMmDd);
+
+				const { results } = await stmt.all();
+
+				if (!results || !results.length) {
+					replyText = `📅 Date: Today, ${day} ${monthLabel}\n\n💰 <b>Payment Summary</b>\n━━━━━━━━━━━━━━\nNo payments found.`;
+				} else {
+					const formatRs = (paise) => {
+						const p = Number(paise || 0);
+						// Amounts in webhook are in paise; convert to rupees and format with separators
+						const rupees = p / 100;
+						// Using en-IN for Indian style grouping (e.g. 21,172)
+						return rupees.toLocaleString('en-IN', { maximumFractionDigits: 0, minimumFractionDigits: 0 });
+					};
+
+					// Nicely format remark label: first letter upper, rest lower
+					const formatLabel = (label) => {
+						if (!label) return '(no remark)';
+						const trimmed = String(label).trim();
+						if (!trimmed.length || trimmed === '(no remark)') return '(no remark)';
+						return trimmed[0].toUpperCase() + trimmed.slice(1).toLowerCase();
+					};
+
+					let totalPaise = 0;
+					// Build a temp array of rows with formatted labels for width calc
+					const rows = (results || []).map((row) => {
+						const rawRemark = row.remark || '(no remark)';
+						const label = formatLabel(rawRemark);
+						const amtPaise = Number(row.total_amount || 0);
+						totalPaise += amtPaise;
+						return { label, amtPaise };
+					});
+
+					// Find max label width for alignment
+					const maxLabelLen = rows.reduce(
+						(max, r) => (r.label.length > max ? r.label.length : max),
+						0
+					);
+
+					const lines = [
+						`📅 Date: Today, ${day} ${monthLabel}`,
+						'',
+						'💰 <b>Payment Summary</b>',
+						'━━━━━━━━━━━━━━',
+					];
+
+					for (const r of rows) {
+						const labelPadded = r.label.padEnd(maxLabelLen, ' ');
+						lines.push(`• ${labelPadded} : ₹${formatRs(r.amtPaise)}`);
+					}
+
+					lines.push('━━━━━━━━━━━━━━');
+					lines.push(`✅ <b>Total Amount : ₹${formatRs(totalPaise)}</b>`);
+
+					replyText = lines.join('\n');
+				}
+			} catch (e) {
+				console.log('[TG] Failed to build today summary', e && e.message ? e.message : e);
+				replyText = 'Failed to fetch today summary.';
+			}
+		}
+		// 3) Balance-related commands
 		else if (['balance', 'amount', 'check', 'b'].includes(lower)) {
 			console.log('[TG] Balance command detected');
 			const [airgrow, supportive, tnt, sakba] = await Promise.all([

@@ -23,7 +23,7 @@ const Header = () => {
   return (
     <>
       {/* Header with Logo and Menu Icon */}
-      <header className="flex justify-between items-center p-4 bg-white text-black fixed top-0 w-full z-10">
+      <header className="flex justify-between items-center p-4 bg-white text-black fixed top-0 w-full z-30">
         <div className="logo">
           <Link to="/">
             <img
@@ -68,7 +68,7 @@ const Header = () => {
 
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300 ease-in-out z-10 ${
+        className={`fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300 ease-in-out z-40 ${
           isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         onClick={toggleSidebar}
@@ -76,7 +76,7 @@ const Header = () => {
 
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed top-0 left-0 w-72 h-full rounded-r-3xl bg-white/95 backdrop-blur-lg shadow-2xl pt-6 transition-transform duration-300 ease-in-out z-20 ${
+        className={`fixed top-0 left-0 w-72 h-full rounded-r-3xl bg-white/95 backdrop-blur-lg shadow-2xl pt-6 transition-transform duration-300 ease-in-out z-60 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

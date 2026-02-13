@@ -52,6 +52,38 @@
   }
 }
 
+/* Valentine floating hearts for offer cards */
+.valentine-hearts-overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.valentine-heart {
+  position: absolute;
+  bottom: -25%;
+  opacity: 0;
+  transform: translateY(0) scale(0.8);
+  animation-name: valentineFloatUp;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes valentineFloatUp {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-170%) scale(1.3);
+    opacity: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .swiper-pagination-bullet {
     width: 8px;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 import { Heart } from "lucide-react";
 import COLOR_VARIANTS from "../../utils/colorVariants";
@@ -42,6 +42,82 @@ const FloatingHearts = () => {
   );
 };
 
+const OFFER_DURATION_SECONDS = 30 * 60; // 30 minutes countdown
+
+const formatTime = (totalSeconds) => {
+  const seconds = Math.max(totalSeconds, 0);
+  const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${m}:${s}`;
+};
+
+const OFFER_TIMER_STORAGE_KEY = "instaguru_offer_timer_start";
+
+const OfferTimerBadge = () => {
+  const [timeLeft, setTimeLeft] = useState(OFFER_DURATION_SECONDS);
+
+  useEffect(() => {
+    const getOrInitStartTime = () => {
+      try {
+        const stored = localStorage.getItem(OFFER_TIMER_STORAGE_KEY);
+        const now = Math.floor(Date.now() / 1000);
+
+        if (stored) {
+          const parsed = parseInt(stored, 10);
+          if (!Number.isNaN(parsed)) {
+            const elapsed = now - parsed;
+            if (elapsed >= 0 && elapsed < OFFER_DURATION_SECONDS) {
+              return parsed;
+            }
+          }
+        }
+
+        // Init new cycle
+        localStorage.setItem(OFFER_TIMER_STORAGE_KEY, String(now));
+        return now;
+      } catch {
+        // localStorage unavailable, fallback to now without persistence
+        return Math.floor(Date.now() / 1000);
+      }
+    };
+
+    let startTime = getOrInitStartTime();
+
+    const updateTimeLeft = () => {
+      const now = Math.floor(Date.now() / 1000);
+      let elapsed = now - startTime;
+
+      if (elapsed >= OFFER_DURATION_SECONDS || elapsed < 0) {
+        // start new 30-min cycle
+        startTime = now;
+        try {
+          localStorage.setItem(OFFER_TIMER_STORAGE_KEY, String(startTime));
+        } catch {
+          // ignore storage errors
+        }
+        elapsed = 0;
+      }
+
+      const remaining = OFFER_DURATION_SECONDS - elapsed;
+      setTimeLeft(remaining);
+    };
+
+    // Set initial value immediately
+    updateTimeLeft();
+
+    const interval = setInterval(updateTimeLeft, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="absolute -top-2 left-3 z-20 bg-rose-600 text-white text-[10px] px-2 py-1 rounded-b-lg flex items-center gap-1">
+      <span className="uppercase tracking-wide font-semibold">Ends in</span>
+      <span className="font-mono font-semibold">{formatTime(timeLeft)}</span>
+      <span className="uppercase tracking-wide font-semibold">Min</span>
+    </div>
+  );
+};
+
 const PackCard = ({
   color = "red",
   title,
@@ -58,32 +134,39 @@ const PackCard = ({
   return (
     <Link
       to={link}
-      className={`relative mt-4 w-full no-underline rounded-lg overflow-hidden ${
-        offer ? "animated-border bg-pink-50" : ""
+      className={`relative mt-4 w-full no-underline ${
+        offer ? "animated-border" : ""
       }`}
     >
-      {offer && <FloatingHearts />}
-      {/* INNER CARD */}
+      {offer && <OfferTimerBadge />}
       <div
-        className={`relative z-10 flex items-center ${
-          offer ? "bg-transparent" : variant.cardBg
-        } rounded-lg p-4 w-full`}
+        className={`relative rounded-lg overflow-hidden ${
+          offer ? "bg-pink-50" : ""
+        }`}
       >
-        <div className="flex flex-col flex-grow pr-4 min-w-0">
-          <h3 className="text-sm font-semibold text-gray-800 truncate">
-            {translatedTitle}
-          </h3>
-          <p className="text-xs text-gray-600 mt-1 truncate">
-            {translatedDescription}
-          </p>
-        </div>
-
+        {offer && <FloatingHearts />}
+        {/* INNER CARD */}
         <div
-          className={`flex-shrink-0 text-white text-sm px-4 py-2 rounded-full flex items-center gap-1
-            ${variant.buttonBg} ${variant.buttonHover}`}
+          className={`relative z-10 flex items-center ${
+            offer ? "bg-transparent" : variant.cardBg
+          } rounded-lg p-4 w-full`}
         >
-          ₹{price}
-          <ArrowRightIcon className="w-4 h-4" />
+          <div className="flex flex-col flex-grow pr-4 min-w-0">
+            <h3 className="text-sm font-semibold text-gray-800 truncate">
+              {translatedTitle}
+            </h3>
+            <p className="text-xs text-gray-600 mt-1 truncate">
+              {translatedDescription}
+            </p>
+          </div>
+
+          <div
+            className={`flex-shrink-0 text-white text-sm px-4 py-2 rounded-full flex items-center gap-1
+              ${variant.buttonBg} ${variant.buttonHover}`}
+          >
+            ₹{price}
+            <ArrowRightIcon className="w-4 h-4" />
+          </div>
         </div>
       </div>
     </Link>

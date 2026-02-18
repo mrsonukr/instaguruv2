@@ -7,11 +7,12 @@ import Footer from "../components/ui/Footer";
 import { updatePageSEO, addStructuredData } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
 import { translateCategories } from "../utils/translationUtils";
-import { getTranslation } from "../data/translations";
+import { useTranslation } from "react-i18next";
 import WhatsAppButton from "../components/ui/WhatsAppButton";
 
 const Home = () => {
   const { language } = useLanguage();
+  const { t } = useTranslation();
   const [processedChannels, setProcessedChannels] = useState(channels);
 
   useEffect(() => {
@@ -48,7 +49,7 @@ const Home = () => {
             ></path>
           </svg>
           <p className="font-semibold">
-            {getTranslation("placeOrderWhatsApp", language)}
+            {t("placeOrderWhatsApp")}
           </p>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +93,7 @@ const Home = () => {
           </svg>
 
           <p className="font-semibold text-black">
-            {getTranslation("watchVideoHowToBuy", language)}
+            {t("watchVideoHowToBuy")}
           </p>
         </a>
       </div>
@@ -100,7 +101,7 @@ const Home = () => {
 
       <div className="text-center mt-6 ">
         <p className="text-lg font-semibold mt-4 mb-2 gradient-text">
-          {getTranslation("exploreServices", language)}
+          {t("exploreServices")}
         </p>
       </div>
 

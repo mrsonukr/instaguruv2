@@ -98,7 +98,7 @@
       },
       {
         "id": 11007,
-        "title": "1M Followers (Valentine Special)",
+        "title": "1M Followers (Ramadan Special)",
         "price": 499,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers",
@@ -342,7 +342,7 @@
       },
       {
         "id": 10161,
-        "title": "100K Subscribers (Valentine Offer)",
+        "title": "100K Subscribers (Ramadan Offer)",
         "price": 299,
         "description": "Indian Real Non-drop Subscribers",
         "filter": "Subscribers",
@@ -511,6 +511,27 @@
         "filter": "Followers"
       },
       {
+        "id": 6001,
+        "title": "25000 Followers",
+        "price": 299,
+        "description": "Indian Real Non-drop Followers",
+        "filter": "Followers"
+      },
+      {
+        "id": 6002,
+        "title": "50000 Followers",
+        "price": 499,
+        "description": "Indian Real Non-drop Followers",
+        "filter": "Followers"
+      },
+      {
+        "id": 6003,
+        "title": "100000 Followers",
+        "price": 899,
+        "description": "Indian Real Non-drop Followers",
+        "filter": "Followers"
+      },
+      {
         "id": 1037,
         "title": "1000 Likes",
         "price": 26,
@@ -535,6 +556,20 @@
         "id": 1040,
         "title": "10000 Likes",
         "price": 89,
+        "description": "Indian Real Non-drop Likes",
+        "filter": "Likes"
+      },
+      {
+        "id": 6010,
+        "title": "20000 Likes",
+        "price": 149,
+        "description": "Indian Real Non-drop Likes",
+        "filter": "Likes"
+      },
+      {
+        "id": 6011,
+        "title": "50000 Likes",
+        "price": 299,
         "description": "Indian Real Non-drop Likes",
         "filter": "Likes"
       },
@@ -567,6 +602,13 @@
         "filter": "Comments"
       },
       {
+        "id": 6020,
+        "title": "2000 Comments",
+        "price": 399,
+        "description": "Indian Real Comments",
+        "filter": "Comments"
+      },
+      {
         "id": 1045,
         "title": "1000 Views",
         "price": 15,
@@ -591,6 +633,27 @@
         "id": 1048,
         "title": "10000 Views",
         "price": 75,
+        "description": "Boost views on your Facebook videos or posts.",
+        "filter": "Views"
+      },
+      {
+        "id": 6030,
+        "title": "50000 Views",
+        "price": 199,
+        "description": "Boost views on your Facebook videos or posts.",
+        "filter": "Views"
+      },
+      {
+        "id": 6031,
+        "title": "100000 Views",
+        "price": 349,
+        "description": "Boost views on your Facebook videos or posts.",
+        "filter": "Views"
+      },
+      {
+        "id": 6032,
+        "title": "500000 Views",
+        "price": 999,
         "description": "Boost views on your Facebook videos or posts.",
         "filter": "Views"
       }
@@ -744,32 +807,212 @@
     "description": "Grow your Telegram presence with targeted services.",
     "color": "sky",
     "logo": "/ic/telegram.webp",
-    "label": "Enter Your Telegram Group/Channel Link",
+    "label": "Enter Your Telegram Username or Link",
     "placeholder": "https://t.me/yourgroup",
     "filters": {
-      "Followers": {
-        "label": "Enter Your Telegram Group or Channel Link",
+      "Premium": {
+        "label": "Enter Your Telegram Username",
+        "placeholder": "@yourusername"
+      },
+      "Members": {
+        "label": "Enter Your Telegram Group Link",
         "placeholder": "https://t.me/yourgroup"
       },
+      "Subscribers": {
+        "label": "Enter Your Telegram Channel Link",
+        "placeholder": "https://t.me/yourchannel"
+      },
       "Views": {
+        "label": "Enter Your Telegram Post Link",
+        "placeholder": "https://t.me/yourgroup/123"
+      },
+      "Reactions": {
         "label": "Enter Your Telegram Post Link",
         "placeholder": "https://t.me/yourgroup/123"
       }
     },
     "packs": [
       {
-        "id": 1055,
-        "title": "Telegram Group Members",
-        "price": 79,
-        "description": "Get high-retention members added to your Telegram groups or channels. Fast and reliable service.",
-        "filter": "Followers"
+        "id": 5001,
+        "title": "Telegram Premium 1 Month",
+        "price": 99,
+        "description": "Telegram Premium subscription for 1 month.",
+        "filter": "Premium"
       },
       {
-        "id": 1056,
-        "title": "Telegram Post Views",
-        "price": 26,
-        "description": "Boost views on your Telegram posts to increase engagement and visibility.",
+        "id": 5002,
+        "title": "Telegram Premium 3 Months",
+        "price": 249,
+        "description": "Telegram Premium subscription for 3 months.",
+        "filter": "Premium"
+      },
+      {
+        "id": 5003,
+        "title": "Telegram Premium 6 Months",
+        "price": 449,
+        "description": "Telegram Premium subscription for 6 months.",
+        "filter": "Premium"
+      },
+      {
+        "id": 5004,
+        "title": "Telegram Premium 12 Months",
+        "price": 799,
+        "description": "Telegram Premium subscription for 12 months.",
+        "filter": "Premium"
+      },
+      {
+        "id": 5010,
+        "title": "500 Group Members",
+        "price": 49,
+        "description": "Real members added to your Telegram group.",
+        "filter": "Members"
+      },
+      {
+        "id": 5011,
+        "title": "1000 Group Members",
+        "price": 79,
+        "description": "Real members added to your Telegram group.",
+        "filter": "Members"
+      },
+      {
+        "id": 5012,
+        "title": "2000 Group Members",
+        "price": 139,
+        "description": "Real members added to your Telegram group.",
+        "filter": "Members"
+      },
+      {
+        "id": 5013,
+        "title": "5000 Group Members",
+        "price": 299,
+        "description": "Real members added to your Telegram group.",
+        "filter": "Members"
+      },
+      {
+        "id": 5014,
+        "title": "10000 Group Members",
+        "price": 549,
+        "description": "Real members added to your Telegram group.",
+        "filter": "Members"
+      },
+      {
+        "id": 5020,
+        "title": "500 Channel Subscribers",
+        "price": 45,
+        "description": "Real subscribers added to your Telegram channel.",
+        "filter": "Subscribers"
+      },
+      {
+        "id": 5021,
+        "title": "1000 Channel Subscribers",
+        "price": 79,
+        "description": "Real subscribers added to your Telegram channel.",
+        "filter": "Subscribers"
+      },
+      {
+        "id": 5022,
+        "title": "2000 Channel Subscribers",
+        "price": 139,
+        "description": "Real subscribers added to your Telegram channel.",
+        "filter": "Subscribers"
+      },
+      {
+        "id": 5023,
+        "title": "5000 Channel Subscribers",
+        "price": 289,
+        "description": "Real subscribers added to your Telegram channel.",
+        "filter": "Subscribers"
+      },
+      {
+        "id": 5024,
+        "title": "10000 Channel Subscribers",
+        "price": 529,
+        "description": "Real subscribers added to your Telegram channel.",
+        "filter": "Subscribers"
+      },
+      {
+        "id": 5030,
+        "title": "1000 Post Views",
+        "price": 19,
+        "description": "Boost views on your Telegram posts.",
         "filter": "Views"
+      },
+      {
+        "id": 5031,
+        "title": "5000 Post Views",
+        "price": 49,
+        "description": "Boost views on your Telegram posts.",
+        "filter": "Views"
+      },
+      {
+        "id": 5032,
+        "title": "10000 Post Views",
+        "price": 89,
+        "description": "Boost views on your Telegram posts.",
+        "filter": "Views"
+      },
+      {
+        "id": 5033,
+        "title": "50000 Post Views",
+        "price": 199,
+        "description": "Boost views on your Telegram posts.",
+        "filter": "Views"
+      },
+      {
+        "id": 5034,
+        "title": "100000 Post Views",
+        "price": 349,
+        "description": "Boost views on your Telegram posts.",
+        "filter": "Views"
+      },
+      {
+        "id": 5035,
+        "title": "500000 Post Views",
+        "price": 999,
+        "description": "Boost views on your Telegram posts.",
+        "filter": "Views"
+      },
+      {
+        "id": 5036,
+        "title": "1000000 Post Views",
+        "price": 1799,
+        "description": "Boost views on your Telegram posts.",
+        "filter": "Views"
+      },
+      {
+        "id": 5040,
+        "title": "100 Reactions",
+        "price": 19,
+        "description": "Boost reactions on your Telegram post.",
+        "filter": "Reactions"
+      },
+      {
+        "id": 5041,
+        "title": "500 Reactions",
+        "price": 59,
+        "description": "Boost reactions on your Telegram post.",
+        "filter": "Reactions"
+      },
+      {
+        "id": 5042,
+        "title": "1000 Reactions",
+        "price": 99,
+        "description": "Boost reactions on your Telegram post.",
+        "filter": "Reactions"
+      },
+      {
+        "id": 5043,
+        "title": "5000 Reactions",
+        "price": 349,
+        "description": "Boost reactions on your Telegram post.",
+        "filter": "Reactions"
+      },
+      {
+        "id": 5044,
+        "title": "10000 Reactions",
+        "price": 649,
+        "description": "Boost reactions on your Telegram post.",
+        "filter": "Reactions"
       }
     ]
   }

@@ -10,12 +10,13 @@ import Footer from "../components/ui/Footer";
 import { updatePageSEO, addStructuredData } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
 import { translateCategories } from "../utils/translationUtils";
-import { getTranslation } from "../data/translations";
+import { useTranslation } from "react-i18next";
 
 const Products = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { t } = useTranslation();
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [translatedData, setTranslatedData] = useState(data);
 
@@ -74,7 +75,7 @@ const Products = () => {
           key={currentService.slug}
           imageSrc={currentService.logo}
           altText={`${currentService.name} logo`}
-          title={getTranslation('discoverPlans', language).replace('[Service]', currentService.name)}
+          title={t('discoverPlans', { service: currentService.name })}
           description={currentService.description}
           color={currentService.color}
         />
@@ -101,12 +102,12 @@ const Products = () => {
               />
             ))
           ) : (
-            <p className="text-gray-600">{getTranslation('noPlansAvailable', language)}</p>
+            <p className="text-gray-600">{t('noPlansAvailable')}</p>
           )}
         </div>
         <div className="text-center mt-6 mb-4 ">
           <p className="text-lg font-semibold mt-4 mb-2 gradient-text">
-            {getTranslation('exploreServices', language)}
+            {t('exploreServices')}
           </p>
         </div>
         <div className="flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-hide">

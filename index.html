@@ -7,36 +7,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#ffffff" />
 
+  <!-- =====================================================
+       REBRAND: Change SITE_NAME and SITE_DOMAIN below
+       Also update siteConfig.js: SITE_NAME and SITE_DOMAIN
+       ===================================================== -->
   <!-- SEO Meta Tags -->
-  <title>SmmGuru - Social Media Marketing Services</title>
+  <title>SmmGuru - Best SMM Panel | Real Followers, Subscribers & OTT</title>
   <meta name="description"
     content="Get real followers, subscribers & OTT subscriptions at the lowest prices. Trusted by thousands for Instagram, YouTube, Facebook and more." />
   <meta name="keywords"
     content="social media marketing, instagram followers, youtube subscribers, facebook likes, social media services" />
 
   <!-- Open Graph Tags for Social Media Preview -->
-  <meta property="og:title" content="SmmGuru - Social Media Marketing Services" />
+  <meta property="og:title" content="SmmGuru - Best SMM Panel | Real Followers, Subscribers & OTT" />
   <meta property="og:description"
     content="Get real followers, subscribers & OTT subscriptions at the lowest prices. Trusted by thousands for Instagram, YouTube, Facebook and more." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://smmguru.shop" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="smmguru - Social Media Marketing Services" />
-  <meta property="og:site_name" content="smmguru" />
+  <meta property="og:image:alt" content="SmmGuru - Social Media Marketing Services" />
+  <meta property="og:site_name" content="SmmGuru" />
+  <!-- END REBRAND SECTION -->
 
   <!-- Twitter Card Tags -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="smmguru - Social Media Marketing Services" />
+  <meta name="twitter:title" content="SmmGuru - Best SMM Panel | Real Followers, Subscribers & OTT" />
   <meta name="twitter:description"
     content="Get real followers, subscribers & OTT subscriptions at the lowest prices. Trusted by thousands for Instagram, YouTube, Facebook and more." />
-  <meta name="twitter:image:alt" content="smmguru - Social Media Marketing Services" />
+  <meta name="twitter:image:alt" content="SmmGuru - Social Media Marketing Services" />
 
   <!-- WhatsApp specific (uses Open Graph) -->
   <meta property="og:locale" content="en_US" />
 
+  <!-- DNS Prefetch for faster external connections -->
+  <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="//www.google-analytics.com" />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+
   <!-- Google Tag Manager -->
-  <script>(function (w, d, s, l, i) {
+  <script defer>(function (w, d, s, l, i) {
       w[l] = w[l] || []; w[l].push({
         'gtm.start':
           new Date().getTime(), event: 'gtm.js'
@@ -85,7 +95,7 @@
   </style>
 
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7CC3P7X8Z"></script>
+  <script defer src="https://www.googletagmanager.com/gtag/js?id=G-C7CC3P7X8Z"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
@@ -93,8 +103,8 @@
     gtag('config', 'G-C7CC3P7X8Z');
   </script>
 
-  <!-- Vimeo Player API -->
-  <script src="https://player.vimeo.com/api/player.js"></script>
+  <!-- Vimeo Player API (deferred - non-blocking) -->
+  <script defer src="https://player.vimeo.com/api/player.js"></script>
 </head>
 
 <body>

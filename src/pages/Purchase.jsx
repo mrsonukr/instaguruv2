@@ -7,12 +7,13 @@ import servicesData from "../data/categories.json";
 import { updatePageSEO } from "../utils/seoUtils";
 import COLOR_VARIANTS from "../utils/colorVariants";
 import { useLanguage } from "../context/LanguageContext";
-import { getTranslation } from "../data/translations";
+import { useTranslation } from "react-i18next";
 import { translateCategories, translatePackTitle, translatePackDescription } from "../utils/translationUtils";
 
 const Purchase = () => {
   const { id } = useParams();
   const { language } = useLanguage();
+  const { t } = useTranslation();
   const [translatedServicesData, setTranslatedServicesData] = useState(servicesData);
   const [showVideo, setShowVideo] = useState(false);
   
@@ -37,12 +38,12 @@ const Purchase = () => {
   }, [language]);
 
   const benefits = [
-    { id: 1, message: getTranslation('highQualityFollowers', language) },
-    { id: 2, message: getTranslation('fastDeliveryGuaranteed', language) },
-    { id: 3, message: getTranslation('safeSecureService', language) },
-    { id: 4, message: getTranslation('customerSupport247', language) },
-    { id: 5, message: getTranslation('noPasswordRequired', language) },
-    { id: 6, message: getTranslation('satisfactionGuarantee', language) },
+    { id: 1, message: t('highQualityFollowers') },
+    { id: 2, message: t('fastDeliveryGuaranteed') },
+    { id: 3, message: t('safeSecureService') },
+    { id: 4, message: t('customerSupport247') },
+    { id: 5, message: t('noPasswordRequired') },
+    { id: 6, message: t('satisfactionGuarantee') },
   ];
 
   if (!pack || !service) {
@@ -51,7 +52,7 @@ const Purchase = () => {
         <Header />
         <div className="mt-20 m-4 text-center">
           <p className="text-lg font-semibold text-gray-800">
-            {getTranslation('packNotFound', language)}
+            {t('packNotFound')}
           </p>
         </div>
       </div>
@@ -117,7 +118,7 @@ const Purchase = () => {
       <div>
   <div className="text-center mt-6">
     <p className="text-lg font-semibold mt-4 mb-2 gradient-text">
-      {getTranslation('howToUse', language)}
+      {t('howToUse')}
     </p>
   </div>
 

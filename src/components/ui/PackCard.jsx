@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
-import { Heart } from "lucide-react";
+import { Star } from "lucide-react";
 import COLOR_VARIANTS from "../../utils/colorVariants";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
@@ -9,31 +9,31 @@ import {
   translatePackDescription,
 } from "../../utils/translationUtils";
 
-const HEARTS_COUNT = 18;
+const STARS_COUNT = 18;
 
-const FloatingHearts = () => {
+const FloatingStars = () => {
   return (
-    <div className="valentine-hearts-overlay z-0">
-      {Array.from({ length: HEARTS_COUNT }).map((_, index) => {
+    <div className="ramadan-overlay z-0">
+      {Array.from({ length: STARS_COUNT }).map((_, index) => {
         const left = Math.random() * 100;
         const delay = Math.random() * 3;
         const duration = 3 + Math.random() * 2;
-        const size = 14 + Math.random() * 10;
+        const size = 10 + Math.random() * 10;
+        const color = index % 3 === 0 ? "#ffffff" : index % 3 === 1 ? "#bfdbfe" : "#e0f2fe";
 
         return (
-          <Heart
+          <Star
             key={index}
-            className="valentine-heart"
-            color="#fecdd3"
-            fill="#fecdd3"
+            className="ramadan-star"
+            color={color}
+            fill={color}
             style={{
               left: `${left}%`,
               animationDelay: `${delay}s`,
               animationDuration: `${duration}s`,
               width: `${size}px`,
               height: `${size}px`,
-              opacity: 0.6,
-              filter: "blur(1px)",
+              opacity: 0.7,
             }}
           />
         );
@@ -110,10 +110,9 @@ const OfferTimerBadge = () => {
   }, []);
 
   return (
-    <div className="absolute -top-2 left-3 z-20 bg-rose-600 text-white text-[10px] px-2 py-1 rounded-b-lg flex items-center gap-1">
-      <span className="uppercase tracking-wide font-semibold">Ends in</span>
+    <div className="absolute -top-2 left-3 z-20 bg-blue-900 text-white text-[10px] px-2 py-1 rounded-b-lg flex items-center gap-1">
+      <span className="uppercase tracking-wide font-semibold">Ramadan Offer</span>
       <span className="font-mono font-semibold">{formatTime(timeLeft)}</span>
-      <span className="uppercase tracking-wide font-semibold">Min</span>
     </div>
   );
 };
@@ -134,17 +133,15 @@ const PackCard = ({
   return (
     <Link
       to={link}
-      className={`relative mt-4 w-full no-underline ${
-        offer ? "animated-border" : ""
-      }`}
+      className="relative mt-4 w-full no-underline"
     >
       {offer && <OfferTimerBadge />}
       <div
         className={`relative rounded-lg overflow-hidden ${
-          offer ? "bg-pink-50" : ""
+          offer ? "bg-blue-100" : ""
         }`}
       >
-        {offer && <FloatingHearts />}
+        {offer && <FloatingStars />}
         {/* INNER CARD */}
         <div
           className={`relative z-10 flex items-center ${
@@ -152,10 +149,10 @@ const PackCard = ({
           } rounded-lg p-4 w-full`}
         >
           <div className="flex flex-col flex-grow pr-4 min-w-0">
-            <h3 className="text-sm font-semibold text-gray-800 truncate">
+            <h3 className={`text-sm font-semibold truncate ${offer ? "text-black" : "text-gray-800"}`}>
               {translatedTitle}
             </h3>
-            <p className="text-xs text-gray-600 mt-1 truncate">
+            <p className={`text-xs mt-1 truncate ${offer ? "text-gray-600" : "text-gray-600"}`}>
               {translatedDescription}
             </p>
           </div>

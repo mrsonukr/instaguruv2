@@ -3,11 +3,10 @@ import { Link } from "react-router-dom";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 import { PhotoIcon } from "@heroicons/react/24/outline";
 import COLOR_VARIANTS from "../../utils/colorVariants";
-import { useLanguage } from "../../context/LanguageContext";
-import { getTranslation } from "../../data/translations";
+import { useTranslation } from "react-i18next";
 
 const ItemCard = ({ logo, name, description, slug, color = "red" }) => {
-  const { language } = useLanguage();
+  const { t } = useTranslation();
   const variant = COLOR_VARIANTS[color] || COLOR_VARIANTS.red;
   const [imgError, setImgError] = useState(false);
 
@@ -27,6 +26,8 @@ const ItemCard = ({ logo, name, description, slug, color = "red" }) => {
             alt={`${name} Logo`}
             onError={() => setImgError(true)}
             className="w-12 h-12 rounded-full object-cover"
+            loading="lazy"
+            decoding="async"
           />
         )}
       </div>
@@ -39,7 +40,7 @@ const ItemCard = ({ logo, name, description, slug, color = "red" }) => {
       <div
         className={`ml-4 flex-shrink-0 text-white text-sm px-4 py-2 rounded-full flex items-center gap-1 ${variant.buttonBg} ${variant.buttonHover}`}
       >
-        {getTranslation('plans', language)}
+        {t('plans')}
         <ArrowRightIcon className="w-4 h-4" />
       </div>
     </Link>

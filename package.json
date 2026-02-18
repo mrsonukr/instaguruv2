@@ -10,20 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.7.2",
-    "@fortawesome/free-brands-svg-icons": "^6.7.2",
-    "@fortawesome/free-solid-svg-icons": "^6.7.2",
-    "@fortawesome/react-fontawesome": "^0.2.2",
     "@heroicons/react": "^2.2.0",
-    "canvas-confetti": "^1.9.3",
-    "lottie-react": "^2.4.1",
+    "i18next": "^25.8.11",
+    "i18next-http-backend": "^3.0.2",
     "lucide-react": "^0.511.0",
-    "qrcode": "^1.5.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-i18next": "^16.5.4",
     "react-icons": "^5.5.0",
     "react-lazy-load-image-component": "^1.6.0",
-    "react-loading-indicators": "^1.0.1",
     "react-router-dom": "^7.6.0",
     "swiper": "^11.2.7"
   },

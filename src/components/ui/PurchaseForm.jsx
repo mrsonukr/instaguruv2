@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import COLOR_VARIANTS from "../../utils/colorVariants";
 import { useLanguage } from "../../context/LanguageContext";
-import { getTranslation } from "../../data/translations";
+import { useTranslation } from "react-i18next";
 import servicesData from "../../data/categories.json";
 
 const PurchaseForm = ({
@@ -13,6 +13,7 @@ const PurchaseForm = ({
   packTitle = "",
 }) => {
   const { language } = useLanguage();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const variant = COLOR_VARIANTS[color] || COLOR_VARIANTS.red;
   const [input, setInput] = useState("");
@@ -28,7 +29,7 @@ const PurchaseForm = ({
     return (
       <div className="text-center p-4">
         <p className="text-red-600 font-semibold">
-          {getTranslation("invalidServiceData", language)}
+          {t("invalidServiceData")}
         </p>
       </div>
     );
@@ -42,7 +43,7 @@ const PurchaseForm = ({
 
   // Get the proper translated label for this specific filter
   const filterLabel =
-    getTranslation(`${config.slug}.filters.${filter}.label`, language) ||
+    t(`${config.slug}.filters.${filter}.label`, filterConfig.label) ||
     filterConfig.label;
   const translatedFilterConfig = {
     ...filterConfig,
@@ -98,7 +99,7 @@ const PurchaseForm = ({
         quantity: packTitle,
         link: input,
         amount: String(Math.round(Number(originalPrice) * 100)), // in paise if packPrice in rupees
-        service: getTranslation(`${config.slug}.name`, 'en') || config.name,
+        service: t(`${config.slug}.name`) || config.name,
         redirectTo: "https://smmguru.shop/orders",
         fallbackUrl: window.location.href,
       };
@@ -141,7 +142,7 @@ const PurchaseForm = ({
       console.error("Payment init error:", err);
       setIsSubmitting(false);
       // Show friendly message; replace with your toast if any
-      alert(getTranslation("paymentInitError", language) || "Kuch error hua, dobara try karo.");
+      alert(t("paymentInitError"));
     }
   };
 
@@ -175,14 +176,14 @@ const PurchaseForm = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`flex items-center justify-center text-center text-white w-full px-6 py-2 rounded-full gap-2 ${variant.buttonBg} ${variant.buttonHover} ${
+          className={`flex items-center justify-center text-center text-white w-full px-6 py-2 rounded-full gap-2 min-h-[42px] ${variant.buttonBg} ${variant.buttonHover} ${
             isSubmitting ? "opacity-70 cursor-not-allowed" : ""
           }`}
         >
           {isSubmitting ? (
-            <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
           ) : (
-            <span>{getTranslation("continue", language)}</span>
+            <span>{t("continue")}</span>
           )}
         </button>
       </form>

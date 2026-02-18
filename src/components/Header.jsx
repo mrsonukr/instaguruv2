@@ -4,11 +4,12 @@ import { Link } from "react-router-dom";
 import siteConfig from "../config/siteConfig";
 import { clearConsole } from "../utils/consoleUtils";
 import { useLanguage } from "../context/LanguageContext";
-import { getTranslation } from "../data/translations";
+import { useTranslation } from "react-i18next";
 
 const Header = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { language, toggleLanguage, getDefaultLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   const toggleSidebar = () => {
     // Clear console when opening/closing sidebar
@@ -92,7 +93,7 @@ const Header = () => {
               className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >
               <FiHome className="w-6 h-6 text-green-500" />
-              {getTranslation('home', language)}
+              {t('home')}
             </Link>
           </li>
           <li>
@@ -101,7 +102,7 @@ const Header = () => {
               className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >
               <FiPackage className="w-6 h-6 text-green-500" />
-              {getTranslation('myOrders', language)}
+              {t('myOrders')}
             </Link>
           </li>
           <li>
@@ -110,7 +111,7 @@ const Header = () => {
               className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >
               <FiShare2 className="w-6 h-6 text-green-500" />
-              {getTranslation('refer', language)}
+              {t('refer')}
             </Link>
           </li>
           <li>
@@ -120,7 +121,7 @@ const Header = () => {
               className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >
               <FiPhone className="w-6 h-6 text-green-500" />
-              {getTranslation('contactUs', language)}
+              {t('contactUs')}
             </Link>
           </li>
           <li>
@@ -129,7 +130,7 @@ const Header = () => {
               className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >
               <FiInfo className="w-6 h-6 text-green-500" />
-              {getTranslation('about', language)}
+              {t('about')}
             </Link>
           </li>
         </ul>

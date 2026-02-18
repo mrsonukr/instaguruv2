@@ -4,8 +4,7 @@ import Header from "../components/Header";
 import { Package, SquareArrowOutUpRight, CircleAlert } from "lucide-react";
 import { updatePageSEO } from "../utils/seoUtils";
 import { useLanguage } from "../context/LanguageContext";
-import { getTranslation } from "../data/translations";
-import TawkTo from "../components/TawkTo";
+import { useTranslation } from "react-i18next";
 const enableOrdersDebugLogs = false;
 const logOrdersDebug = (...args) => {
   if (enableOrdersDebugLogs && typeof console !== "undefined") {
@@ -16,6 +15,7 @@ const logOrdersDebug = (...args) => {
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const { language } = useLanguage();
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -281,22 +281,16 @@ const Orders = () => {
     const timeDiff = now - created;
     const minutesDiff = Math.floor(timeDiff / (1000 * 60));
 
-    if (minutesDiff < 1) return getTranslation("justNow", language);
+    if (minutesDiff < 1) return t("justNow");
     if (minutesDiff < 60)
-      return `${minutesDiff} ${getTranslation("minAgo", language)}`;
+      return `${minutesDiff} ${t("minAgo")}`;
 
     const hoursDiff = Math.floor(minutesDiff / 60);
     if (hoursDiff < 24)
-      return `${hoursDiff} ${hoursDiff > 1
-        ? getTranslation("hoursAgo", language)
-        : getTranslation("hourAgo", language)
-        }`;
+      return `${hoursDiff} ${hoursDiff > 1 ? t("hoursAgo") : t("hourAgo")}`;
 
     const daysDiff = Math.floor(hoursDiff / 24);
-    return `${daysDiff} ${daysDiff > 1
-      ? getTranslation("daysAgo", language)
-      : getTranslation("dayAgo", language)
-      }`;
+    return `${daysDiff} ${daysDiff > 1 ? t("daysAgo") : t("dayAgo")}`;
   };
 
   const formatOrderDateTime = (createdAt, fallbackDate) => {
@@ -553,13 +547,13 @@ const Orders = () => {
   const getStatusText = (status) => {
     switch (status) {
       case "completed":
-        return getTranslation("completed", language);
+        return t("completed");
       case "processing":
-        return getTranslation("processing", language);
+        return t("processing");
       case "pending":
-        return getTranslation("pending", language);
+        return t("pending");
       case "cancelled":
-        return getTranslation("cancelled", language);
+        return t("cancelled");
       default:
         return "Unknown";
     }
@@ -586,7 +580,7 @@ const Orders = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800">
-              {getTranslation("myOrders", language)}
+              {t("myOrders")}
             </h1>
             <a
               href="https://smmviews.shop/r/10012"
@@ -716,16 +710,16 @@ const Orders = () => {
             <div className="text-center py-12">
               <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                {getTranslation("noOrdersYet", language)}
+                {t("noOrdersYet")}
               </h3>
               <p className="text-gray-500 text-sm mb-6">
-                {getTranslation("noOrdersMessage", language)}
+                {t("noOrdersMessage")}
               </p>
               <a
                 href="/"
                 className="inline-block bg-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition"
               >
-                {getTranslation("browseServices", language)}
+                {t("browseServices")}
               </a>
             </div>
           )}

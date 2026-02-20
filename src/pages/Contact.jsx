@@ -26,13 +26,13 @@ const Contact = () => {
 
         <section className="flex flex-col md:flex-row items-center justify-center gap-4">
           {/* Email */}
-          <div className="bg-green-50 px-4 py-3 rounded-lg  flex items-center gap-3 w-full md:w-auto">
-            <Mail className="w-5 h-5 text-green-600" />
+          <div className="bg-primary-50 px-4 py-3 rounded-lg  flex items-center gap-3 w-full md:w-auto">
+            <Mail className="w-5 h-5 text-primary-600" />
             <div className="text-left text-sm">
               <p className="font-semibold text-gray-800">{t('email')}</p>
               <a
                 href={`mailto:${siteConfig.supportEmail}`}
-                className="text-green-600 hover:underline"
+                className="text-primary-600 hover:underline"
               >
                 {siteConfig.supportEmail}
               </a>
@@ -40,7 +40,7 @@ const Contact = () => {
           </div>
 
           {/* WhatsApp */}
-          <div className="bg-green-50 px-4 py-3 rounded-lg  flex items-center gap-3 w-full md:w-auto">
+          <div className="bg-primary-50 px-4 py-3 rounded-lg  flex items-center gap-3 w-full md:w-auto">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               x="0px"
@@ -59,7 +59,7 @@ const Contact = () => {
                 href={`https://wa.me/${siteConfig.whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-green-600 hover:underline"
+                className="text-primary-600 hover:underline"
               >
                 {siteConfig.supportPhone}
               </a>
@@ -67,8 +67,8 @@ const Contact = () => {
           </div>
 
           {/* 24/7 Support */}
-          <div className="bg-green-50 px-4 py-3 rounded-lg  flex items-center gap-3 w-full md:w-auto">
-            <Clock className="w-5 h-5 text-green-600" />
+          <div className="bg-primary-50 px-4 py-3 rounded-lg  flex items-center gap-3 w-full md:w-auto">
+            <Clock className="w-5 h-5 text-primary-600" />
             <div className="text-left text-sm">
               <p className="font-semibold text-gray-800">{t('support')}</p>
               <p className="text-gray-600">{t('supportAvailable')}</p>

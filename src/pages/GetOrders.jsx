@@ -175,7 +175,7 @@ export default function GetOrders() {
       <div className="min-h-screen bg-gray-50 relative">
         {/* Copied toast */}
         {copied && (
-          <div className="fixed bottom-4 right-4 bg-green-600 rounded-full text-white px-4 py-2 z-50 flex items-center gap-2">
+          <div className="fixed bottom-4 right-4 bg-primary-600 rounded-full text-white px-4 py-2 z-50 flex items-center gap-2">
             <Copy className="w-4 h-4" />
             <span>Copied!</span>
           </div>
@@ -203,7 +203,7 @@ export default function GetOrders() {
                       handleSearch(searchQuery);
                     }
                   }}
-                  className="w-full pl-10 pr-10 py-1.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full pl-10 pr-10 py-1.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
                 {isSearching && searchQuery && (
                   <button
@@ -216,7 +216,7 @@ export default function GetOrders() {
               </div>
             </div>
             {isSearching && orders.length > 0 && (
-              <p className="text-center text-green-600 mt-2 text-sm">
+              <p className="text-center text-primary-600 mt-2 text-sm">
                 Showing search result for: {searchQuery}
               </p>
             )}
@@ -248,7 +248,7 @@ export default function GetOrders() {
                     <tr
                       key={order.id}
                       className={`border-t hover:bg-gray-50 transition ${
-                        isSearching ? "bg-green-50" : ""
+                        isSearching ? "bg-primary-50" : ""
                       }`}
                     >
                       <td className="py-2 px-4 flex items-center gap-2">
@@ -272,7 +272,7 @@ export default function GetOrders() {
                               title="Open link"
                               className="flex-shrink-0"
                             >
-                              <ExternalLink className="w-3 h-3 text-green-500 hover:text-green-700 cursor-pointer" />
+                              <ExternalLink className="w-3 h-3 text-primary-500 hover:text-primary-700 cursor-pointer" />
                             </a>
                           ) : (
                             <ExternalLink className="w-3 h-3 text-gray-400" />
@@ -332,7 +332,7 @@ export default function GetOrders() {
                   onClick={() => setPage(i + 1)}
                   className={`px-3 py-2 rounded-lg text-sm font-medium border ${
                     page === i + 1
-                      ? "bg-green-600 text-white"
+                      ? "bg-primary-600 text-white"
                       : "bg-white hover:bg-gray-100"
                   }`}
                 >

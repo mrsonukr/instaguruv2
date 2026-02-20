@@ -16,7 +16,7 @@ const GetOrders = lazy(() => import("./pages/GetOrders"));
 // Simple loading fallback
 const LoadingFallback = () => (
   <div className="flex justify-center items-center min-h-screen">
-    <Loader2 className="h-8 w-8 animate-spin text-green-500" />
+    <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
   </div>
 );
 

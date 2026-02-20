@@ -38,8 +38,8 @@ const About = () => {
             {t('whyChooseUs')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-green-50 p-5 rounded-xl  text-center">
-              <Users className="mx-auto text-green-600 mb-3" size={32} />
+            <div className="bg-primary-50 p-5 rounded-xl  text-center">
+              <Users className="mx-auto text-primary-600 mb-3" size={32} />
               <h3 className="font-bold text-gray-800 mb-2">
                 {t('realGrowth')}
               </h3>
@@ -47,8 +47,8 @@ const About = () => {
                 {t('realGrowthText')}
               </p>
             </div>
-            <div className="bg-green-50 p-5 rounded-xl  text-center">
-              <BadgeCheck className="mx-auto text-green-600 mb-3" size={32} />
+            <div className="bg-primary-50 p-5 rounded-xl  text-center">
+              <BadgeCheck className="mx-auto text-primary-600 mb-3" size={32} />
               <h3 className="font-bold text-gray-800 mb-2">
                 {t('twoYearsExcellence')}
               </h3>
@@ -56,8 +56,8 @@ const About = () => {
                 {t('twoYearsText')}
               </p>
             </div>
-            <div className="bg-green-50 p-5 rounded-xl  text-center">
-              <Tv className="mx-auto text-green-600 mb-3" size={32} />
+            <div className="bg-primary-50 p-5 rounded-xl  text-center">
+              <Tv className="mx-auto text-primary-600 mb-3" size={32} />
               <h3 className="font-bold text-gray-800 mb-2">
                 {t('comprehensiveOTT')}
               </h3>
@@ -73,7 +73,7 @@ const About = () => {
             {t('ourCommitment')}
           </h2>
           <div className="max-w-3xl mx-auto text-center">
-            <ShieldCheck className="mx-auto text-green-600 mb-3" size={32} />
+            <ShieldCheck className="mx-auto text-primary-600 mb-3" size={32} />
             <p className="text-sm text-gray-700">
               {t('commitmentText')}
             </p>
@@ -84,13 +84,13 @@ const About = () => {
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             {t('joinThousands')}
           </h2>
-          <Smile className="mx-auto text-green-600 mb-3" size={32} />
+          <Smile className="mx-auto text-primary-600 mb-3" size={32} />
           <p className="text-sm text-gray-700 max-w-xl mx-auto mb-6">
             {t('joinThousandsText')}
           </p>
           <a
             href="/"
-            className="inline-block bg-green-500 text-white font-medium py-2 px-5 rounded-lg hover:bg-green-600 transition duration-300"
+            className="inline-block bg-primary-500 text-white font-medium py-2 px-5 rounded-lg hover:bg-primary-600 transition duration-300"
           >
             {t('getStartedNow')}
           </a>

@@ -99,7 +99,7 @@ const PurchaseForm = ({
         quantity: packTitle,
         link: input,
         amount: String(Math.round(Number(originalPrice) * 100)), // in paise if packPrice in rupees
-        service: t(`${config.slug}.name`) || config.name,
+        service: originalService?.name || config.name,
         redirectTo: "https://smmguru.shop/orders",
         fallbackUrl: window.location.href,
       };

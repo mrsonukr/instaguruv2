@@ -45,7 +45,7 @@ const Header = () => {
             <button
               onClick={toggleSwitch}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-                language === 'hi' ? 'bg-green-600' : 'bg-gray-200'
+                language === 'hi' ? 'bg-primary-600' : 'bg-gray-200'
               }`}
               title={`Current: ${language === 'hi' ? 'Hindi' : 'English'} | Default: ${getDefaultLanguage() === 'hi' ? 'Hindi' : 'English'}`}
             >
@@ -59,7 +59,7 @@ const Header = () => {
           
           {/* Menu Icon */}
           <div
-            className="menu-icon cursor-pointer p-2 rounded-full hover:bg-green-200 transition-colors duration-200"
+            className="menu-icon cursor-pointer p-2 rounded-full hover:bg-primary-200 transition-colors duration-200"
             onClick={toggleSidebar}
           >
             <FiMenu className="h-6 w-6" />
@@ -90,27 +90,27 @@ const Header = () => {
           <li>
             <Link
               to="/"
-              className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
+              className="flex items-center p-4 border-b border-gray-200 hover:bg-primary-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >
-              <FiHome className="w-6 h-6 text-green-500" />
+              <FiHome className="w-6 h-6 text-primary-500" />
               {t('home')}
             </Link>
           </li>
           <li>
             <Link
               to="/orders"
-              className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
+              className="flex items-center p-4 border-b border-gray-200 hover:bg-primary-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >
-              <FiPackage className="w-6 h-6 text-green-500" />
+              <FiPackage className="w-6 h-6 text-primary-500" />
               {t('myOrders')}
             </Link>
           </li>
           <li>
             <Link
               to="/refer"
-              className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
+              className="flex items-center p-4 border-b border-gray-200 hover:bg-primary-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >
-              <FiShare2 className="w-6 h-6 text-green-500" />
+              <FiShare2 className="w-6 h-6 text-primary-500" />
               {t('refer')}
             </Link>
           </li>
@@ -118,18 +118,18 @@ const Header = () => {
             <Link
               to="/contact"
               rel="noopener noreferrer"
-              className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
+              className="flex items-center p-4 border-b border-gray-200 hover:bg-primary-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >
-              <FiPhone className="w-6 h-6 text-green-500" />
+              <FiPhone className="w-6 h-6 text-primary-500" />
               {t('contactUs')}
             </Link>
           </li>
           <li>
             <Link
               to="/about"
-              className="flex items-center p-4 border-b border-gray-200 hover:bg-green-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
+              className="flex items-center p-4 border-b border-gray-200 hover:bg-primary-50 transition-colors duration-200 gap-3 text-gray-800 font-medium no-underline"
             >
-              <FiInfo className="w-6 h-6 text-green-500" />
+              <FiInfo className="w-6 h-6 text-primary-500" />
               {t('about')}
             </Link>
           </li>

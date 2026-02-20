@@ -532,7 +532,7 @@ const Orders = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800";
+        return "bg-primary-100 text-primary-800";
       case "processing":
         return "bg-blue-100 text-blue-800";
       case "pending":
@@ -586,7 +586,7 @@ const Orders = () => {
               href="https://smmviews.shop/r/10012"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-600 hover:bg-green-700 text-white text-xs font-semibold shadow-sm"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-sm"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -611,27 +611,27 @@ const Orders = () => {
             <div className="bg-white rounded-lg  overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-green-50">
+                  <thead className="bg-primary-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">
                         {getTableHeaderText("orderDetails")}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">
                         {getTableHeaderText("status")}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">
                         {getTableHeaderText("quantity")}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">
                         {getTableHeaderText("link")}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">
                         {getTableHeaderText("amount")}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">
                         {getTableHeaderText("service")}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">
                         {getTableHeaderText("date")}
                       </th>
                     </tr>
@@ -717,7 +717,7 @@ const Orders = () => {
               </p>
               <a
                 href="/"
-                className="inline-block bg-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition"
+                className="inline-block bg-primary-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary-600 transition"
               >
                 {t("browseServices")}
               </a>

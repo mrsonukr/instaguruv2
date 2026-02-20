@@ -1,3 +1,5 @@
+import siteConfig from "../../config/siteConfig";
+
 const greetings = [
   "Hello Sir",
   "Hi Sir, I need support",
@@ -33,12 +35,9 @@ const getRandomMessage = () => {
   return greetings[Math.floor(Math.random() * greetings.length)];
 };
 
-// ✅ Your WhatsApp Number is fixed here
-const WHATSAPP_NUMBER = "919973843805";
-
 const WhatsAppButton = ({ className = "", children = "Contact Us" }) => {
   const message = getRandomMessage();
-  const link = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+  const link = `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(
     message
   )}`;
 

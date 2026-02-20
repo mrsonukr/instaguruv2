@@ -88,8 +88,8 @@ ${referralLink}`;
     <>
       <Header />
       <div className="flex mt-20 items-center justify-center px-4">
-        <div className="bg-green-50 rounded-lg p-5 w-full">
-          <h2 className="text-xl font-bold text-green-700 mb-3 text-center">
+        <div className="bg-primary-50 rounded-lg p-5 w-full">
+          <h2 className="text-xl font-bold text-primary-700 mb-3 text-center">
             {t('refer')}
           </h2>
           <p className="text-sm text-gray-700 mb-4 text-center">

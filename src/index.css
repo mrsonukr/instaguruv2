@@ -63,25 +63,197 @@
 
 .ramadan-star {
   position: absolute;
-  top: 0;
+  bottom: -12%;
+  border-radius: 18% 42% 26% 38% / 28% 34% 44% 22%;
   opacity: 0;
-  transform: translateY(0) scale(0.8) rotate(0deg);
-  animation-name: ramadanFallDown;
-  animation-timing-function: linear;
+  transform: translateY(0) scale(0.6);
+  animation-name: holiFloatBurst;
+  animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+  will-change: transform, opacity, filter;
+  filter: saturate(1.2);
+  background-color: transparent;
+  background:
+    radial-gradient(circle at 30% 35%, currentColor 0 34%, transparent 36%),
+    radial-gradient(circle at 70% 60%, currentColor 0 22%, transparent 24%),
+    radial-gradient(circle at 55% 25%, currentColor 0 16%, transparent 18%),
+    radial-gradient(circle at 20% 75%, currentColor 0 14%, transparent 16%);
 }
 
-@keyframes ramadanFallDown {
+.ramadan-star::before {
+  content: "";
+  position: absolute;
+  inset: -40% -40% -40% -40%;
+  background:
+    radial-gradient(circle at 25% 20%, currentColor 0 7%, transparent 8%),
+    radial-gradient(circle at 70% 18%, currentColor 0 6%, transparent 7%),
+    radial-gradient(circle at 85% 55%, currentColor 0 5%, transparent 6%),
+    radial-gradient(circle at 55% 85%, currentColor 0 6%, transparent 7%),
+    radial-gradient(circle at 18% 68%, currentColor 0 5%, transparent 6%);
+  opacity: 0.9;
+  filter: blur(0.2px);
+  transform-origin: 50% 60%;
+  animation: holiMicroSpray 420ms ease-out infinite;
+}
+
+@keyframes holiMicroSpray {
   0% {
-    transform: translateY(0) scale(0.8) rotate(0deg);
-    opacity: 0.6;
+    transform: scale(0.85);
+    opacity: 0.25;
+    filter: blur(0.35px);
   }
-  80% {
-    opacity: 0.8;
+  55% {
+    transform: scale(1.12);
+    opacity: 0.85;
+    filter: blur(0.1px);
   }
   100% {
-    transform: translateY(400%) scale(1) rotate(120deg);
+    transform: scale(1.35);
     opacity: 0;
+    filter: blur(0.55px);
+  }
+}
+
+@keyframes holiFloatBurst {
+  0% {
+    transform: translateX(var(--holi-drift, 0px)) translateY(0) rotate(0deg) scale(0.5);
+    opacity: 0;
+    filter: blur(0px) saturate(1.25);
+  }
+  12% {
+    opacity: 0.9;
+  }
+  65% {
+    transform: translateX(calc(var(--holi-drift2, 0px) * 0.35)) translateY(-210%) rotate(calc(var(--holi-spin, 0deg) * 0.35)) scale(0.95);
+    opacity: 0.85;
+    filter: blur(0px) saturate(1.35);
+  }
+  78% {
+    transform: translateX(calc(var(--holi-drift2, 0px) * 0.15)) translateY(-255%) rotate(calc(var(--holi-spin, 0deg) * 0.7)) scale(1.35);
+    opacity: 0.65;
+    filter: blur(0.4px) saturate(1.55);
+  }
+  100% {
+    transform: translateX(calc(var(--holi-drift2, 0px) * -0.1)) translateY(-285%) rotate(var(--holi-spin, 0deg)) scale(2.05);
+    opacity: 0;
+    filter: blur(1.2px) saturate(1.6);
+  }
+}
+
+.holi-blast {
+  position: relative;
+  height: 96px;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.holi-balloon {
+  position: absolute;
+  bottom: -30%;
+  border-radius: 18% 42% 26% 38% / 28% 34% 44% 22%;
+  opacity: 0;
+  color: var(--holi-color);
+  background-color: transparent;
+  background:
+    radial-gradient(circle at 32% 36%, currentColor 0 34%, transparent 36%),
+    radial-gradient(circle at 72% 62%, currentColor 0 22%, transparent 24%),
+    radial-gradient(circle at 55% 22%, currentColor 0 16%, transparent 18%),
+    radial-gradient(circle at 18% 78%, currentColor 0 14%, transparent 16%);
+  animation-name: holiBalloonBlast;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation-iteration-count: infinite;
+  will-change: transform, opacity, filter;
+  filter: saturate(1.25);
+}
+
+.holi-balloon::before {
+  content: "";
+  position: absolute;
+  inset: -45% -45% -45% -45%;
+  background:
+    radial-gradient(circle at 25% 20%, currentColor 0 7%, transparent 8%),
+    radial-gradient(circle at 70% 18%, currentColor 0 6%, transparent 7%),
+    radial-gradient(circle at 85% 55%, currentColor 0 5%, transparent 6%),
+    radial-gradient(circle at 55% 85%, currentColor 0 6%, transparent 7%),
+    radial-gradient(circle at 18% 68%, currentColor 0 5%, transparent 6%);
+  opacity: 0.95;
+  filter: blur(0.25px);
+  transform-origin: 55% 55%;
+  animation: holiMicroSpray 460ms ease-out infinite;
+}
+
+.holi-balloon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 40% 45%, rgba(255, 255, 255, 0.22) 0 10%, transparent 12%),
+    radial-gradient(circle at 62% 35%, rgba(255, 255, 255, 0.18) 0 7%, transparent 9%);
+  opacity: 0.9;
+  mix-blend-mode: soft-light;
+}
+
+@keyframes holiBalloonBlast {
+  0% {
+    transform: translateX(var(--holi-drift, 0px)) translateY(0) rotate(0deg) scale(0.55);
+    opacity: 0;
+    filter: blur(0px) saturate(1.35);
+  }
+  10% {
+    opacity: 0.95;
+  }
+  55% {
+    transform: translateX(calc(var(--holi-drift2, 0px) * 0.3)) translateY(-165%) rotate(calc(var(--holi-spin, 0deg) * 0.35)) scale(1);
+    opacity: 0.9;
+  }
+  72% {
+    transform: translateX(calc(var(--holi-drift2, 0px) * 0.1)) translateY(-210%) rotate(calc(var(--holi-spin, 0deg) * 0.7)) scale(1.45);
+    opacity: 0.65;
+    filter: blur(0.6px) saturate(1.6);
+  }
+  100% {
+    transform: translateX(calc(var(--holi-drift2, 0px) * -0.12)) translateY(-245%) rotate(var(--holi-spin, 0deg)) scale(2.15);
+    opacity: 0;
+    filter: blur(1.4px) saturate(1.7);
+  }
+}
+
+.pbanner-flower {
+  transform-origin: 50% 55%;
+  animation-name: pbannerFlowerFloat;
+  animation-duration: var(--pf-duration, 4.2s);
+  animation-delay: var(--pf-delay, 0s);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@keyframes pbannerFlowerFloat {
+  0% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateX(var(--pf-drift, 8px)) translateY(-6px) rotate(var(--pf-rotate, 18deg));
+  }
+  100% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ramadan-star {
+    animation: none !important;
+    opacity: 0.15;
+  }
+
+  .holi-balloon {
+    animation: none !important;
+    opacity: 0.12;
+  }
+
+  .pbanner-flower {
+    animation: none !important;
   }
 }
 

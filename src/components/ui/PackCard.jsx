@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
-import { Star } from "lucide-react";
 import COLOR_VARIANTS from "../../utils/colorVariants";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
@@ -9,7 +8,7 @@ import {
   translatePackDescription,
 } from "../../utils/translationUtils";
 
-const STARS_COUNT = 18;
+const STARS_COUNT = 22;
 
 const FloatingStars = () => {
   return (
@@ -17,23 +16,36 @@ const FloatingStars = () => {
       {Array.from({ length: STARS_COUNT }).map((_, index) => {
         const left = Math.random() * 100;
         const delay = Math.random() * 3;
-        const duration = 3 + Math.random() * 2;
-        const size = 10 + Math.random() * 10;
-        const color = index % 3 === 0 ? "#ffffff" : index % 3 === 1 ? "#bfdbfe" : "#e0f2fe";
+        const duration = 2.6 + Math.random() * 2.2;
+        const size = 8 + Math.random() * 14;
+        const drift = -18 + Math.random() * 36;
+        const drift2 = -28 + Math.random() * 56;
+        const spin = -80 + Math.random() * 160;
+        const palette = [
+          "#ff1744",
+          "#ffea00",
+          "#00e5ff",
+          "#76ff03",
+          "#f500ff",
+          "#ff9100",
+        ];
+        const color = palette[index % palette.length];
 
         return (
-          <Star
+          <span
             key={index}
             className="ramadan-star"
-            color={color}
-            fill={color}
             style={{
               left: `${left}%`,
               animationDelay: `${delay}s`,
               animationDuration: `${duration}s`,
               width: `${size}px`,
               height: `${size}px`,
-              opacity: 0.7,
+              color,
+              "--holi-drift": `${drift}px`,
+              "--holi-drift2": `${drift2}px`,
+              "--holi-spin": `${spin}deg`,
+              opacity: 0.35,
             }}
           />
         );
@@ -110,8 +122,8 @@ const OfferTimerBadge = () => {
   }, []);
 
   return (
-    <div className="absolute -top-2 left-3 z-20 bg-blue-900 text-white text-[10px] px-2 py-1 rounded-b-lg flex items-center gap-1">
-      <span className="uppercase tracking-wide font-semibold">Ramadan Offer</span>
+    <div className="absolute -top-2 left-3 z-20 bg-primary-700 text-white text-[10px] px-2 py-1 rounded-b-lg flex items-center gap-1">
+      <span className="uppercase tracking-wide font-semibold">Holi Offer</span>
       <span className="font-mono font-semibold">{formatTime(timeLeft)}</span>
     </div>
   );
@@ -138,7 +150,7 @@ const PackCard = ({
       {offer && <OfferTimerBadge />}
       <div
         className={`relative rounded-lg overflow-hidden ${
-          offer ? "bg-blue-100" : ""
+          offer ? "bg-primary-100" : ""
         }`}
       >
         {offer && <FloatingStars />}

@@ -29,14 +29,27 @@ const TEXT_COLORS = {
   yellow: { title: "#713f12", desc: "#92400e", badge: "#fef9c3", badgeText: "#92400e" },
 };
 
-const StarIcon = ({ size, opacity, style, starColor }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill={starColor}
-    style={{ width: size, height: size, opacity, position: "absolute", ...style }}
-  >
-    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-  </svg>
+const FlowerIcon = ({ size, opacity, style, starColor }) => (
+  <span
+    className="pbanner-flower"
+    aria-hidden="true"
+    style={{
+      width: size,
+      height: size,
+      opacity,
+      position: "absolute",
+      backgroundColor: starColor,
+      WebkitMaskImage: 'url("/ic/flower-svgrepo-com.svg")',
+      WebkitMaskRepeat: "no-repeat",
+      WebkitMaskPosition: "center",
+      WebkitMaskSize: "contain",
+      maskImage: 'url("/ic/flower-svgrepo-com.svg")',
+      maskRepeat: "no-repeat",
+      maskPosition: "center",
+      maskSize: "contain",
+      ...style,
+    }}
+  />
 );
 
 const COLOR_GRADIENTS = {
@@ -61,26 +74,23 @@ const PBanner = ({ imageSrc, altText, title, description, color = "red" }) => {
         minHeight: "130px",
       }}
     >
-      {/* Decorative stars */}
+      {/* Decorative flowers */}
       {STAR_POSITIONS.map((s, i) => (
-        <StarIcon key={i} size={s.size} opacity={s.opacity} style={{ top: s.top, left: s.left }} starColor={starColor} />
+        <FlowerIcon
+          key={i}
+          size={s.size}
+          opacity={s.opacity}
+          style={{
+            top: s.top,
+            left: s.left,
+            "--pf-delay": `${(i % 6) * 0.2}s`,
+            "--pf-duration": `${3.4 + (i % 5) * 0.6}s`,
+            "--pf-rotate": `${(i % 2 === 0 ? 1 : -1) * (12 + (i % 4) * 8)}deg`,
+            "--pf-drift": `${(i % 2 === 0 ? 1 : -1) * (6 + (i % 5) * 3)}px`,
+          }}
+          starColor={starColor}
+        />
       ))}
-
-      {/* Crescent moon */}
-      <svg
-        viewBox="0 0 24 24"
-        style={{
-          position: "absolute",
-          top: "8px",
-          right: "16px",
-          width: 36,
-          height: 36,
-          opacity: 0.3,
-          fill: starColor,
-        }}
-      >
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-      </svg>
 
       {/* Subtle arc overlay */}
       <div
@@ -113,7 +123,7 @@ const PBanner = ({ imageSrc, altText, title, description, color = "red" }) => {
             className="text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full"
             style={{ background: tc.badge, color: tc.badgeText }}
           >
-            Ramadan Special
+            Holi Special
           </span>
         </div>
         <h2 className="text-lg font-bold leading-tight truncate" style={{ color: tc.title }}>{title}</h2>

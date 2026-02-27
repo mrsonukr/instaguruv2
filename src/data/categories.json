@@ -98,7 +98,7 @@
       },
       {
         "id": 11007,
-        "title": "1M Followers (Ramadan Special)",
+        "title": "1M Followers (Holi Special)",
         "price": 499,
         "description": "Indian Real Non-drop Followers",
         "filter": "Followers",
@@ -265,7 +265,7 @@
     "name": "YouTube",
     "description": "Best video content daily.",
     "color": "red",
-    "logo": "/ic/youtube.webp",
+    "logo": "/ic/youtube.svg",
     "label": "Enter Your YouTube Channel Link",
     "placeholder": "https://youtube.com/@yourchannel",
     "filters": {
@@ -342,7 +342,7 @@
       },
       {
         "id": 10161,
-        "title": "100K Subscribers (Ramadan Offer)",
+        "title": "100K Subscribers (Holi Offer)",
         "price": 299,
         "description": "Indian Real Non-drop Subscribers",
         "filter": "Subscribers",
@@ -768,7 +768,7 @@
     "name": "Spotify",
     "description": "Listen to music and podcasts.",
     "color": "green",
-    "logo": "/ic/spotify.webp",
+    "logo": "/ic/spotify.svg",
     "label": "Enter Your Email for Spotify Subscription",
     "placeholder": "email@example.com",
     "filters": {
@@ -806,7 +806,7 @@
     "name": "Telegram",
     "description": "Grow your Telegram presence with targeted services.",
     "color": "sky",
-    "logo": "/ic/telegram.webp",
+    "logo": "/ic/telegram.svg",
     "label": "Enter Your Telegram Username or Link",
     "placeholder": "https://t.me/yourgroup",
     "filters": {

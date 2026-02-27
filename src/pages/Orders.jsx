@@ -365,7 +365,7 @@ const Orders = () => {
       return (
         <div className="w-8 h-8 rounded-full flex items-center justify-center">
           <img
-            src="/ic/youtube.webp"
+            src="/ic/youtube.svg"
             alt="YouTube"
             className="w-8 h-8 rounded-full"
           />
@@ -395,7 +395,7 @@ const Orders = () => {
       return (
         <div className="w-8 h-8 rounded-full flex items-center justify-center">
           <img
-            src="/ic/spotify.webp"
+            src="/ic/spotify.svg"
             alt="Spotify"
             className="w-8 h-8 rounded-full"
           />
@@ -418,7 +418,7 @@ const Orders = () => {
       return (
         <div className="w-8 h-8 rounded-full flex items-center justify-center">
           <img
-            src="/ic/telegram.webp"
+            src="/ic/telegram.svg"
             alt="Telegram"
             className="w-8 h-8 rounded-full"
           />
@@ -446,7 +446,7 @@ const Orders = () => {
         return (
           <div className="w-8 h-8 rounded-full flex items-center justify-center">
             <img
-              src="/ic/youtube.webp"
+              src="/ic/youtube.svg"
               alt="YouTube"
               className="w-8 h-8 rounded-full"
             />
@@ -479,7 +479,7 @@ const Orders = () => {
         return (
           <div className="w-8 h-8 rounded-full flex items-center justify-center">
             <img
-              src="/ic/spotify.webp"
+              src="/ic/spotify.svg"
               alt="Spotify"
               className="w-8 h-8 rounded-full"
             />
@@ -505,7 +505,7 @@ const Orders = () => {
         return (
           <div className="w-8 h-8 rounded-full flex items-center justify-center">
             <img
-              src="/ic/telegram.webp"
+              src="/ic/telegram.svg"
               alt="Telegram"
               className="w-8 h-8 rounded-full"
             />

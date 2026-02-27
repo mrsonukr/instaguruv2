@@ -100,11 +100,11 @@ export default function GetOrders() {
     if (name.includes("insta") || name.includes("instagram") || serviceName.includes("इंस्टाग्राम"))
       return "/ic/insta.webp";
     if (name.includes("youtube") || serviceName.includes("यूट्यूब"))
-      return "/ic/youtube.webp";
+      return "/ic/youtube.svg";
     if (name.includes("facebook") || serviceName.includes("फेसबुक"))
       return "/ic/facebook.webp";
     if (name.includes("telegram") || serviceName.includes("टेलीग्राम"))
-      return "/ic/telegram.webp";
+      return "/ic/telegram.svg";
 
     return "/ic/default.webp";
   };

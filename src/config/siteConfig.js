@@ -15,8 +15,8 @@ const siteConfig = {
 
   supportEmail:    `help@${SITE_DOMAIN}`,
   mobileNumber:   MOBILE_NUMBER,
-  supportPhone:    `+44 ${MOBILE_NUMBER.slice(0, 5)} ${MOBILE_NUMBER.slice(5)}`,
-  whatsappNumber:  `91${MOBILE_NUMBER}`,
+  supportPhone:    `+91 ${MOBILE_NUMBER.slice(0, 5)} ${MOBILE_NUMBER.slice(5)}`,
+  whatsappNumber:  `44${MOBILE_NUMBER}`,
 
 
   googleAnalyticsId: "G-T164JLCFNC",

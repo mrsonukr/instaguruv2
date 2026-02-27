@@ -127,7 +127,7 @@ const Purchase = () => {
     style={{ padding: "56.25% 0 0 0", position: "relative" }}
   >
     <iframe
-      src="https://www.youtube.com/embed/ZimFmGjxtmE?autoplay=0&mute=0"
+      src="https://www.youtube.com/embed/ooX_6PNNEh0?autoplay=0&mute=0"
       title="How to use"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowFullScreen

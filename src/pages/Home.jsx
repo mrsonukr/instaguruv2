@@ -70,7 +70,7 @@ const Home = () => {
 
       <div className="flex justify-center gap-4 items-center mt-2 m-4 bg-red-200 p-3 rounded-lg">
         <a
-          href="https://youtube.com/shorts/ZimFmGjxtmE?si=8LJZd5PzTR0pWpC0"
+          href="https://www.youtube.com/watch?v=ooX_6PNNEh0"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3"

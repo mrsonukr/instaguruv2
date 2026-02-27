@@ -3,7 +3,7 @@
 // ============================================================
 const SITE_NAME     = "SmmGuru";
 const SITE_DOMAIN   = "smmguru.shop";
-const MOBILE_NUMBER = "8271919140"; // sirf 10 digit — baaki sab auto-format hoga
+const MOBILE_NUMBER = "7255096223"; // sirf 10 digit — baaki sab auto-format hoga
 export const PRIMARY_COLOR  = "#00C707"; // sirf yahan change karo — poora app retheme ho jayega
 // ============================================================
 

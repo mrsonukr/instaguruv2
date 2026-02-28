@@ -3,7 +3,7 @@
 // ============================================================
 const SITE_NAME     = "SmmGuru";
 const SITE_DOMAIN   = "smmguru.shop";
-const MOBILE_NUMBER = "7723442078"; // sirf 10 digit — baaki sab auto-format hoga
+const MOBILE_NUMBER = "7493028113"; // sirf 10 digit — baaki sab auto-format hoga
 export const PRIMARY_COLOR  = "#00C707"; // sirf yahan change karo — poora app retheme ho jayega
 // ============================================================
 
@@ -16,7 +16,7 @@ const siteConfig = {
   supportEmail:    `help@${SITE_DOMAIN}`,
   mobileNumber:   MOBILE_NUMBER,
   supportPhone:    `+91 ${MOBILE_NUMBER.slice(0, 5)} ${MOBILE_NUMBER.slice(5)}`,
-  whatsappNumber:  `44${MOBILE_NUMBER}`,
+  whatsappNumber:  `91${MOBILE_NUMBER}`,
 
 
   googleAnalyticsId: "G-T164JLCFNC",

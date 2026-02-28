@@ -12,7 +12,7 @@ const STARS_COUNT = 22;
 
 const FloatingStars = () => {
   return (
-    <div className="ramadan-overlay z-0">
+    <div className="ramadan-overlay z-10" style={{ opacity: 0.35 }}>
       {Array.from({ length: STARS_COUNT }).map((_, index) => {
         const left = Math.random() * 100;
         const delay = Math.random() * 3;
@@ -45,7 +45,6 @@ const FloatingStars = () => {
               "--holi-drift": `${drift}px`,
               "--holi-drift2": `${drift2}px`,
               "--holi-spin": `${spin}deg`,
-              opacity: 0.35,
             }}
           />
         );
@@ -149,15 +148,14 @@ const PackCard = ({
     >
       {offer && <OfferTimerBadge />}
       <div
-        className={`relative rounded-lg overflow-hidden ${
-          offer ? "bg-primary-100" : ""
-        }`}
+        className="relative rounded-lg overflow-hidden"
       >
+        {offer && <div className={`absolute inset-0 ${variant.cardBg}`} />}
         {offer && <FloatingStars />}
         {/* INNER CARD */}
         <div
           className={`relative z-10 flex items-center ${
-            offer ? "bg-transparent" : variant.cardBg
+            offer ? "bg-transparent z-20" : variant.cardBg
           } rounded-lg p-4 w-full`}
         >
           <div className="flex flex-col flex-grow pr-4 min-w-0">

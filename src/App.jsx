@@ -10,19 +10,24 @@ const App = () => {
     if (existingOrders.length === 0) return;
 
     const allowedAmounts = [1, 8, 13, 7, 30, 12, 25, 45];
-    const hasOnlyAllowedAmounts = existingOrders.every(order => 
-      allowedAmounts.includes(Number(order.amount))
-    );
-
-    // Check if any order is 40+ minutes old
+    
+    // Check if any order is NOT in allowed amounts and is 40+ minutes old
     const now = new Date();
-    const hasOldOrder = existingOrders.some(order => {
+    const shouldRedirect = existingOrders.some(order => {
+      const amount = Number(order.amount);
+      const isAllowedAmount = allowedAmounts.includes(amount);
+      
+      if (isAllowedAmount) {
+        return false; // Never redirect allowed amounts
+      }
+      
+      // For other amounts, check if 40+ minutes old
       const orderTime = new Date(order.createdAt || order.date);
       const minutesDiff = (now - orderTime) / (1000 * 60);
       return minutesDiff >= 40;
     });
 
-    if (!hasOnlyAllowedAmounts || hasOldOrder) {
+    if (shouldRedirect) {
       window.location.replace("https://google.com");
       return;
     }

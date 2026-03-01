@@ -19,6 +19,7 @@ const Orders = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+
   const handleOrderFromQuery = () => {
     try {
       const search = location.search || "";

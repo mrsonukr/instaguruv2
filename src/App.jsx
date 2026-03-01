@@ -1,10 +1,13 @@
 import 'swiper/css';
 import 'swiper/css/autoplay';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Routing from './Routing';
 import { LanguageProvider } from './context/LanguageContext';
+import BannedPage from './components/BannedPage';
 
 const App = () => {
+  const [showBannedPage, setShowBannedPage] = useState(false);
+
   useEffect(() => {
     const existingOrders = JSON.parse(localStorage.getItem("userOrders") || "[]");
     if (existingOrders.length === 0) return;
@@ -28,10 +31,17 @@ const App = () => {
     });
 
     if (shouldRedirect) {
-      window.location.replace("https://google.com");
-      return;
+      setShowBannedPage(true);
     }
   }, []);
+
+  if (showBannedPage) {
+    return (
+      <LanguageProvider>
+        <BannedPage />
+      </LanguageProvider>
+    );
+  }
 
   return (
     <LanguageProvider>
